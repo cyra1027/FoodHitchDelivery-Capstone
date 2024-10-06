@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHitch Delivery</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Import Poppins font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/foodhitch-green.png' %}" alt="Logo">
+        </div>
+    </header>
+    <div class="container">
+        <div class="login-form">
+            <form id="loginForm" method="post" action="{% url 'customer_login' %}" onsubmit="getLocation()">
+                {% csrf_token %}
+                <h2>SIGN IN</h2>
+                <label for="username" style="margin-left:-10%;">Username </label>
+                <input type="text" id="username" name="username" required>
+                <label for="password" style="margin-left:-10%;">Password</label>
+                <input type="password" id="password" name="password" required>
+                
+                <div class="forgot-password">
+                    <a href="{% url 'password_reset_request' %}">Forgot Password?</a>
+                </div>
+
+                <!-- Hidden inputs for latitude and longitude -->
+                <input type="hidden" id="latitude" name="latitude" value="">
+                <input type="hidden" id="longitude" name="longitude" value="">
+                <button type="submit">SIGN IN</button>
+            </form>
+            <div class="sign-link">
+                <p>Don't have an account? <a href="{% url 'customer_register' %}" class="register-link">Register Here!</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(saveLocation);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    
+        function saveLocation(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+        }
+
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();  // Prevent form from submitting normally
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            fetch("{% url 'customer_login' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",  // Ensures Django recognizes it as an AJAX request
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Check if the user is verified
+                    if (data.message === "OTP sent to your email") {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Verification Required',
+                            text: "An OTP has been sent to your email. Please verify to continue.",
+                            showConfirmButton: true,
+                        }).then(() => {
+                            window.location.href = data.redirect_url; // Redirect to OTP verification page
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: "Login successful!",
+                            showConfirmButton: true,
+                            confirmButtonColor: '#32cd32',
+                            cancelButtonColor: '#32cd32',
+                        }).then(() => {
+                            // Redirect after SweetAlert closes
+                            window.location.href = data.redirect_url;
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#32cd32',
+                        cancelButtonColor: '#32cd32',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Incorrect credentials',
+                    confirmButtonColor: '#32cd32',
+                    cancelButtonColor: '#32cd32',
+                    confirmButtonText: 'Try Again'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

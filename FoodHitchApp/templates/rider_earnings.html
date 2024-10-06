@@ -1,0 +1,129 @@
+{% extends 'rider_base.html' %}
+
+{% block content %}
+<div class="earnings-container">
+    <h2>Earnings</h2>
+
+    <!-- Form for selecting a date -->
+    <form method="get" class="filter-form">
+        <div class="form-group">
+            <label for="date">Select Date:</label>
+            <input type="date" name="date" id="date" value="{{ selected_date|default:None }}" required>
+            <button class="btn" type="submit">Apply</button>
+        </div>
+    </form>
+
+    <div class="earnings-cards">
+        <!-- Display earnings for daily, weekly, and monthly -->
+        <div class="card" style="background-color: #0300b1;">
+            <h3>Daily Earnings</h3>
+            <p>Total: ₱{{ daily_earnings }}</p>
+        </div>
+
+        <div class="card" style="background-color: #00700f">
+            <h3>Weekly Earnings</h3>
+            <p>Total: ₱{{ weekly_earnings }}</p>
+        </div>
+
+        <div class="card" style="background-color: rgb(255, 136, 0);">
+            <h3>Monthly Earnings</h3>
+            <p>Total: ₱{{ monthly_earnings }}</p>
+        </div>
+    </div>
+
+    <!-- Display detailed earnings for the selected period -->
+    <div class="earnings-details">
+        {% if earnings %}
+            <ul>
+                {% for earning in earnings %}
+                <li>Date: {{ earning.Date }} - Fee: ₱{{ earning.DeliveryFee }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Import the Poppins font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    /* Apply the font family */
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .earnings-container {
+        text-align: center;
+        padding: 20px;
+    }
+    .earnings-cards {
+        display: flex;
+        justify-content: space-around;
+        margin: 100px 0;
+        margin-left: 260px;
+    }
+    .card {
+        width: 30%;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    .card h3 {
+        font-size: 1.5em;
+        color: #ffffff;
+    }
+    .card p {
+        font-size: 1.2em;
+        color: #fff1c1;
+    }
+
+    .filter-form {
+        margin-top: 50px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .filter-form .form-group {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px; /* Space between input and button */
+        margin-left:67%;
+    }
+    .btn {
+        background: #00700f;
+        color: #fff;
+        padding: 8px 30px; /* Adjusted padding for better appearance */
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        letter-spacing: 1.5px;   
+    }
+    .btn:hover {
+        background: #009914;
+    }
+    input[type="date"] {
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1em;
+    }
+
+    /* Optional media queries for responsiveness */
+    @media (max-width: 1200px) {
+        .earnings-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+{% endblock %}

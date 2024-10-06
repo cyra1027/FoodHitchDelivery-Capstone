@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AZu6FUzyWch2r3UjD_6M8YoKoTVPjo3eXmli2voMiD_25rb2YEbiMur6QWRFpsTcEsG8ZRvY6qrI6h9N&currency=USD"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k&callback=initializeMap" async defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+    *{
+      font-family: 'Poppins', sans-serif; /* Updated to use Poppins */
+    }
+    body {
+      font-family: 'Poppins', sans-serif; /* Updated to use Poppins */
+    }
+    .container {
+      width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      margin: 10px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+    .payment-options {
+      margin-top: 20px;
+    }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .payment-option img {
+      height: 100px;
+      width: 100px;
+    }
+    .payment-option input[type="radio"] {
+      margin-right: 10px;
+      top: 50%;
+    }
+    .paypal-button {
+      border-radius: 5px;
+      height: 50px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Checkout</h2>
+    <form id="checkout-form" method="POST" action="{% url 'place_order' %}">
+      {% csrf_token %}
+      <label for="customer-name">Customer Name:</label>
+      <input type="text" id="customer-name" name="customer-name" value="{{ customer.CustomerName }}" readonly>
+
+      <label for="phone-number">Phone Number:</label>
+      <input type="number" id="phone-number" name="phone-number" value="{{ customer.Phone }}" readonly>
+
+      <label for="address">Address:</label>
+      <input type="text" id="address" name="address" required placeholder="Type your address">
+
+      <button type="button" id="get-location">Use My Current Location</button>
+
+      <label for="subtotal">Subtotal:</label>
+      <input type="number" id="subtotal" name="subtotal" value="{{ cart_total }}" readonly>
+
+      <label for="delivery-fee">Delivery Fee:</label>
+      <input type="number" id="delivery-fee" name="delivery-fee" value="{{ delivery_fee }}" readonly>
+      
+      <label for="total-payable-amount">Total Payable Amount:</label>
+      <input type="number" id="total-payable-amount" name="total-payable-amount" value="{{ total_amount }}" readonly>
+
+      <div class="payment-options">
+        <div class="payment-option" style="margin-left: 80px;">
+          <label>
+            <input type="radio" name="payment-option" value="paypal" checked>
+            <img src="{% static 'images/PAYPAL.png' %}" alt="Pay with PayPal">
+          </label>
+        </div>
+        <div class="payment-option" style="margin-left: 300px; margin-top: -118px;">
+          <label>
+            <input type="radio" name="payment-option" value="cod">
+            <img src="{% static 'images/CASH.png' %}" alt="Cash On Delivery">
+          </label>
+        </div>
+      </div>
+      <button type="button" id="confirm-order">Place Order</button>
+      <div id="paypal-button-container" class="hidden">
+        <!-- PayPal button container -->
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Geolocation and reverse geocoding logic
+    document.getElementById('get-location').addEventListener('click', function () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true });
+
+        function success(position) {
+          var latitude = position.coords.latitude;
+          var longitude = position.coords.longitude;
+
+          // Reverse geocoding (Google Maps API)
+          var apiKey = 'AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k';  // Replace with your API key
+          var url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
+
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'OK') {
+                var address = data.results[0].formatted_address;
+                document.getElementById('address').value = address;
+
+                // Calculate and update delivery fee
+                calculateDeliveryFee(latitude, longitude);
+              } else {
+                alert('Unable to retrieve address. Please try again later.');
+              }
+            })
+            .catch(error => console.log('Error with reverse geocoding:', error));
+        }
+
+        function error(err) {
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              alert('User denied the request for Geolocation. Please enable location access in your browser.');
+              break;
+            case err.POSITION_UNAVAILABLE:
+              alert('Location information is unavailable. Please check your device settings.');
+              break;
+            case err.TIMEOUT:
+              alert('The request to get user location timed out. Please try again.');
+              break;
+            case err.UNKNOWN_ERROR:
+              alert('An unknown error occurred. Please try again.');
+              break;
+          }
+        }
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    });
+
+    // Update delivery fee when address is typed
+    document.getElementById('address').addEventListener('input', function() {
+      var address = this.value;
+
+      // Use Geocoding API to get the coordinates for the address
+      if (address.length > 0) {
+        var apiKey = 'AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k';  // Replace with your API key
+        var url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'OK') {
+              var location = data.results[0].geometry.location;
+              calculateDeliveryFee(location.lat, location.lng);
+            } else {
+              console.error('Unable to find the address');
+            }
+          })
+          .catch(error => console.log('Error with geocoding:', error));
+      }
+    });
+
+    function calculateDeliveryFee(latitude, longitude) {
+      fetch(`/calculate-delivery-fee/?latitude=${latitude}&longitude=${longitude}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('delivery-fee').value = data.delivery_fee;
+          updateTotalAmount(); // Update total after delivery fee changes
+        })
+        .catch(error => console.log('Error calculating delivery fee:', error));
+    }
+
+    function updateTotalAmount() {
+      var subtotal = parseFloat(document.getElementById('subtotal').value);
+      var deliveryFee = parseFloat(document.getElementById('delivery-fee').value);
+      var totalAmount = subtotal + deliveryFee;
+      document.getElementById('total-payable-amount').value = totalAmount.toFixed(2);
+    }
+
+    // PayPal integration
+    document.addEventListener('DOMContentLoaded', function () {
+      var total = parseFloat('{{ cart_total }}');  // Get total from backend
+
+      var paypalButtons = paypal.Buttons({
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: total.toFixed(2)  // Set total amount here
+              }
+            }]
+          });
+        },
+        onApprove: function (data, actions) {
+          return actions.order.capture().then(function (details) {
+            // Show a success message to your buyer
+            Swal.fire({
+              title: 'Transaction completed!',
+              text: 'Thank you for your order, ' + details.payer.name.given_name,
+              icon: 'success'
+            });
+
+            // Submit form to save order in your backend
+            document.getElementById('checkout-form').submit();
+          });
+        },
+        onError: function (err) {
+          console.error(err);
+          Swal.fire({
+            title: 'Transaction failed!',
+            text: 'Please try again.',
+            icon: 'error'
+          });
+        }
+      });
+
+      document.getElementById('confirm-order').addEventListener('click', function () {
+        var paymentOption = document.querySelector('input[name="payment-option"]:checked').value;
+        if (paymentOption === 'paypal') {
+          document.getElementById('paypal-button-container').classList.remove('hidden');
+          paypalButtons.render('#paypal-button-container');
+        } else {
+          // For Cash on Delivery
+          Swal.fire({
+            title: 'Order placed!',
+            text: 'Your order will be delivered soon.',
+            icon: 'success'
+          });
+          document.getElementById('checkout-form').submit(); // Submit the form for COD
+        }
+      });
+    });
+  </script>
+</body>
+</html>

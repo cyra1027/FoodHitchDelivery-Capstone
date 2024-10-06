@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <title>Partnership Request</title>
+    
+    <!-- Include SweetAlert2 CSS and JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #009914;
+        }
+        .container {
+            width: 30%;
+            margin: 45px auto;
+            background-color: white;
+            padding: 49px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 1.5rem;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        input[type="text"], input[type="email"] {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .radio-group {
+            margin-bottom: 20px;
+        }
+        .radio-group label {
+            display: inline;
+            margin-right: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 95%;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #009914;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Ready to grow your business?</h1>
+        <form id="partnershipForm" method="post">
+            {% csrf_token %}
+            <label>First Name</label>
+            <input type="text" id="firstname" name="firstname" placeholder="Enter business owner's first name" required>
+            <label>Last Name</label>
+            <input type="text" id="lastname" name="lastname" placeholder="Enter business owner's last name" required>
+            <label>Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your business email" required>
+
+            <div class="radio-group">
+                <label>Do you have BIR 203 form?</label><br>
+                <label><input type="radio" name="bir_203_status" value="yes" required> Yes</label>
+                <label><input type="radio" name="bir_203_status" value="no" required> No</label>
+            </div>
+
+            <button type="submit">Proceed</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('partnershipForm').addEventListener('submit', function(event) {
+            // Prevent form submission until validation
+            event.preventDefault();
+
+            // Get the selected radio button value
+            let bir203Status = document.querySelector('input[name="bir_203_status"]:checked').value;
+
+            // If the value is 'no', show a SweetAlert message and redirect after confirmation
+            if (bir203Status === 'no') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot proceed!',
+                    text: 'You cannot proceed to the next step without BIR 203.',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect back to foodhitch.html
+                        window.location.href = "{% url 'foodhitch' %}";  // Ensure you have this URL pattern in your Django urls.py
+                    }
+                });
+            } else {
+                // If 'yes' is selected, redirect to owner_register
+                window.location.href = "{% url 'owners_register' %}";  // Redirect to the registration page
+            }
+        });
+    </script>
+
+</body>
+</html>

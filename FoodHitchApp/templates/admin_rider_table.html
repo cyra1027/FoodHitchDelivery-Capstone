@@ -1,0 +1,117 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Admin Rider Application List{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="container">
+    <h1 class="title">RIDER JOB APPLICATIONS</h1>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if riders %}
+                {% for rider in riders %}
+                <tr id="rider-{{ rider.RiderID }}">
+                    <td>{{ rider.RiderID }}</td>
+                    <td>{{ rider.FullName }}</td>
+                    <td>{{ rider.Status }}</td>
+                    <td>
+                        <a href="{% url 'manage_rider_application' rider.RiderID %}" class="view">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4">No riders available</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px;
+        border-radius: 8px;
+    }
+    
+    .title {
+        text-align: center;
+        margin-bottom: 29px;
+        color: #000000;
+        margin-top: 50px;
+        margin-left: -68%;
+        font-size: 25px;
+    }
+
+    .styled-table {
+        width: 150%;
+        border-collapse: collapse;
+        font-size: 1em;
+        font-family: 'Arial', sans-serif;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-left: -20%;
+    }
+    
+    .styled-table thead tr {
+        background-color: #8aa376;
+        color: white;
+        text-align: center;
+    }
+    
+    .styled-table th, .styled-table td {
+        padding: 12px 15px;
+        text-align: center;
+    }
+    
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+    
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #8aa376;
+    }
+    
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    a {
+        text-decoration: none;
+        color: white;
+    }
+
+    .view {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #8aa376;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 12px;
+    }
+
+    .view:hover {
+        background-color: #5f7a49;
+    }
+</style>
+
+{% endblock %}

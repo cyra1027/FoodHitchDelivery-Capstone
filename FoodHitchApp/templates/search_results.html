@@ -1,0 +1,139 @@
+{% extends "customer_base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<div class="custom-search-results-container">
+    <h1 class="custom-search-results-header">Search Results for "{{ query }}"</h1>
+
+    <!-- Display error messages if present -->
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <!-- Show menu item search results -->
+    {% if menu_items %}
+        <div class="custom-results-list">
+            {% for item in menu_items %}
+                <div class="custom-menu-item-card">
+                    <div class="custom-image-container">
+                        {% if item.Image %}
+                            <img src="{{ item.Image.url }}" alt="{{ item.FoodName }}">
+                        {% else %}
+                            <img src="{% static 'default_menu_item_image.jpg' %}" alt="Default Image">
+                        {% endif %}
+                    </div>
+                    <div class="custom-item-details">
+                        <h2>{{ item.FoodName }}</h2>
+                        <p class="custom-item-price">₱{{ item.Price }}</p>
+                        <p class="custom-item-availability">Available at: {{ item.restaurant.RestaurantName }}</p>
+                        
+                        <!-- Add to Cart Form -->
+                        <form class="add-to-cart-form" method="post" action="{% url 'add_to_cart_from_search' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="food_id" value="{{ item.FoodID }}">
+                            <button type="submit" class="custom-view-details-btn">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="custom-no-results-message">No menu items found.</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="custom-no-results-message">No menu items found.</p>
+    {% endif %}
+
+    <!-- Hide restaurant search results if food_id is present -->
+    {% if not food_id %}
+        <div class="custom-results-list">
+            {% if restaurants %}
+                {% for restaurant in restaurants %}
+                    <div class="custom-restaurant-card">
+                        <a href="{{ restaurant.get_menu_url }}">
+                            <div class="custom-image-container">
+                                {% if restaurant.Image %}
+                                    <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}" class="custom-restaurant-image">
+                                {% else %}
+                                    <img src="{% static 'default_restaurant_image.jpg' %}" alt="Default Image" class="custom-restaurant-image">
+                                {% endif %}
+                            </div>
+                        </a>
+                        <h1 class="custom-restaurant-title">{{ restaurant.RestaurantName }}</h1>
+                        {% if restaurant.is_available %}
+                            <p class="custom-restaurant-availability">Available</p>
+                        {% else %}
+                            <p class="custom-restaurant-availability">Not Available</p>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="custom-no-results-message">No restaurants found.</p>
+                {% endfor %}
+            {% else %}
+                <p class="custom-no-results-message">No restaurants found.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.add-to-cart-form');
+    const cartIcon = document.querySelector('.cart-icon'); // Adjust the selector based on your cart icon's class
+    const cartCountElement = document.querySelector('.cart-count'); // Adjust the selector based on where the cart count is displayed
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'add_to_cart_from_search' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    if (cartCountElement) {
+                        const newCount = data.cart_count || 0; // Assuming `cart_count` is sent in the response
+                        cartCountElement.textContent = newCount;
+                    }
+                    // Optionally, update cart icon appearance
+                    if (cartIcon) {
+                        cartIcon.classList.add('updated'); // Example class to show an update
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
+
+<!-- Add Custom Styles -->
+<style>
+    .custom-view-details-btn {
+        background-color: #32cd32; /* Apply green color */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    .custom-view-details-btn:hover {
+        background-color: #2eb82e; /* Slightly darker green on hover */
+    }
+</style>
+
+{% endblock %}

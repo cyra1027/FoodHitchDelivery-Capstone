@@ -1,0 +1,124 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Partner Request Table{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="main-content">
+    <h1 class="title">STORE PARTNERSHIP REQUEST</h1>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Restaurant ID</th>
+                <th>Business Name</th>
+                <th>Owner ID</th>
+                <th>Owner Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in partner_requests %}
+            <tr>
+                <td>{{ request.RestaurantID }}</td>
+                <td>{{ request.RestaurantName }}</td>
+                <td>{{ request.OwnerID.OwnerID }}</td>
+                <td>{{ request.OwnerID.FirstName }} {{ request.OwnerID.LastName }}</td>
+                <td>{{ request.get_Status_display }}</td>
+                <td>
+                    <a href="{% url 'manage_business_request' request.RestaurantID %}" class="view">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No partner requests available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .main-content {
+        padding: 20px;
+        border-radius: 8px;
+        align-items:center;
+    }
+
+    .title {
+        position: relative; /* Allows for positioning without covering other elements */
+        color: #333; /* Darker text for better readability */
+        margin-bottom: 20px; /* Space below the title */
+        text-align: center;
+        margin-top: -30%;
+        margin-left: 4%;
+        font-size: 25px;
+    }
+
+    .styled-table {
+        width: 80%; /* Set width to a percentage */
+        border-collapse: collapse;
+        margin: 0 auto; /* Center the table */
+        border-radius: 8px; /* Rounded corners */
+        overflow: hidden; /* Ensures the border radius is applied */
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        margin-left: -34.5%;
+        margin-top: -11%;
+    }
+
+    .styled-table thead tr {
+        background-color: #8aa376; /* Green header */
+        color: white;
+        text-align: left;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 12px 15px; /* Increased padding for better appearance */
+        text-align: center; /* Center text */
+        border-bottom: 1px solid #8aa376; /* Green border color for rows */
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 2px solid #8aa376; /* Green bottom border for rows */
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f2f2f2; /* Light gray for even rows */
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #e8f5e9; /* Highlight on row hover */
+        cursor: pointer; /* Cursor pointer for hover */
+    }
+
+    a {
+        text-decoration: none;
+        color: white; /* Text color for links */
+    }
+
+    .view {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #8aa376;
+        border-radius: 5px;
+        transition: background-color 0.3s; 
+        font-size: 13px;
+    }
+
+    .view:hover {
+        background-color: #5f7a49; 
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        .main-content {
+            padding: 15px; /* Less padding on smaller screens */
+        }
+        .styled-table {
+            font-size: 0.9rem; /* Smaller font on mobile */
+            width: 100%; /* Full width on smaller screens */
+        }
+    }
+</style>
+
+{% endblock %}

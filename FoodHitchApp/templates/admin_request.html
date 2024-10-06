@@ -1,0 +1,131 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Partner Request Table{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="store-container">
+        <h1>Partner Request List</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Restaurant ID</th>
+                    <th>Business Name</th>
+                    <th>Owner ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in partner_requests %}
+                <tr>
+                    <td>{{ request.RestaurantID }}</td>
+                    <td>{{ request.RestaurantName }}</td>
+                    <td>{{ request.OwnerID.OwnerID }}</td>
+                    <td>{{ request.get_Status_display }}</td>
+                    <td>
+                        <form method="post" action="{% url 'manage_business_request' request.RestaurantID %}">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="approve" class="btnn btn-accept">Approve</button>
+                            <button type="submit" name="action" value="decline" class="btnn btn-decline">Decline</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No partner requests available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Soft background for contrast */
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .store-container {
+        background-color: #ffffff; /* White background for the container */
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 900px; /* Wider maximum width for better presentation */
+        margin: auto; /* Center the container */
+    }
+
+    h1 {
+        text-align: center;
+        color: #333333; /* Darker text for better readability */
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #dee2e6; /* Light border color */
+    }
+
+    th {
+        background-color: #343a40; /* Dark header for contrast */
+        color: #ffffff; /* White text for header */
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2; /* Light gray for even rows */
+    }
+
+    tr:hover {
+        background-color: #e2e6ea; /* Highlight on row hover */
+    }
+
+    .btnn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-accept {
+        background-color: #28a745; /* Green for approve */
+        color: white;
+    }
+
+    .btn-accept:hover {
+        background-color: #218838; /* Darker shade on hover */
+    }
+
+    .btn-decline {
+        background-color: #dc3545; /* Red for decline */
+        color: white;
+    }
+
+    .btn-decline:hover {
+        background-color: #c82333; /* Darker shade on hover */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        .store-container {
+            padding: 15px; /* Less padding on smaller screens */
+        }
+        table {
+            font-size: 0.9rem; /* Smaller font on mobile */
+        }
+    }
+</style>
+
+{% endblock %}

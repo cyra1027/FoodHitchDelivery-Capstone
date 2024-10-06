@@ -1,0 +1,200 @@
+{% extends "owner_base.html" %}
+
+{% block title %}Edit Restaurant{% endblock %}
+
+{% block content %}
+{% load static %}
+<a href="{% url 'owner_view_restaurant' %}" class="btn btn-back">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+</a>
+<div class="main-content">
+    <div class="store-container">
+        <h1 style="text-align: left; margin-left: 40px">Edit Restaurant: {{ restaurant.RestaurantName }}</h1>
+
+
+        <div class="card">
+            <div class="card-content">
+                <form id="edit-restaurant-form" method="post" enctype="multipart/form-data" action="{% url 'owner_edit_restaurant' restaurant.RestaurantID %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="RestaurantName">Restaurant Name:</label>
+                        {{ form.RestaurantName }}
+                        {% if form.RestaurantName.errors %}
+                            <div class="error">{{ form.RestaurantName.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imageUpload">Restaurant Image:</label>
+                        <div class="image-upload-section">
+                            <label for="imageUpload" class="upload-label" id="imageLabel">
+                                <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+                                <span>Select New Restaurant Image</span>
+                            </label>
+                            <input type="file" id="imageUpload" name="Image" accept="image/*" onchange="previewImage(event, 'imageLabel')" />
+                            <div id="imagePreview"></div>
+                            {% if form.Image.errors %}
+                                <div class="error">{{ form.Image.errors }}</div>
+                            {% endif %}
+                        </div>
+                        </div>
+                        <div>
+                            <strong>Current Image:</strong>
+                            <a href="{{ restaurant.Image.url }}" target="_blank">
+                                <img src="{{ restaurant.Image.url }}" alt="Current Restaurant Image" style="max-width: 100px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+                            </a>
+                        </div>
+
+
+                    <div class="form-group">
+                        <label for="businessPermit">Business Permit Image:</label>
+                        <div class="image-upload-section">
+                            <label for="businessPermit" class="upload-label" id="permitLabel">
+                                <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+                                <span>Select New Business Permit Image</span>
+                            </label>
+                            <input type="file" id="businessPermit" name="BusinessPermit" accept="image/*" onchange="previewPermitImage(event, 'permitLabel')" />
+                            <div id="permitPreview"></div>
+                            {% if form.BusinessPermit.errors %}
+                                <div class="error">{{ form.BusinessPermit.errors }}</div>
+                            {% endif %}
+                        </div>
+                        </div>
+                        <div>
+                            <strong>Current Business Permit:</strong>
+                            <a href="{{ restaurant.BusinessPermit.url }}" target="_blank">
+                                <img src="{{ restaurant.BusinessPermit.url }}" alt="Current Business Permit Image" style="max-width: 100px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+                            </a>
+                        </div>
+
+<br>
+                    <button type="submit" class="button">Save Changes</button>
+                    <a href="javascript:void(0)" onclick="window.history.back();" class="button">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('edit-restaurant-form');
+    let originalFormData = new FormData(form);
+
+    function hasFormChanged() {
+        const currentFormData = new FormData(form);
+        for (let [key, value] of currentFormData.entries()) {
+            if (originalFormData.get(key) !== value) {
+                return true; // Form has changed
+            }
+        }
+        return false; // No changes detected
+    }
+
+    function getCSRFToken() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]').value || '';
+    }
+
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            if (!hasFormChanged()) {
+                // If no changes, submit normally without showing SweetAlert
+                form.submit();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const csrfToken = getCSRFToken();
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest', // Identify as AJAX request
+                    'X-CSRFToken': csrfToken // CSRF token
+                }
+            })
+            .then(response => response.json()) // Parse JSON response
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = data.redirect_url; // Redirect after success
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error || 'There was an error processing your request.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'There was a problem with the form submission.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        });
+    }
+});
+
+function previewImage(event, labelId) {
+    const previewContainer = document.getElementById('imagePreview');
+    const label = document.getElementById(labelId);
+    previewContainer.innerHTML = ''; // Clear any existing preview
+
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '200px';
+            img.style.border = '1px solid #ddd';
+            img.style.borderRadius = '8px';
+            previewContainer.appendChild(img);
+            label.querySelector('span').textContent = ''; // Clear the label text
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function previewPermitImage(event, labelId) {
+    const previewContainer = document.getElementById('permitPreview');
+    const label = document.getElementById(labelId);
+    previewContainer.innerHTML = ''; // Clear any existing preview
+
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '200px';
+            img.style.border = '1px solid #ddd';
+            img.style.borderRadius = '8px';
+            previewContainer.appendChild(img);
+            label.querySelector('span').textContent = ''; // Clear the label text
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+
+{% endblock %}

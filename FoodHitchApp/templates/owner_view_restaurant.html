@@ -1,0 +1,83 @@
+{% extends "owner_base.html" %}
+
+{% block title %}Store Owner{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="main-content">
+    <div class="store-container">
+        <h1 class="page-title" style="text-align: left; margin-left: -129px;">My Restaurant</h1>
+        <a href="{% url 'owner_add_restaurant' %}" class="add-new-restaurant-button">
+            <span class="plus-icon">+</span> Add New Restaurant
+        </a>
+        <div class="store-list">
+            {% for restaurant in restaurants %}
+                <div class="store-card">
+                    {% if restaurant.Image %}
+                        <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}">
+                    {% else %}
+                        <img src="{% static 'default_restaurant_image.jpg' %}" alt="Default Image">
+                    {% endif %}
+                    <h1>{{ restaurant.RestaurantName }}</h1>
+
+                    <div class="forget">
+                        <span class="edit-delete-links">
+                            <a href="{% url 'owner_edit_restaurant' restaurant.RestaurantID %}" class="edit-link">
+                                <i class="fas fa-pencil-alt"></i> EDIT
+                            </a> |
+                            <button type="button" class="delete-link" onclick="confirmDelete('{{ restaurant.RestaurantID }}')">
+                                <i class="fas fa-trash-alt"></i> DELETE
+                            </button>
+                        </span>
+                    </div>
+                    <a href="{{ restaurant.get_owner_menu_url }}" class="btn">View Menu</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<style>
+    .delete-link {
+        background: none;
+        border: none; 
+        color: inherit; 
+        cursor: pointer;
+    }
+    
+    .delete-link:hover {
+        color: yellowgreen; /* Match hover effect */
+    }
+    </style>
+    
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(restaurantId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to delete this restaurant?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, submit the form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/delete-restaurant/' + restaurantId + '/';  // Adjust this URL according to your routing
+            const csrfToken = '{{ csrf_token }}'; // Get CSRF token
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'csrfmiddlewaretoken';
+            hiddenInput.value = csrfToken;
+            form.appendChild(hiddenInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
+
+{% endblock %}

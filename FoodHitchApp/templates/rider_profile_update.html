@@ -1,0 +1,135 @@
+{% extends "rider_base.html" %}
+{% load static %}
+
+{% block title %}Rider Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-sidebar">
+        {% if form.instance.ProfilePicture %}
+            <img src="{{ form.instance.ProfilePicture.url }}" alt="Profile Picture" class="profile-image">
+        {% else %}
+            <img src="{% static 'images/default_profile.jpg' %}" alt="Default Profile Picture" class="profile-image">
+        {% endif %}
+        <h2 class="centered">{{ rider.FullName }}</h2>
+        <p class="centered">{{ user.email }}</p>
+    </div>
+    
+    <div class="profile-content">
+        <h3 class="centered">Profile Settings</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Form fields as before -->
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_fullname">Full Name</label>
+                    {{ form.fullname }}
+                </div>
+                <div class="input-group">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_phone">Phone Number</label>
+                    {{ form.phone }}
+                </div>
+                <div class="input-group">
+                    <label for="id_email">Email</label>
+                    {{ form.email }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_picture">Upload New Profile Picture</label>
+                    {{ form.picture }}
+                </div>
+                <div class="input-group">
+                    <label for="id_license">Upload New License</label>
+                    {{ form.license }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_platenumber">Plate Number</label>
+                    {{ form.platenumber }}
+                </div>
+                <div class="input-group">
+                    <label for="id_password">Current Password</label>
+                    {{ form.password }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_password1">New Password</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="input-group">
+                    <label for="id_password2">Confirm New Password</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+
+            <div class="input-group">
+                <button type="submit">Save Changes</button>
+            </div>
+        </form>
+
+        {% if success %}
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Profile Updated Successfully',
+                        text: 'Your profile has been updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        {% endif %}
+    
+        {% if error_message %}
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '{{ error_message|escapejs }}',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        {% endif %}
+
+        {% if request.GET.success == "password" %}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Your password changed successfully. You will be logged out and enter your new password.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
+    {% endif %}
+    
+    </div>
+</div>
+<style>
+        /* Import Poppins font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif; /* Set Poppins font for the entire body */
+}
+</style>
+{% endblock %}

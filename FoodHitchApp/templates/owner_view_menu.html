@@ -1,0 +1,140 @@
+{% extends "owner_base.html" %}
+
+{% block title %}Owner Manage Restaurant{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<a href="{% url 'owner_view_restaurant' %}" class="btn btn-back" style="margin-top: 50px;">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+</a>
+<div class="main-content">
+    <div class="store-container">
+        <h1 class="page-title" style="margin-left: -950px;">
+            {{ restaurant.RestaurantName }} Menu
+            <div class="header-actions" style="margin-left: 30%;">
+                <a href="{% url 'owner_add_menu' restaurant_id=restaurant.RestaurantID %}" 
+                   class="add-new-restaurant-button" 
+                   onclick="return handleAddMenuClick('{{ restaurant.Status }}');">
+                   <span class="plus-icon">+</span> Add New Menu
+                </a>
+            </div>
+        </h1>
+
+        <div class="store-list">
+            {% for item in menu_items %}
+                <div class="store-card">
+                    <div class="image-container">
+                        {% if item.Image %}
+                            <img src="{{ item.Image.url }}" alt="{{ item.FoodName }}">
+                        {% else %}
+                            <img src="{% static 'default_image.jpg' %}" alt="Default Image">
+                        {% endif %}
+                    </div>
+                    <h2>{{ item.FoodName }}</h2>
+                    <div class="price">₱{{ item.Price }}</div>
+                    <div class="actions">
+                        <div class="forget">
+                            <span class="edit-delete-links">
+                                <a href="{% url 'owner_edit_menu' restaurant.RestaurantID item.FoodID %}" class="edit-link">
+                                    <i class="fas fa-pencil-alt"></i> EDIT
+                                </a> |
+                                <button type="button" class="delete-link" onclick="confirmDelete('{{ item.FoodID }}', '{{ restaurant.RestaurantID }}')">
+                                    <i class="fas fa-trash-alt"></i> DELETE
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-link {
+        background: none;
+        border: none; 
+        color: inherit; 
+        cursor: pointer;
+    }
+    
+    .delete-link:hover {
+        color: yellowgreen; /* Match hover effect */
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function handleAddMenuClick(status) {
+        if (status === 'pending') {
+            // Show SweetAlert message
+            Swal.fire({
+                title: "Error",
+                text: "Cannot add menu items. The restaurant status is pending.",
+                icon: "error",
+                confirmButtonText: "Okay"
+            });
+            return false; // Prevent the default link action
+        }
+        return true; // Allow the link to proceed
+    }
+
+    function confirmDelete(foodId, restaurantId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to delete this menu?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/delete-menu/${restaurantId}/${foodId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',  // Ensure this is rendered in the template
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Reload the page to update the list
+                        });
+                    } else if (data.status === 'error') {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message, // Display the error message from the server
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An unexpected error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            }
+        });
+    }
+</script>
+
+{% endblock %}

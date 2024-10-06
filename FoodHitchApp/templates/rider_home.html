@@ -1,0 +1,38 @@
+{% extends "rider_base.html" %}
+{% load static %}
+{% block content %}
+<div class="main-content">
+    <div class="store-container">
+        <h1 class="page-title">Customer Feedback</h1>
+
+        {% if feedbacks %}
+        {% for feedback in feedbacks %}
+        <div class="feedback-card">
+            <div class="feedback-header">
+                {% if feedback.CustomerID.Picture %}
+                <img src="{{ feedback.CustomerID.Picture.url }}" alt="{{ feedback.CustomerName }}'s picture" class="customer-image">
+                {% else %}
+                <img src="{% static 'default-profile.png' %}" alt="Default profile picture" class="customer-image">
+                {% endif %}
+                <div class="feedback-info">
+                    <p class="customer-name">{{ feedback.CustomerName }}</p>
+                    <p class="feedback-date">{{ feedback.Date|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+            <p class="feedback-message">{{ feedback.Message }}</p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No feedback available at the moment.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+        /* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif; /* Set Poppins font for the entire body */
+}
+</style>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "rider_base.html" %}
+{% load static %}
+
+{% block title %}Rider Delivery History{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+    <div class="transaction-container">
+        <h1 class="transaction-title text-center">Delivery History List</h1>
+        <div class="delivery-history">
+            {% for delivery in deliveries %}
+            <div class="transaction-card">
+                <div class="transaction-info">
+                    <p><strong>Delivery ID:</strong> {{ delivery.DeliveryID }}</p>
+                    <p><strong>Order ID:</strong> {{ delivery.OrderID }}</p>
+                    <p><strong>Transaction ID:</strong> {{ delivery.OrderID.TransactionID }}</p>
+                    <p><strong>Customer Name:</strong> {{ delivery.CustomerID.CustomerName }}</p> 
+                    <p><strong>Address:</strong> {{ delivery.Address }}</p> 
+                    <p><strong>Restaurant Name:</strong> {{ delivery.RestaurantID.RestaurantName }}</p>
+                    <p><strong>Total Payable:</strong> ₱{{ delivery.TotalPayableAmount }}</p>
+                    <p class="status"><strong>Status:</strong> <span class="status-received">Received</span></p>
+                </div>
+                <button class="delete-button" onclick="deleteDelivery('{{ delivery.DeliveryID }}')">Delete</button>
+            </div>
+            {% empty %}
+            <p class="no-deliveries-message">No deliveries found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /* Import Poppins font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif; /* Set Poppins font for the entire body */
+    }
+
+    .main-content {
+        padding: 20px;
+        background-color: #e9fdecec; 
+
+    }
+
+    .transaction-container {
+        max-width: 1200px;
+        width: 70%;
+        margin: auto;
+        /*background-color: #d4fdda; */
+        border-radius: 10px;
+        padding: 40px;
+    }
+
+    .transaction-title {
+        color: #333;
+        font-size: 32px;
+        margin-bottom: 30px;
+        font-weight: bold;
+        text-align: left; 
+    }
+
+    .delivery-history {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Space between cards */
+    }
+
+    .transaction-card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+        position: relative; /* Added for positioning of button */
+        transition: transform 0.2s; /* Smooth hover effect */
+    }
+
+    .transaction-card:hover {
+        transform: scale(1.02); /* Slightly enlarge card on hover */
+    }
+
+    .transaction-info p {
+        margin: 10px 0;
+        color: #555;
+        font-size: 16px;
+    }
+
+    .status {
+        margin-top: 10px;
+    }
+
+    .status-received {
+        color: #28a745;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .delete-button {
+        background-color: #dc3545; /* Red */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.3s;
+        position: absolute; /* Positioned at the bottom-right */
+        right: 20px;
+        bottom: 20px;
+    }
+
+    .delete-button:hover {
+        background-color: #c82333; /* Darker red */
+        transform: translateY(-2px); /* Slight lift effect */
+    }
+
+    .no-deliveries-message {
+        text-align: center;
+        font-size: 18px;
+        color: #777; /* Light gray for no deliveries message */
+    }
+</style>
+
+<script>
+    function deleteDelivery(deliveryId) {
+        if (confirm('Are you sure you want to delete this delivery?')) {
+            // Implement the delete functionality here
+            console.log('Deleting delivery with ID:', deliveryId);
+            // You might want to send a request to your backend to delete this record
+        }
+    }
+</script>
+
+{% endblock %}

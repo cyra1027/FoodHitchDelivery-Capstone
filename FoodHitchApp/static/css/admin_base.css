@@ -1,0 +1,563 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+:root {
+  --primaryColor: #fff;
+  --secondaryColor: #ffc107;
+  --whitecolor: #fff;
+  --softGreenColor: #f5f5f5;
+  --darkGreyColor: #a7a7a7;
+  --greyColor: #f5f5f5;
+  --blackColor: #000;
+  --navbarColor: #ff0000; /* Red color for navbar */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins',sans-serif;
+}
+
+body {
+  display: flex;
+  min-height: 100vh; /* Ensure full height for proper content placement */
+  flex-direction: column; /* Align content vertically */
+  background-color: #edfff0;
+}
+
+.sidebar {
+  height: 100%;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 2%;
+  background-color: #fdfcf3;
+  color: var(--blackColor);
+  box-shadow: 0 4px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 35px;
+  width: 100%;
+  margin-bottom: 1px;
+
+}
+
+.logo {
+  width: 100%;
+  height: 100px;
+  background-color: rgb(31, 31, 31);
+  object-fit: cover;
+}
+
+.sidebar-menus {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30%;
+  gap: 2%;
+}
+
+.sidebar-menus h1{
+  font-size: 1em;
+  margin-bottom: 35px;
+}
+
+.sidebar-menus a, .sidebar-logout a {
+  padding: 10px 15px; /* for centering */
+  margin: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* Consistent gap between icon and text */
+  font-size: 13.5px;
+  text-decoration: none;
+  color: var(--blackColor);
+  border-radius: 30px; /* Slight border radius to maintain roundness when hovered */
+  transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+.sidebar-menus a ion-icon, .sidebar-logout a ion-icon {
+  font-size: 20px;
+  margin-right: 0; /* Removed negative margin to prevent icon misalignment */
+  color: var(--blackColor);
+}
+.sidebar-menus a:hover, .sidebar-logout a:hover {
+  background-color: #cfcbcb;
+  color: #000;
+  text-align: center; /* Ensures that both icon and text are aligned */
+}
+.sidebar-menus a:hover ion-icon, .sidebar-logout a:hover ion-icon {
+  color: #000;
+}
+.sidebar-menus a.active, .sidebar-logout a.active {
+  background-color: #cfcbcb;  
+  color: #1a7000;                
+  border-radius: 50px;        
+}
+.sidebar-menus a.active ion-icon,
+.sidebar-logout a.active ion-icon {
+  color: #005c0c; 
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 250.4px; /* Adjust to accommodate the sidebar */
+  right: 0;
+  background: #ffffff;
+  padding: 10px 20px;
+  z-index: 1000;
+  height: 80px; /* Adjust height as needed */
+  justify-content: space-between; /* Distribute space between search bar and icons */
+  box-shadow: 0 2px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
+
+}
+
+.header .search-bar {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 auto; /* Center the search bar */
+  border-radius: 12px;
+  
+}
+
+.header .search-bar input {
+  width: 115%;
+  padding: 10px;
+  background-color: #efffed;
+  border: 1px solid var(--greyColor);
+  font-size: 14px;
+  border-radius: 12px;
+}
+
+.header .icons {
+  display: flex;
+  align-items: center;
+}
+
+.header .icons ion-icon {
+  font-size: 24px;
+  margin-left: 20px;
+  cursor: pointer;
+  color: var(--blackColor);
+}
+
+.header .icons ion-icon:hover {
+  color: var(--secondaryColor); /* Change color on hover */
+}
+
+/* Styles specific to admin_restaurant.html */
+.content-container {
+margin-left: 250px; /* Adjust for sidebar */
+margin-top: 60px; /* Adjust for header */
+padding: 30px; /* Increased padding for spacious feel */
+max-width: 1200px; /* Maximum width to keep content centered and manageable */
+width: 100%; /* Full width up to max-width */
+box-sizing: border-box; /* Include padding in width calculation */
+border-radius: 12px; /* Rounded corners for modern design */
+display: flex;
+flex-direction: column; /* Stack elements vertically */
+gap: 20px; /* Space between elements */
+}
+
+/* Section Titles */
+.content-container h2 {
+font-size: 24px;
+margin-bottom: 20px;
+color: var(--blackColor); /* Main text color */
+}
+
+/* Cards for Content */
+.card {
+border-radius: 8px; /* Rounded corners for cards */
+padding: 20px; /* Padding inside cards */
+display: flex;
+flex-direction: column; /* Stack card contents vertically */
+gap: 15px; /* Space between card elements */
+}
+
+.card-header {
+font-size: 18px;
+font-weight: bold;
+color: var(--blackColor); /* Accent color for card headers */
+}
+
+.card-content {
+font-size: 16px;
+color: var(--darkGreyColor); /* Secondary text color */
+}
+
+/* Buttons */
+.button {
+background-color: black; /* Button background */
+color: var(--whitecolor); /* Text color for buttons */
+padding: 10px 20px; /* Padding inside button */
+border: none; /* Remove default border */
+border-radius: 5px; /* Rounded corners */
+cursor: pointer; /* Pointer cursor on hover */
+font-size: 16px; /* Font size for button text */
+transition: background-color 0.3s ease; /* Smooth transition */
+text-decoration: none;
+
+}
+
+.button:hover {
+background-color: red; /* Darker background on hover */
+}
+
+/* Form Elements */
+.form-group {
+display: flex;
+flex-direction: column; /* Stack form elements vertically */
+gap: 5px; /* Space between form elements */
+}
+
+
+.form-group label {
+font-size: 16px; /* Font size for labels */
+margin: 5px;
+color: var(--blackColor); /* Color for labels */
+}
+
+.form-group input, .form-group select, .form-group textarea {
+padding: 10px;
+border: 1px solid ;
+border-color: black;
+border-radius: 5px; /* Rounded corners for form elements */
+font-size: 16px; /* Font size for input text */
+width: 100%; /* Full width for form elements */
+box-sizing: border-box; /* Include padding in width */
+}
+
+.form-group textarea {
+resize: vertical; /* Allow vertical resizing */
+}
+
+
+
+.main-content {
+margin-left: 250px; /* Leave space for the sidebar */
+margin-top: 60px; /* Space for the header */
+padding: 20px;
+flex: 1; /* Take up remaining space */
+display: flex;
+justify-content: center; /* Center content horizontally */
+align-items: flex-start; /* Align content to the start vertically */
+}
+
+/* Store container adjustment */
+.store-container {
+width: 100%;
+max-width: 1200px; /* Max width for content */
+background-color: var(--softGreenColor);
+padding: 20px;
+box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+border-radius: 10px;
+}
+
+
+.store-container {
+padding: 20px;
+background-color: var(--softGreenColor);
+min-height: calc(100vh - 60px); /* Adjust height to fit the content below the header */
+}
+
+.store-container h1 {
+text-align: center;
+margin-bottom: 20px;
+color: var(--blackColor);
+}
+
+.store-list {
+display: flex;
+justify-content: space-around;
+flex-wrap: wrap;
+gap: 20px;
+}
+
+.store-card {
+background: var(--whitecolor);
+border-radius: 10px;
+box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+overflow: hidden;
+width: 300px;
+text-align: center;
+padding: 20px;
+}
+
+.store-card img {
+width: 100%;
+height: auto;
+border-bottom: 1px solid var(--greyColor);
+}
+
+.store-card h1 {
+font-size: 1rem;
+margin: 15px 0;
+color: var(--blackColor);
+} 
+
+
+.store-card h2 {
+font-size: 1.1rem;
+margin: 15px 0;
+color: var(--blackColor);
+}
+
+.store-card p {
+color: var(--darkGreyColor);
+}
+
+.store-card .btn {
+display: inline-block;
+padding: 10px 20px;
+background: rgb(31,31,31);
+color: var(--whitecolor);
+text-decoration: none;
+border-radius: 20px;
+margin-top: 10px;
+}
+
+.store-card .btn:hover {
+background: var(--blackColor);
+}
+/* Container for the image and favorite icon */
+.image-container {
+position: relative;
+width: 100%;
+height: auto;
+}
+
+.forget {
+margin-top: 10px;
+margin-bottom: 20px;
+font-size: .9em;
+color: #fff;
+width: 100%;
+}
+
+.btn-back {
+background: none;
+border: none;
+padding: 10px 2px;
+cursor: pointer;
+color: black; /* or any color you prefer */
+font-size: 24px; /* adjust size as needed */
+display: inline-flex;
+align-items: center;
+text-decoration: none;
+margin-bottom: 10px;
+}
+
+.btn-back:hover {
+color: red; /* hover color */
+}
+
+.add-new-restaurant-button {
+  position: relative;
+  background-color: transparent; /* Make background transparent */
+  color: black; /* Text color for visibility */
+  padding: 7px 23px;
+  text-decoration: none;
+  border: 2px solid black; /* Outline border */
+  border-radius: 50px;
+  font-size: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.3;
+  margin-left: 80%;
+}
+
+.add-new-restaurant-button .plus-icon {
+margin-right: 8px; /* Space between the plus icon and text */
+font-weight: bold; /* Optional: to make the plus icon stand out */
+}
+
+.edit-delete-links {
+text-align: center;
+font-size: .9em;
+color: #000;
+}
+
+.edit-delete-links a {
+text-decoration: none; /* Remove underline by default */
+font-weight: 600;
+margin: 0 5px; /* Add spacing around the icons */
+display: inline-flex; /* Align icon and text properly */
+align-items: center; /* Center-align the text with the icon */
+}
+
+.edit-link {
+color: #000; /* Default color for EDIT */
+}
+
+.delete-link {
+color: #000; /* Default color for DELETE */
+}
+
+.edit-link:hover {
+color: yellowgreen; /* Green color for EDIT on hover */
+}
+
+.delete-link:hover {
+color: red; /* Red color for DELETE on hover */
+}
+
+.edit-delete-links i {
+margin-right: 5px; /* Space between the icon and text */
+}
+
+
+.admin-home-dashboard-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.admin-home-card {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 20%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 10px;
+  margin-top: 9%;
+}
+
+.admin-home-card h3{
+  font-size: 1em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fefefe;
+  font-weight: 100;
+}
+
+.admin-home-card h3 i {
+  margin-right: 15px; /* Adds space between the icon and the text */
+  color: #fefefe;
+
+}
+
+.admin-home-card p {
+  font-size: 3em;
+  color: #fefefe;
+  font-weight: 600;
+}
+
+.admin-home-additional-section {
+  margin-top: 30px;
+
+}
+
+.admin-home-chart-container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  margin-left: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-home-chart-placeholder {
+  text-align: center;
+  padding: 50px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  color: #6c757d;
+}
+.image-upload-section {
+    border: 2px dashed #ddd;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    margin-top: 20px;
+    position: relative;
+}
+
+.image-upload-section:hover {
+    border-color: #bbb;
+}
+
+.upload-label {
+    display: block;
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.upload-label ion-icon {
+    font-size: 48px;
+    color: #333;
+}
+
+input[type="file"] {
+    display: none; /* Hide the actual file input */
+}
+
+.image-preview {
+    margin-top: 10px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.header .icons {
+  display: flex;
+  align-items: center;
+}
+
+.header .icons ion-icon {
+  font-size: 24px;
+  margin-left: 20px;
+  cursor: pointer;
+  color: var(--blackColor);
+}
+
+.header .icons ion-icon:hover {
+  color: #3d3c3c; /* Change color on hover */
+}
+
+.notification-count {
+  position: absolute;
+  top: 8px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 14px;
+}
+.filter-date-button {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  padding: 10px 20px; /* Top and bottom padding, left and right padding */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Font size */
+  transition: background-color 0.3s; 
+  margin-top: 100%;
+}
+
+/* Hover Effect */
+.filter-date-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}

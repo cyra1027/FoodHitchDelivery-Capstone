@@ -1,0 +1,550 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+:root {
+    --primaryColor: #fff;
+    --secondaryColor: #ffc107;
+    --whitecolor: #fff;
+    --softGreenColor: #f5f5f5;
+    --darkGreyColor: #a7a7a7;
+    --greyColor: #f5f5f5;
+    --blackColor: #000;
+    --navbarColor: #ff0000; /* Red color for navbar */
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins',sans-serif;
+  }
+  
+  body {
+    display: flex;
+    min-height: 100vh; /* Ensure full height for proper content placement */
+    flex-direction: column; /* Align content vertically */
+    background-color: #e9fdecec; 
+  }
+      
+  /* Buttons */
+  .button {
+  background: #00700f; /* Button background */
+  color: var(--whitecolor); /* Text color for buttons */
+  padding: 10px 20px; /* Padding inside button */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Font size for button text */
+  transition: background-color 0.3s ease; /* Smooth transition */
+  text-decoration: none;
+  
+  }
+  
+  .button:hover {
+    background: #009914; /* Darker background on hover */
+  }
+  
+  /* Form Elements */
+  .form-group {
+  display: flex;
+  flex-direction: column; /* Stack form elements vertically */
+  gap: 5px; /* Space between form elements */
+  margin-right: 250px;
+  }
+  
+  
+  .form-group label {
+  font-size: 16px; /* Font size for labels */
+  margin: 5px;
+  color: var(--blackColor); /* Color for labels */
+  }
+  
+  .form-group input, .form-group select, .form-group textarea {
+  padding: 10px;
+  border: 1px solid ;
+  border-color: black;
+  border-radius: 5px; /* Rounded corners for form elements */
+  font-size: 16px; /* Font size for input text */
+  width: 100%; /* Full width for form elements */
+  box-sizing: border-box; /* Include padding in width */
+  }
+  
+  .form-group textarea {
+  resize: vertical; /* Allow vertical resizing */
+  }
+  
+  
+  
+  .main-content {
+  margin-left: 250px; /* Leave space for the sidebar */
+  margin-top: 5px; /* Space for the header */
+  padding: 0px;
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: flex-start; /* Align content to the start vertically */
+  }
+  
+/* Store container adjustment */
+.store-container {
+  width: 100%;
+  max-width: 1200px; /* Max width for content */
+  padding: 10px;
+  border-radius: 10px;
+  margin: 0 auto; /* Center container horizontally */
+}
+
+/* Ensure the height adjusts properly */
+.store-container {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* Adjust height to fit the content below the header */
+}
+
+.store-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--blackColor);
+}
+
+/* Flex layout for store list */
+.store-list {
+  display: flex;
+  justify-content: flex-start; /* Align stores to the left */
+  flex-wrap: wrap;
+  gap: 100px;
+  padding-left: 0px; /* Remove left padding */
+  margin-left: -12%; /* Adjust to bring items further left */
+}
+
+/* Store card styling */
+.store-card {
+  background: var(--whitecolor);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 300px;
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack content vertically */
+  align-items: center;
+  justify-content: space-between; /* Distribute space */
+  margin-bottom: 20px; /* Add spacing between rows */
+}
+
+/* Adjust the store image styling */
+.store-card img {
+  width: 100%;
+  height: 270px; /* Fixed height for consistent image size */
+  object-fit: cover; /* Ensures the image covers the box while maintaining aspect ratio */
+  border-bottom: 1px solid var(--greyColor);
+}
+
+.store-card h1, .store-card h2 {
+  font-size: 1.1rem;
+  margin: 15px 0;
+  color: var(--blackColor);
+}
+
+.store-card p {
+  color: var(--darkGreyColor);
+}
+
+/* Button styles */
+.store-card .btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #009914;
+  color: var(--whitecolor);
+  text-decoration: none;
+  border-radius: 20px;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.store-card .btn:hover {
+  background: #00700f;
+}
+
+
+  /* Container for the image and favorite icon */
+  .image-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  }
+  
+  .forget {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: .9em;
+  color: #fff;
+  width: 100%;
+  }
+  
+  .btn-back {
+  background: none;
+  border: none;
+  padding: 10px 2px;
+  cursor: pointer;
+  color: black; /* or any color you prefer */
+  font-size: 24px; /* adjust size as needed */
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  }
+  
+  .btn-back:hover {
+  color: red; /* hover color */
+  }
+  
+  .add-new-restaurant-button {
+    position: relative;
+    background-color: transparent; /* Make background transparent */
+    color: #009914; /* Text color for visibility */
+    padding: 7px 23px;
+    text-decoration: none;
+    border: 2px solid #009914; /* Outline border */
+    border-radius: 50px;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 75%;
+    margin-bottom: 40px;
+  }
+  
+  .add-new-restaurant-button .plus-icon {
+  margin-right: 2px; /* Space between the plus icon and text */
+  font-weight: bold; /* Optional: to make the plus icon stand out */
+  }
+  
+  .edit-delete-links {
+  text-align: center;
+  font-size: .9em;
+  color: #000;
+  }
+  
+  .edit-delete-links a {
+  text-decoration: none; /* Remove underline by default */
+  font-weight: 600;
+  margin: 0 5px; /* Add spacing around the icons */
+  display: inline-flex; /* Align icon and text properly */
+  align-items: center; /* Center-align the text with the icon */
+  }
+  
+  .edit-link {
+  color: #000; /* Default color for EDIT */
+  }
+  
+  .delete-link {
+  color: #000; /* Default color for DELETE */
+  }
+  
+  .edit-link:hover {
+  color: yellowgreen; /* Green color for EDIT on hover */
+  }
+  
+  .delete-link:hover {
+  color: red; /* Red color for DELETE on hover */
+  }
+  
+  .edit-delete-links i {
+  margin-right: 5px; /* Space between the icon and text */
+  }
+  
+  /* Styles specific to admin_home */
+  .admin-home-dashboard-container {
+    background-color: #f8f9fa;
+  }
+  
+  .admin-home-dashboard-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+  
+  .admin-home-card {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 20%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 10px;
+    margin-top: 9%;
+  }
+  
+  .admin-home-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .admin-home-card h3 i {
+    margin-right: 15px; /* Adds space between the icon and the text */
+  }
+  
+  .admin-home-card p {
+    font-size: 1.2em;
+    color: #666666;
+  }
+  
+  .admin-home-additional-section {
+    margin-top: 30px;
+  }
+  
+  .admin-home-chart-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-left: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-home-chart-placeholder {
+    text-align: center;
+    padding: 50px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    color: #6c757d;
+  }
+  .image-upload-section {
+      border: 2px dashed #ddd;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f9f9f9;
+      margin-top: 20px;
+      position: relative;
+  }
+  
+  .image-upload-section:hover {
+      border-color: #bbb;
+  }
+  
+  .upload-label {
+      display: block;
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 10px;
+  }
+  
+  .upload-label ion-icon {
+      font-size: 48px;
+      color: #333;
+  }
+  
+  input[type="file"] {
+      display: none; /* Hide the actual file input */
+  }
+  
+  .image-preview {
+      margin-top: 10px;
+  }
+  
+  .image-preview img {
+      max-width: 100%;
+      max-height: 200px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 5px;
+  }
+  .header {
+    background: #fefefe;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo img {
+    height: 50px; /* Adjust as needed */
+    margin-right: 20px; /* Spacing from the content */
+    left: -100%;
+}
+
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.header .icons {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown {
+  display: flex;
+  align-items: center; /* This aligns the text and icon properly */
+  position: relative;
+  cursor: pointer;
+  margin-left: 10px; /* Adjusts space between image and name */
+}
+
+.dropdown-icon {
+  font-size: 1px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  top: 100%; /* Positions dropdown below the name */
+  right: 0;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.profile-container {
+  display: flex;
+  width: 900px;
+  height: auto;
+  margin: 60px auto;
+  margin-top: 120px;
+  background-color: #e9fdecec; 
+  border-radius: 8px;
+  margin-left: 10%;
+}
+
+.profile-sidebar {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-sidebar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-top: -200%;
+}
+
+.profile-sidebar h2, .profile-sidebar p   {
+  margin: 10px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.profile-sidebar p {
+  color: #666;
+  font-size: 12px;
+
+}
+
+.profile-content {
+  flex-grow: 1;
+  padding: 70px;
+}
+
+.profile-content h3 {
+  margin-bottom: 40px;
+  margin-top: -20%;
+
+}
+
+.input-group {
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  gap: 15px;
+  
+}
+
+.row .input-group {
+  flex: 1;
+}
+
+.profile-content form {
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.profile-content form .input-group {
+  margin-bottom: 20px;
+}
+
+.profile-content form .input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.profile-content form .input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.profile-content form .input-group button {
+  padding: 10px 40px;
+  background-color: #009914;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.profile-content form .input-group button:hover {
+  background-color: #007a06;
+}
+
+.update-image-button {
+  padding: 10px 20px;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.update-image-button:hover {
+  background-color: #504f4f;
+}
+
+.success-message {
+  color: green;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+.input-group input[type="file"] {
+  display: block; /* Make sure it's block-level */
+  margin-top: 10px; /* Add some spacing */
+  padding: 10px; /* Add padding for better interaction */
+}

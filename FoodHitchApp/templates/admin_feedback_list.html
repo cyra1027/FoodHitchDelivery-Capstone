@@ -1,0 +1,132 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <h1>Pending Feedback</h1>
+    <div class="table-container">
+        {% if feedbacks %}
+            {% for feedback in feedbacks %}
+            <div class="feedback-entry">
+                <div class="feedback-header">
+                    <span class="customer-name">{{ feedback.CustomerName }}</span>
+                    <span class="rider-name"> (Rider: {{ feedback.RiderID.FullName }})</span>
+                    <span class="feedback-time">{{ feedback.timestamp|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <div class="feedback-message">
+                    {{ feedback.Message }}
+                </div>
+                <div class="feedback-actions">
+                    <a href="{% url 'approve_feedback' feedback.FeedbackID %}" class="approve">
+                        <i class="fas fa-check"></i> Approve
+                    </a>
+                    <a href="{% url 'reject_feedback' feedback.FeedbackID %}" class="reject">
+                        <i class="fas fa-times"></i> Reject
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-feedback">No feedback available</div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+    }
+
+    h1 {
+        position: relative; /* Allows for positioning without covering other elements */
+        color: #333; /* Darker text for better readability */
+        margin-bottom: -10px; /* Space below the title */
+        margin-top: 5%;
+        margin-left: -52%;
+        font-size: 25px;
+
+    }
+
+    .table-container {
+        width: 100%; 
+        max-width: 800px; 
+        border: 1px solid #ddd; 
+        border-radius: 5px; 
+        padding: 20px;
+        margin-top: 5%;
+    }
+
+    .feedback-entry {
+        border-bottom: 1px solid #ddd; 
+        padding: 10px 0; 
+    }
+
+    .feedback-header {
+        display: flex;
+        justify-content: space-between; /* Space between name and time */
+        align-items: center;
+    }
+
+    .customer-name {
+        font-weight: bold; /* Highlight customer name */
+    }
+
+    .rider-name {
+        font-style: italic; /* Style rider name */
+        color: gray; /* Color for the rider's name */
+    }
+
+    .feedback-time {
+        font-size: 0.9em; /* Smaller font for the timestamp */
+        color: #888; /* Lighter color for the timestamp */
+    }
+
+    .feedback-message {
+        margin: 5px 0; /* Space between header and message */
+        padding: 10px;
+        background-color: #f9f9f9; /* Light background for message */
+        border-radius: 4px; /* Rounded corners for the message */
+    }
+
+    .feedback-actions {
+        margin-top: 10px; /* Space above actions */
+        margin-bottom: 20px;
+    }
+
+    a {
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: white;
+        display: inline-block;
+        font-size: 12px;
+    }
+
+    .approve {
+        background-color: #28a745;
+    }
+
+    .approve:hover {
+        background-color: #218838;
+    }
+
+    .reject {
+        background-color: #dd2537;
+        margin-left: 10px; /* Space between buttons */
+    }
+
+    .reject:hover {
+        background-color: #c82333;
+    }
+
+    .no-feedback {
+        text-align: center; /* Center the no feedback message */
+        color: #888; /* Gray color for the message */
+        font-size: 1.2em; /* Slightly larger font */
+        padding: 20px; /* Padding around the message */
+    }
+</style>
+
+{% endblock %}

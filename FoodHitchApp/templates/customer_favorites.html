@@ -1,0 +1,85 @@
+{% extends "customer_base.html" %}
+{% block title %}Favorites{% endblock %}
+{% block content %}
+{% load static %}
+<div class="main-content">
+    <div class="store-container">
+        <h1>Your Favorites</h1>
+        
+        <div class="store-list">
+            {% for favorite in favorites %}
+                <div class="store-card">
+                    <div class="image-container">
+                        <!-- Display the restaurant name -->
+                        <div class="restaurant-name">Restaurant: {{ favorite.FoodID.restaurant.RestaurantName }}</div>
+                        <br>
+                        <!-- Check if the menu item has an image -->
+                        {% if favorite.FoodID.Image %}
+                            <img src="{{ favorite.FoodID.Image.url }}" alt="{{ favorite.FoodID.FoodName }}">
+                        {% else %}
+                            <img src="{% static 'default_image.jpg' %}" alt="Default Image">
+                        {% endif %}
+                        <ion-icon 
+                            name="heart" 
+                            class="favorite-icon active" 
+                            data-id="{{ favorite.FoodID.FoodID }}">
+                        </ion-icon>
+                    </div>
+                    <!-- Display the food name -->
+                    <h2>{{ favorite.FoodID.FoodName }}</h2>
+                    <!-- Display the price -->
+                    <div class="price">₱{{ favorite.FoodID.Price }}</div>
+                    
+                    <!-- Form to add the item to the cart -->
+                    <form method="POST" class="add-to-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="food_id" value="{{ favorite.FoodID.FoodID }}">
+                        <button type="submit" class="btn add-to-cart-btn">Add to Cart</button>
+                    </form>
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.add-to-cart-form');
+    const cartIcon = document.querySelector('.cart-icon'); // Adjust the selector based on your cart icon's class
+    const cartCountElement = document.querySelector('.cart-count'); // Adjust the selector based on where the cart count is displayed
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'add_favorite_to_cart' 0 %}".replace('0', formData.get('food_id')), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    if (cartCountElement) {
+                        const newCount = data.cart_count || 0; // Assuming `cart_count` is sent in the response
+                        cartCountElement.textContent = newCount;
+                    }
+                    // Optionally, update cart icon appearance
+                    if (cartIcon) {
+                        cartIcon.classList.add('updated'); // Example class to show an update
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "customer_base.html" %}
+{% block title %}{{ restaurant.RestaurantName }} Menu{% endblock %}
+{% block content %}
+{% load static %}
+
+<div class="main-content">
+    <div class="store-container">
+        <h1>{{ restaurant.RestaurantName }} Menu</h1>
+        <a href="javascript:history.back()" class="btn btn-back">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+        </a>
+        <div class="store-list">
+            {% for item in menu_items %}
+                <div class="store-card">
+                    <div class="image-container">
+                        {% if item.Image %}
+                            <img src="{{ item.Image.url }}" alt="{{ item.FoodName }}">
+                        {% else %}
+                            <img src="{% static 'default_image.jpg' %}" alt="Default Image">
+                        {% endif %}
+                        {% if item.is_favorite %}
+                            <ion-icon 
+                                name="heart" 
+                                class="favorite-icon active" 
+                                data-id="{{ item.FoodID }}">
+                            </ion-icon>
+                        {% else %}
+                            <ion-icon 
+                                name="heart-outline" 
+                                class="favorite-icon" 
+                                data-id="{{ item.FoodID }}">
+                            </ion-icon>
+                        {% endif %}
+                    </div>
+                    <h2>{{ item.FoodName }}</h2>
+                    <div class="price">₱{{ item.Price }}</div>
+                    <form class="add-to-cart-form" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="food_id" value="{{ item.FoodID }}">
+                        <button type="submit" class="btn add-to-cart-btn">Add to Cart</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/favorite.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.add-to-cart-form');
+    const cartIcon = document.querySelector('.cart-icon'); // Adjust the selector based on your cart icon's class
+    const cartCountElement = document.querySelector('.cart-count'); // Adjust the selector based on where the cart count is displayed
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'add_to_cart' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    if (cartCountElement) {
+                        const newCount = data.cart_count || 0; // Assuming `cart_count` is sent in the response
+                        cartCountElement.textContent = newCount;
+                    }
+                    // Optionally, update cart icon appearance
+                    if (cartIcon) {
+                        cartIcon.classList.add('updated'); // Example class to show an update
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
+
+{% endblock %}

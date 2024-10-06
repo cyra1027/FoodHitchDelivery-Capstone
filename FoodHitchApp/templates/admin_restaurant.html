@@ -1,0 +1,65 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Manage Restaurant{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="content-container">
+
+    <h1>Manage Restaurants</h1>
+
+    <div class="card">
+        <div class="card-header">Add New Restaurant</div>
+        <div class="card-content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ restaurant_form.as_p }}
+                </div>
+                <button type="submit" name="add_restaurant" class="button">Add Restaurant</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Add New Menu Item</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="restaurant">Select Restaurant:</label>
+                <select name="restaurant_id" id="restaurant" required>
+                    {% for restaurant in restaurants %}
+                        <option value="{{ restaurant.id }}">{{ restaurant.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {{ menu_item_form.as_p }}
+            <button type="submit" name="add_menu_item" class="button">Add Menu Item</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Existing Restaurants</div>
+        <div class="card-content">
+            <ul>
+                {% for restaurant in restaurants %}
+                    <li>
+                        <h3>{{ restaurant.title }}</h3>
+                        <img src="{{ restaurant.image.url }}" alt="{{ restaurant.title }}" style="width: 100px; border-radius: 8px;">
+                        <ul>
+                            {% for menu_item in restaurant.menu_items.all %}
+                                <li>{{ menu_item.name }} - ₱{{ menu_item.price }}</li>
+                            {% empty %}
+                                <li>No menu items available.</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% empty %}
+                    <li>No restaurants available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

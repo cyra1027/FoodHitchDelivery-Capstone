@@ -1,0 +1,156 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="title">LIST OF EMPLOYEES (RIDERS)</h1>
+
+    {% if query %}
+        <p>Search results for "{{ query }}":</p>
+    {% endif %}
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>RiderID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Availability</th>
+                <th>Plate Number</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if riders %}
+                {% for rider in riders %}
+                    <tr id="rider-{{ rider.RiderID }}">
+                        <td>{{ rider.RiderID }}</td>
+                        <td>{{ rider.FullName }}</td>
+                        <td>{{ rider.Email }}</td>
+                        <td>{{ rider.Phone }}</td>
+                        <td>{{ rider.Availability }}</td>
+                        <td>{{ rider.PlateNumber }}</td>
+                        <td>
+                            {% if rider.RiderID %}
+                                <button class="delete" onclick="confirmDelete('{{ rider.RiderID }}')">Delete</button>
+                            {% else %}
+                                <span>No ID</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7">No riders found matching "{{ query }}".</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px;
+        border-radius: 8px;
+    }
+    
+    .title {
+        text-align: center;
+        margin-bottom: 32px;
+        margin-right: 40%;
+        color: #333;
+        margin-top: 50px;
+        font-size: 25px;
+    }
+    
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1em;
+        font-family: 'Arial', sans-serif;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-left: 120px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .styled-table thead tr {
+        background-color: #8aa376;
+        color: white;
+        text-align: center;
+    }
+    
+    .styled-table th, .styled-table td {
+        padding: 12px 15px;
+        text-align: center;
+
+    }
+    
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+    
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #8aa376;
+    }
+    
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    .delete {
+        padding: 5px 10px; /* Increased padding for a better appearance */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        background-color: hsla(6, 100%, 60%, 0.808);
+        font-size: 12px; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
+    }
+    
+    .delete:hover {
+        background-color: #c51400; /* Darker red on hover */
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+   function confirmDelete(riderId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to delete this rider?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#32cd32',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/view_riders/' + riderId + '/delete/';  // Updated URL
+
+            const csrfToken = '{{ csrf_token }}';
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'csrfmiddlewaretoken';
+            hiddenInput.value = csrfToken;
+
+            form.appendChild(hiddenInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
+{% endblock %}

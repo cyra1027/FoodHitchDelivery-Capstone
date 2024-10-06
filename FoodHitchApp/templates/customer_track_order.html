@@ -1,0 +1,274 @@
+{% extends "customer_base.html" %}
+{% load static %}
+
+{% block title %}Track Your Delivery{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="transaction-container">
+        <h1 class="transaction-title">Track Your Delivery</h1>
+
+        {% for delivery in deliveries %}
+        <div class="transaction-card">
+            <div class="transaction-info">
+                <p><strong>Rider ID:</strong> {{ delivery.RiderID.RiderID }} </p>
+                <p><strong>Rider Name:</strong> {{ delivery.RiderID.FullName }} </p>
+                <p class="status"><strong> Delivery Status:</strong> <span class="status-indicator status-in-transit">{{ delivery.DeliveryStatus }}</span></p>
+                <p><strong>Address:</strong> {{ delivery.Address }} </p>
+                <p><strong>Restaurant Name:</strong> {{ delivery.RestaurantID }} </p>
+                <p><strong>Total Payable:</strong> ₱{{ delivery.TotalPayableAmount }} </p>
+                <p><strong>Delivery Date:</strong> {{ delivery.Date|date:"F j, Y, g:i a" }} </p>
+            </div>
+            <button class="track-button" onclick="trackRider('{{ delivery.RiderID.id }}')">Track Rider Location</button>
+        
+            {% if delivery.DeliveryStatus == 'Delivered' %}
+                <button class="update-status-button" onclick="updateDeliveryStatus('{{ delivery.DeliveryID }}')">Received</button>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>No deliveries available for tracking.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal for Map -->
+<div id="mapModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="map" style="height: 500px; width: 100%;"></div>
+    </div>
+</div>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k&callback=initializeMap"></script>
+<script>
+    var map;
+    var riderMarker;
+
+    function initializeMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 9.8793, lng: 123.6094 }, // Default center
+            zoom: 13
+        });
+    }
+
+    function trackRider(rider_id) {
+        // Ensure rider_id is being passed correctly
+        fetch(`/rider/location/${rider_id}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const riderLocation = { lat: data.latitude, lng: data.longitude };
+
+                // Show the modal
+                document.getElementById('mapModal').style.display = 'block';
+                map.setCenter(riderLocation);
+
+                // Remove existing marker if it exists
+                if (riderMarker) {
+                    riderMarker.setMap(null);
+                }
+
+                // Create a new marker for the rider
+                riderMarker = new google.maps.Marker({
+                    position: riderLocation,
+                    map: map,
+                    title: 'Rider Location'
+                });
+
+                // Update marker position every 3 seconds
+                setInterval(function() {
+                    fetch(`/rider/location/${rider_id}/`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            const updatedLocation = { lat: data.latitude, lng: data.longitude };
+                            riderMarker.setPosition(updatedLocation);
+                            map.setCenter(updatedLocation);
+                        });
+                }, 3000); // Update every 3 seconds
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch rider location. Please try again later.');
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('mapModal').style.display = 'none';
+        if (riderMarker) {
+            riderMarker.setMap(null); // Remove marker when modal is closed
+        }
+    }
+
+    function updateDeliveryStatus(deliveryId) {
+    fetch('/update-delivery-status/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
+        },
+        body: JSON.stringify({
+            delivery_id: deliveryId,
+            status: 'Received' // Set the status to Received
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to the customer feedback page with the delivery ID
+            window.location.href = '/submit_feedback/' + deliveryId + '/'; // Redirect to feedback page
+        } else {
+            alert(data.error || 'Error updating delivery status.'); // Show the error message from the server
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    document.addEventListener('DOMContentLoaded', initializeMap);
+</script>
+<style>
+    body {
+        background-color: #f0f4f8;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content {
+        padding: 20px;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .transaction-title {
+        text-align: center;
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .transaction-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-top: 100px;
+        margin-left: 200px;
+    }
+
+    .transaction-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .transaction-info p {
+        margin: 8px 0;
+        color: #555;
+        font-size: 16px;
+    }
+
+    .status {
+        margin-top: 10px;
+    }
+
+    .status-indicator {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .status-in-transit {
+        background-color: #ffca2c;
+        color: #333;
+    }
+
+    .track-button {
+        background-color: #009914;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 12px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .track-button:hover {
+        background-color: #02c41b;
+    }
+
+    .update-status-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 12px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .update-status-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgb(0,0,0); 
+        background-color: rgba(0,0,0,0.4); 
+        padding-top: 60px; 
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 3% auto; 
+        padding: 40px;
+        border: 1px solid #888;
+        width: 80%; 
+        margin-left: 20%;
+        border-radius: 10px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+{% endblock %}

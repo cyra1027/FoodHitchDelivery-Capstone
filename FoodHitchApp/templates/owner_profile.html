@@ -1,0 +1,121 @@
+{% extends "owner_base.html" %}
+{% load static %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-sidebar">
+        {% if store_owner.Picture %}
+            <img src="{{ store_owner.Picture.url }}" alt="Profile Picture" class="profile-image">
+        {% else %}
+            <img src="{% static 'images/default_profile.jpg' %}" alt="Default Profile Picture" class="profile-image">
+        {% endif %}
+        <h2 class="centered">{{ store_owner.FirstName }} {{ store_owner.LastName }}</h2>
+        <p class="centered">{{ user.email }}</p>
+    </div>
+    
+    <div class="profile-content">
+        <h3 class="centered">Profile Settings</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_first_name">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="input-group">
+                    <label for="id_last_name">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="input-group">
+                    <label for="id_email">Email</label>
+                    {{ form.email }}
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_phone">Phone Number</label>
+                    {{ form.phone }}
+                </div>
+                <div class="input-group">
+                    <label for="id_password">Current Password</label>
+                    {{ form.password }}
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_password1">New Password</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="input-group">
+                    <label for="id_password2">Confirm New Password</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="input-group">
+                    <label for="id_picture">Upload New Profile Picture:</label>
+                    <input type="file" name="picture" id="id_picture" accept="image/*">
+                </div>
+            </div>
+        
+            <div class="input-group">
+                <button type="submit">Save Changes</button>
+            </div>
+        </form>
+
+        {% if success %}
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Profile Updated Successfully',
+                        text: 'Your profile has been updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        {% endif %}
+    
+        {% if error_message %}
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '{{ error_message|escapejs }}',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .current-profile-image {
+        max-width: 150px; /* Adjust as needed */
+        height: auto; 
+        margin-bottom: 10px; /* Space below the current picture */
+    }
+</style>
+{% endblock %}

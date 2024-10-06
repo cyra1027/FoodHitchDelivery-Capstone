@@ -1,0 +1,44 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Manage Restaurant{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="main-content">
+    <div class="store-container">
+        <h1 class="page-title" style="margin-left: -850px;">Restaurant
+            <a href="{% url 'admin_add_restaurant' %}" class="add-new-restaurant-button">
+                <span class="plus-icon">+</span> Add New Restaurant
+            </a>
+        </h1>
+        <div class="store-list">
+            {% for restaurant in restaurants %}
+                <div class="store-card">
+                    {% if restaurant.Image %}
+                        <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}">
+                    {% else %}
+                        <img src="{% static 'default_restaurant_image.jpg' %}" alt="Default Image">
+                    {% endif %}
+                    <h1>{{ restaurant.title }} </h1>
+                    <div>
+                        <div class="forget">
+                            <span class="edit-delete-links">
+                                <a href="{% url 'admin_edit_restaurant' restaurant.RestaurantID %}" class="edit-link">
+                                    <i class="fas fa-pencil-alt"></i> EDIT
+                                </a> |
+                                <form action="{% url 'delete_restaurant' restaurant.RestaurantID %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-link" style="background: none; border: none; color: inherit; cursor: pointer;">
+                                        <i class="fas fa-trash-alt"></i> DELETE
+                                    </button>
+                                </form>
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{{ restaurant.get_admin_menu_url }}" class="btn">View Menu</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

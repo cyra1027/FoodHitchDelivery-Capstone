@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/owner.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <title>Store Owner Sign Up</title>
+    <style>
+        /* Align the radio buttons horizontally */
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Gap between Yes and No options */
+        }
+        .radio-group label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/foodhitch-green.png' %}" alt="Logo">
+        </div>
+    </header>
+    <div class="container">
+        <div class="registration-form">
+            <h2>STORE OWNER SIGN UP</h2>
+            <form id="storeownerregistrationForm" method="POST" action="{% url 'owners_register' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- First Name and Last Name -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="first_name">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="input-group">
+                        <label for="last_name">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        {{ form.username }}
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="input-group">
+                        <label for="password1">Password</label>
+                        {{ form.password1 }}
+                    </div>
+                    <div class="input-group">
+                        <label for="password2">Confirm Password</label>
+                        {{ form.password2 }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="input-group">
+                        <label for="picture">Profile Picture</label>
+                        {{ form.picture }}
+                    </div>
+                </div>
+
+                <!-- BIR 203 Radio Button -->
+                <div class="input-group">
+                    <label for="HasBIR203" style="margin-right: 350px;">BIR 203 Available?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="HasBIR203" value="True" required> Yes</label>
+                        <label><input type="radio" name="HasBIR203" value="False" required> No</label>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" id="register-btn">REGISTER</button>
+            </form>
+            <div class="sign-link">
+                <p>Already have an account? <a href="{% url 'customer_login' %}"> Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 and custom script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const form = document.getElementById('storeownerregistrationForm');
+        
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();  // Prevent default form submission
+
+            const bir203 = document.querySelector('input[name="HasBIR203"]:checked').value;  // Correct name
+            
+            if (bir203 === 'False') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registration Blocked',
+                    text: 'You cannot register without BIR 203.',
+                });
+            } else {
+                // Gather form data
+                const formData = new FormData(form);
+
+                // Proceed with the registration process
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Registration Successful!',
+                            text: 'You have successfully registered as a Store Owner.',
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => {
+                            window.location.href = "{% url 'customer_login' %}";  // Redirect to login
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Please check the form for errors.',
+                        });
+                        console.log(data.errors);  // Display form errors
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: 'An error occurred while processing your request. Please try again later.',
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

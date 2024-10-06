@@ -1,0 +1,308 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="main-content">
+    <div class="store-container">
+        <h1>Search Results for "{{ search_term }}"</h1>
+        <a href="javascript:void(0)" class="btn btn-back" onclick="window.history.back();">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+        </a>
+        
+        <div class="card">
+        {% if restaurants %}
+            <h2>Restaurants</h2>
+            <div class="store-list">
+                {% for restaurant in restaurants %}
+                    <div class="store-card">
+                        {% if restaurant.image %}
+                            <img src="{{ restaurant.image.url }}" alt="{{ restaurant.title }}">
+                        {% else %}
+                            <img src="{% static 'default_restaurant_image.jpg' %}" alt="Default Image">
+                        {% endif %}
+                        <h1>{{ restaurant.title }}</h1>
+                        <div class="forget">
+                          <span class="edit-delete-links">
+                              <a href="{% url 'admin_edit_restaurant' restaurant.id %}" class="edit-link"><i class="fas fa-pencil-alt"></i> EDIT</a> | 
+                              <a href="#" class="delete-link" data-id="{{ restaurant.id }}" data-name="{{ restaurant.title }}" onclick="openDeleteAlert(event)">
+                              <i class="fas fa-trash-alt"></i> DELETE
+                          </a>
+                          </span>
+                        </div>
+                        <a href="{{ restaurant.get_admin_menu_url }}" class="btn">View Menu</a>
+</div>
+
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if menu_items %}
+            <h2>Menu Items</h2>
+            <div class="store-list">
+                {% for item in menu_items %}
+                    <div class="store-card">
+                        <div class="image-container">
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            {% else %}
+                                <img src="{% static 'default_image.jpg' %}" alt="Default Image">
+                            {% endif %}
+                        </div>
+                        <h2>{{ item.name }}</h2>
+                        <div class="price">₱{{ item.price }}</div>
+                        <div class="forget">
+                          <span class="edit-delete-links">
+                            <a href="{% url 'admin_edit_menu' item.restaurant.id item.id %}" class="edit-link"><i class="fas fa-pencil-alt"></i> EDIT</a> | 
+                            <a href="#" class="delete-link" data-id="{{ item.id }}" data-name="{{ item.name }}" onclick="openDeleteAlert(event)"><i class="fas fa-trash-alt"></i> DELETE</a>
+                          </span>
+                        </div>              
+              
+                      </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if riders %}
+            <h2>Riders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>FULL NAME</th>
+                        <th>STATUS</th>
+                        <th>VIEW</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rider in riders %}
+                        <tr>
+                            <td>{{ rider.id }}</td>
+                            <td>{{ rider.fullname }}</td>
+                            <td>{{ rider.get_status_display }}</td>
+                            <td><a href="{% url 'admin_rider_details' rider.id %}" class="view">View</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<script>
+    function openDeleteAlert(event) {
+        event.preventDefault();
+        
+        const restaurantId = event.target.dataset.id;
+        const restaurantName = event.target.dataset.name;
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you really want to delete this restaurant?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/restaurant/${restaurantId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json'  // Ensure the content type is correctly set
+                    },
+                    body: JSON.stringify({ 'id': restaurantId })  // Include data in request body if needed
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Deleted!',
+                            'The restaurant has been deleted.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload(); // Reload the page to reflect changes
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while deleting the restaurant.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting restaurant:', error);
+                });
+            }
+        });
+    }
+    
+    function getCSRFToken() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]').value || '';
+    }
+
+
+
+
+    function openDeleteAlert(event) {
+        event.preventDefault();
+        
+        const menuItemId = event.target.dataset.id;
+        const menuItemName = event.target.dataset.name;
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you really want to delete this menu?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/menu-item/${menuItemId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json'  // Ensure the content type is correctly set
+                    },
+                    body: JSON.stringify({ 'id': menuItemId })  // Include data in request body if needed
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Deleted!',
+                            'The menu has been deleted.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload(); // Reload the page to reflect changes
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while deleting the menu item.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting menu item:', error);
+                });
+            }
+        });
+    }
+    
+    function getCSRFToken() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]').value || '';
+    }
+</script>
+
+
+<style>
+    /* General Store Card Styles */
+.store-card {
+  background: var(--whitecolor);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  width: 300px;
+  text-align: center;
+  padding: 20px;
+}
+
+.store-card img {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--greyColor);
+}
+
+.store-card h1 {
+  font-size: 1rem;
+  margin: 15px 0;
+  color: var(--blackColor);
+}
+
+.store-card h2 {
+  font-size: 1.1rem;
+  margin: 15px 0;
+  color: var(--blackColor);
+}
+
+.store-card .btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: rgb(31,31,31);
+  color: var(--whitecolor);
+  text-decoration: none;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+
+.store-card .btn:hover {
+  background: var(--blackColor);
+}
+
+/* Table Styles for Riders */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: rgb(196, 196, 196);
+}
+
+tr {
+  background-color: #f9f9f9;
+}
+
+.view {
+  display: inline-block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: white;
+  background-color: #389f31;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.view:hover {
+  color: rgb(0, 0, 0);
+  background-color: transparent;
+}
+.btn-back {
+  background: none;
+  border: none;
+  padding: 10px 2px;
+  cursor: pointer;
+  color: black; /* or any color you prefer */
+  font-size: 24px; /* adjust size as needed */
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.btn-back:hover {
+  color: red; /* hover color */
+}
+
+</style>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Rider Details{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="main-content">
+    <div class="container">
+        <div class="header-section">
+            <h1>Rider Details</h1>
+            <a href="javascript:void(0)" class="btn-back" onclick="window.history.back();">
+                <ion-icon name="arrow-back-outline"></ion-icon> Back
+            </a>
+        </div>
+
+        <div class="rider-card">
+            <div class="rider-image">
+                <img src="{{ rider.ProfilePicture.url }}" alt="Rider Picture">
+            </div>
+            <div class="rider-info">
+                <h2>{{ rider.FullName }}</h2>
+                <p><strong>Username:</strong> {{ rider.Username }}</p>
+                <p><strong>Email:</strong> {{ rider.Email }}</p>
+                <p><strong>Phone:</strong> {{ rider.Phone }}</p>
+                <p><strong>Plate Number:</strong> {{ rider.PlateNumber }}</p>
+                <p><strong>License:</strong> <a href="{{ rider.License.url }}" target="_blank">View License</a></p>
+                <p><strong>Status:</strong> {{ rider.get_Status_display }}</p>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <form method="post" action="{% url 'manage_rider_application' RiderID=rider.RiderID %}">
+                {% csrf_token %}
+                <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+                <button type="submit" name="action" value="decline" class="btn-decline">Decline</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* General page styling */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f2f5f7;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .header-section h1 {
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .btn-back {
+        font-size: 16px;
+        color: #007bff;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    /* Rider Card */
+    .rider-card {
+        display: flex;
+        align-items: flex-start;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #fafafa;
+    }
+
+    .rider-image img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid #007bff;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .rider-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .rider-info h2 {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .rider-info p {
+        margin: 6px 0;
+        font-size: 16px;
+    }
+
+    .rider-info a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .rider-info a:hover {
+        text-decoration: underline;
+    }
+
+    /* Buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .action-buttons button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-approve {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .btn-approve:hover {
+        background-color: #218838;
+    }
+
+    .btn-decline {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .btn-decline:hover {
+        background-color: #c82333;
+    }
+
+</style>
+{% endblock %}

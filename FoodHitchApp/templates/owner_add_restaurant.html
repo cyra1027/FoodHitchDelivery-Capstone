@@ -1,0 +1,140 @@
+{% extends "owner_base.html" %}
+
+{% block title %}Store Owner{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="main-content">
+    <div class="store-container">
+        <h1>Add New Restaurant</h1>
+        <a href="javascript:void(0)" class="btn btn-back" onclick="window.history.back();">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+        </a>
+
+        <div class="card">
+            <div class="card-content">
+                <form id="addRestaurantForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-errors">
+                        <!-- Display form errors -->
+                        {% if restaurant_form.errors %}
+                            <ul>
+                                {% for field in restaurant_form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in restaurant_form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <!-- Restaurant Form Fields -->
+                    <p style="margin-bottom: 10px;">Restaurant Name:</p>
+                    <div class="form-group" style="padding: 10px;">
+                        {{ restaurant_form.RestaurantName }}
+                    </div>
+                    
+                    <p style="margin-bottom: 10px;">Restaurant Address:</p>
+                    <div class="form-group" style="padding: 10px;">
+                        {{ restaurant_form.Address }}  <!-- Address field -->
+                    </div>
+
+                    <p>Restaurant Image:</p>
+                    <div class="image-upload-section" style="margin-bottom: 10px;">
+                        <label for="restaurantImageUpload" class="upload-label">
+                            <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+                            <span style="margin-top: 15px;">Select Restaurant Image</span>
+                        </label>
+                        <input type="file" id="restaurantImageUpload" name="Image" accept="image/*" onchange="previewImage(event, 'restaurantPreview')" />
+                        <div class="image-preview" id="restaurantPreview"></div>
+                    </div>
+                    
+                    <p>Business Permit Image:</p>
+                    <div class="image-upload-section">
+                        <label for="businessPermitUpload" class="upload-label">
+                            <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+                            <span style="margin-top: 20px;">Select Business Permit</span>
+                        </label>
+                        <input type="file" id="businessPermitUpload" name="BusinessPermit" accept="image/*" onchange="previewImage(event, 'businessPermitPreview')" />
+                        <div class="image-preview" id="businessPermitPreview"></div>
+                    </div>
+                    
+                    <button type="submit" style="margin-top: 20px;" class="button">Add Restaurant</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('addRestaurantForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(this);
+        
+        fetch('', { // Send a POST request to the same URL
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Set this header to indicate an AJAX request
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: 'Success!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = "{% url 'owner_view_restaurant' %}"; // Redirect to owner_view_restaurant after OK
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+</script>
+
+<!-- JavaScript for Image Preview -->
+<script>
+    function previewImage(event, previewId) {
+        const previewContainer = document.getElementById(previewId);
+        previewContainer.innerHTML = ''; // Clear any existing preview
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                img.style.border = '1px solid #ddd';
+                img.style.borderRadius = '8px';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+<style>
+    p {
+        font-size: 18px;
+        color: black;
+    }
+</style>
+
+{% endblock %}

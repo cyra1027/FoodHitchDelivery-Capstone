@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHitch Delivery</title>
+    <link rel="stylesheet" href="{% static 'css/customer_base.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.6.3/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'customer_home' %}">
+                <img src="{% static 'images/sidebarlogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
+            </a>
+        </div>
+        <div class="sidebar-menus">
+
+            
+            <a href="{% url 'customer_home' %}"><ion-icon name="home-outline"></ion-icon>Home</a>
+            <a href="{% url 'profile_settings' %}"><ion-icon name="person-outline"></ion-icon>Profile</a>
+            <a href="{% url 'view_favorites' %}"><ion-icon name="heart-outline"></ion-icon>Favorites</a>
+            <a href="{% url 'customer_track_order' %}"><ion-icon name="compass-outline"></ion-icon>Track Order</a>
+            <a href="{% url 'order_history' %}"><ion-icon name="clipboard-outline"></ion-icon>Order History</a>
+            <a href="{% url 'customer_reward_points' %}"><ion-icon name="star-outline"></ion-icon>Reward Points</a>
+        </div>
+        <div class="sidebar-logout">
+            <a href="{% url 'logout' %}"><ion-icon name="exit-outline"></ion-icon>Logout</a>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search...">
+        </div>
+        <div class="icons">
+            <div class="cart-container">
+                <!-- Add an anchor tag around the cart icon -->
+                <a href="{% url 'view_cart' %}">
+                    <ion-icon name="cart-outline"></ion-icon>
+                    <span id="cart-count" class="cart-count">0</span>
+                </a>
+            </div>
+            <ion-icon name="person-outline"></ion-icon>
+        </div>
+    </header>
+    {% block content %}{% endblock %}
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartCountElement = document.getElementById('cart-count');
+            const csrftoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            const searchInput = document.getElementById('search-input');
+
+            function updateCartCount() {
+                fetch('/get_cart_count/', {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        cartCountElement.textContent = data.cart_count;
+                    } else {
+                        console.error('Error fetching cart count:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Update cart count on page load
+            updateCartCount();
+
+            // Optionally handle page visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    updateCartCount();
+                }
+            });
+
+            // Update cart count on back/forward navigation
+            window.addEventListener('popstate', function() {
+                updateCartCount();
+            });
+
+            // Search functionality
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const query = encodeURIComponent(searchInput.value);
+                    window.location.href = `/search/?query=${query}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

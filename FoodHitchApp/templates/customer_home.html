@@ -1,0 +1,27 @@
+{% extends "customer_base.html" %}
+
+{% block title %}Customer Home{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<div class="main-content">
+    <div class="store-container">
+        <h1>Restaurant</h1>
+        <div class="store-list">
+            {% for restaurant in restaurants %}
+                <div class="store-card">
+                    {% if restaurant.Image %}
+                        <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}">
+                    {% else %}
+                        <img src="{% static 'default_restaurant_image.jpg' %}" alt="Default Image">
+                    {% endif %}
+                    <h1>{{ restaurant.RestaurantName }}</h1>
+                    <a href="{{ restaurant.get_menu_url }}" class="btn">View Menu</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

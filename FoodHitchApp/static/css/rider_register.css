@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins',sans-serif;
+    color: #333;
+    background-color: #fff9e3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: rgb(241, 241, 241);
+    padding: 20px;
+    width: 510px;
+    border-radius: 10px;
+    margin-left: 675px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0px 30px 30px 0px;
+    padding-bottom: 20px;
+    text-align: center;
+}
+
+.logo {
+    position: absolute;
+    top: 12px;
+    left: 43.5px;
+
+}
+
+.logo img {
+    width: 659px;
+    height: 594px;
+    border-radius: 30px 0px 0px 30px;
+    box-shadow: rgba(255, 255, 255, 0.1);
+}
+
+.registration-form {
+    width: 100%;
+}
+
+.registration-form h2 {
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    flex: 1;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    
+    
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-sizing: border-box; 
+    cursor: pointer;
+}
+
+button {
+    background-color: #009914;
+    color: #fefefe  ;
+    border: none;
+    padding: 13px; 
+    border-radius: 5px;
+    width: 100%; 
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #222;
+}
+
+.sign-link {
+    margin-top: 20px;
+}
+
+.sign-link p {
+    color: black;
+    font-size: 1rem;
+}
+
+.sign-link a {
+    font-size: 15px;
+    text-align: center;
+    margin: 25px 0;
+    text-decoration: underline;
+    color: var(--main-color);
+    font-weight: 600;
+}
+.row {
+    display: flex;
+    gap: 15px;
+}
+.row .input-group {
+    flex: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.ok-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.ok-btn:hover {
+    background-color: #45a049;
+}

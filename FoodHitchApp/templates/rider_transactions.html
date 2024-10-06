@@ -1,0 +1,338 @@
+{% extends "rider_base.html" %}
+{% load static %}
+
+{% block title %}Rider Transactions{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="transaction-container">
+        <h1 class="transaction-title">Transaction Details</h1>
+        
+        {% if deliveries %}
+            {% for delivery in deliveries %}
+            <div class="transaction-card">
+                <div class="transaction-info">
+                    <p><strong>Transaction ID:</strong> {{ delivery.OrderID.TransactionID }}</p>
+                    <p><strong>Delivery ID:</strong> {{ delivery.DeliveryID }}</p>
+                    <p><strong>Customer Name:</strong> {{ delivery.CustomerID.CustomerName }}</p>
+                    <p><strong>Address:</strong> {{ delivery.Address }}</p>
+                    <p><strong>Restaurant Name:</strong> {{ delivery.RestaurantID.RestaurantName }}</p>
+                    <p><strong>Total Payable:</strong> ₱{{ delivery.TotalPayableAmount }}</p>
+                    
+                    <p><strong>Ordered Items:</strong></p>
+                    <ul>
+                        {% for item in delivery.delivery_items.all %}
+                        <li style=" list-style-type: none;">{{ item.FoodID.FoodName }} (x{{ item.Quantity }})</li>
+                    {% endfor %}
+                    </ul>
+                    
+                    <p class="status"><strong>Status:</strong> 
+                        <span class="status-indicator" data-delivery-id="{{ delivery.DeliveryID }}" 
+                        {% if delivery.DeliveryStatus == 'In Transit' %} class="status-indicator status-in-transit" 
+                        {% elif delivery.DeliveryStatus == 'Delivered' %} class="status-indicator status-delivered" 
+                        {% else %} class="status-indicator status-pending" {% endif %}>
+                        {{ delivery.DeliveryStatus }}
+                    </span>
+                    </p>
+                </div>
+                <button class="track-button" style="margin-bottom: 30px;" onclick="trackCustomer('{{ delivery.Address }}')">Track Customer Location</button>
+                
+                <form class="status-update-form" data-delivery-id="{{ delivery.DeliveryID }}">
+                    {% csrf_token %}
+                    <button type="button" name="status" value="In Transit" class="status-button" onclick="updateStatus('{{ delivery.DeliveryID }}', 'On Transit')">Mark as In Transit</button>
+                    <button type="button" name="status" value="Delivered" class="status-button" onclick="updateStatus('{{ delivery.DeliveryID }}', 'Delivered')">Mark as Delivered</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No deliveries assigned to you.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal for Map -->
+<div id="mapModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="map" style="height: 500px; width: 100%;"></div>
+        <div id="directionsPanel" style="margin-top: 20px;"></div>
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k&callback=initializeMap" async defer></script>
+<script>
+    var map;
+    var directionsService;
+    var directionsRenderer;
+    var riderMarker;
+
+    function initializeMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 10.3157, lng: 123.8854 }, // Center in Argao
+            zoom: 13
+        });
+
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+    }
+
+    function trackCustomer(address) {
+        if (address) {
+            console.log('Tracking customer at:', address);
+            
+            // Geocode the address to get latitude and longitude
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status === 'OK') {
+                    var customerLocation = results[0].geometry.location;
+
+                    // Show the modal
+                    document.getElementById('mapModal').style.display = 'block';
+
+                    // After the modal is displayed, force the map to resize
+                    setTimeout(function() {
+                        google.maps.event.trigger(map, 'resize');
+                        map.setCenter(customerLocation);
+                    }, 300);
+
+                    // Remove existing marker if exists
+                    if (riderMarker) {
+                        riderMarker.setMap(null);
+                    }
+
+                    // Create a new marker for the customer
+                    riderMarker = new google.maps.Marker({
+                        position: customerLocation,
+                        map: map,
+                        title: 'Customer Location'
+                    });
+
+                    // Get the rider's current location
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var riderLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        // Request directions from rider's location to customer location
+                        calculateAndDisplayRoute(directionsService, directionsRenderer, riderLocation, customerLocation);
+                    }, function() {
+                        console.error('Error getting rider location.');
+                    });
+                } else {
+                    console.error('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        } else {
+            console.error('Invalid address:', address);
+        }
+    }
+
+    function calculateAndDisplayRoute(directionsService, directionsRenderer, riderLocation, customerLocation) {
+        directionsService.route({
+            origin: riderLocation,
+            destination: customerLocation,
+            travelMode: 'DRIVING'
+        }, function(response, status) {
+            if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+                document.getElementById('directionsPanel').innerHTML = ''; // Clear previous directions
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+    }
+
+    function closeModal() {
+        document.getElementById('mapModal').style.display = 'none';
+        if (riderMarker) {
+            riderMarker.setMap(null);
+        }
+        directionsRenderer.setMap(null);
+    }
+
+    function updateStatus(deliveryId, status) {
+    const requestBody = JSON.stringify({
+        delivery_id: deliveryId,
+        status: status
+    });
+
+    fetch('{% url "update_delivery_status" %}', {
+        method: 'POST',
+        body: requestBody,
+        headers: {
+            'Content-Type': 'application/json', // Send as JSON
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Find the status display element for the updated delivery using data-delivery-id
+            const statusIndicator = document.querySelector(`.status-indicator[data-delivery-id="${deliveryId}"]`);
+            if (statusIndicator) {
+                statusIndicator.textContent = status; // Update the displayed status text
+                // Change the class for styling based on the status
+                statusIndicator.className = 'status-indicator ' + (status === 'On Transit' ? 'status-in-transit' : (status === 'Delivered' ? 'status-delivered' : 'status-pending'));
+            }
+        } else {
+            alert(data.error); // Show error if any
+        }
+    })
+    .catch(error => console.error('Error updating status:', error));
+}
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    *{
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        background-color: #f0f4f8;
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content {
+        padding: 20px;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .transaction-title {
+        text-align: center;
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .transaction-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-top: 100px;
+        margin-left: 200px;
+    }
+
+    .transaction-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .transaction-info p {
+        margin: 8px 0;
+        color: #555;
+        font-size: 16px;
+    }
+
+    .status {
+        margin-top: 10px;
+    }
+
+    .status-indicator {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .track-button {
+        background-color: #009914;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 12px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .track-button:hover {
+        background-color: #007d12;
+    }
+
+    .status-update {
+        margin-top: 20px;
+    }
+
+    .status-button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        margin-left: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .status-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Additional styling for status colors */
+    .status-in-transit {
+        background-color: #ffcc00;
+        color: #fff;
+    }
+
+    .status-delivered {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .status-pending {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>
+{% endblock %}

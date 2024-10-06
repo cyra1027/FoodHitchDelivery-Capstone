@@ -1,0 +1,115 @@
+{% extends "owner_base.html" %}
+
+{% block title %}Admin Manage Restaurant{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="main-content">
+    <div class="store-container">
+        <h1>Add New Menu for {{ restaurant.RestaurantName }}</h1>
+        <a href="javascript:void(0)" class="btn btn-back" onclick="window.history.back();">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+        </a>
+
+        <div class="card">
+            <div class="card-content">
+                <form id="addMenuForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="restaurant" value="{{ restaurant.RestaurantID }}">
+
+                    <!-- Food Name Field -->
+                    <div class="form-group">
+                        <label for="id_FoodName">Food Name:</label>
+                        {{ menu_item_form.FoodName }}
+                    </div>
+
+                    <!-- Price Field -->
+                    <div class="form-group">
+                        <label for="id_Price">Price:</label>
+                        {{ menu_item_form.Price }}
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="image-upload-section">
+                        <label for="imageUpload" class="upload-label">
+                            <ion-icon name="cloud-upload-outline" size="large"></ion-icon>
+                            <span>Select image</span>
+                        </label>
+                        <input type="file" id="imageUpload" name="Image" accept="image/*" onchange="previewImage(event)" />
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                    <br>
+                    <button type="submit" class="button">Add Menu Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('addMenuForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(this);
+        
+        fetch('', { // Send a POST request to the same URL
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Set this header to indicate an AJAX request
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: 'Success!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = "{% url 'owner_view_menu' restaurant.RestaurantID %}"; // Redirect after OK
+                });
+            } else {
+                let errorMessage = data.message;
+                if (data.errors) {
+                    errorMessage += '\n' + JSON.stringify(data.errors); // Include validation errors
+                }
+                Swal.fire({
+                    title: 'Error!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+</script>
+
+<!-- JavaScript for Image Preview -->
+<script>
+    function previewImage(event) {
+        const previewContainer = document.getElementById('imagePreview');
+        previewContainer.innerHTML = ''; // Clear any existing preview
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                img.style.border = '1px solid #ddd';
+                img.style.borderRadius = '8px';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+{% endblock %}

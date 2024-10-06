@@ -1,0 +1,87 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title">Restaurant Partners</h2> <!-- Added class for styling -->
+
+    <div class="store-list">
+        {% for restaurant in restaurants %}
+        <div class="store-card">
+            <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}" class="restaurant-image">
+            <h3>{{ restaurant.RestaurantName }}</h3>
+        </div>
+        {% empty %}
+        <p>No restaurant partners found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Add some margin to prevent overlap with sidebar */
+    .container {
+        padding: 120px;
+        margin-left: 15%; /* Adjust this based on your sidebar width */
+    }
+
+    /* Style for the section title */
+    .section-title {
+        font-size: 2.5rem;
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+        color: #333;
+        margin-bottom: 40px; /* Adds space between the title and cards */
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ddd; /* Optional underline */
+    }
+
+    /* Grid with 2 columns */
+    .store-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 2 columns */
+        gap: 40px; /* Space between cards */
+    }
+
+    .store-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        transition: transform 0.3s ease;
+
+    }
+
+    .store-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .store-card h3 {
+        font-size: 1.1rem;
+        font-family: 'Poppins', sans-serif;
+        margin-top: 20px;
+    }
+
+    .restaurant-image {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+        .container {
+            margin-left: 0; /* Remove margin on smaller screens */
+        }
+        .store-list {
+            grid-template-columns: repeat(1, 1fr); /* 1 column on smaller screens */
+        }
+    }
+
+    @media (max-width: 600px) {
+        .store-list {
+            grid-template-columns: repeat(1, 1fr); /* 1 column on mobile */
+        }
+    }
+</style>
+{% endblock %}

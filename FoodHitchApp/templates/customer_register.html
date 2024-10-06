@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <title>Customer Sign Up</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/foodhitch-green.png' %}" alt="Logo">
+        </div>
+    </header>
+    <div class="container">
+        <div class="registration-form">
+            <h2>CREATE AN ACCOUNT</h2>
+            <form id="customerregistrationForm" method="post" action="{% url 'customer_register' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="input-group">
+                        <label for="fullname" style="margin-left: -70%;">Full Name</label>
+                        {{ form.fullname }}
+                    </div>
+                    <div class="input-group">
+                        <label for="username" style="margin-left: -69%;">Username</label>
+                        {{ form.username }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label for="email" style="margin-left: -82%;">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="input-group">
+                        <label for="phone" style="margin-left: -55%;">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label for="password1" style="margin-left: -70%;">Password</label>
+                        {{ form.password1 }}
+                    </div>
+                    <div class="input-group">
+                        <label for="password2" style="margin-left: -46%;">Confirm Password</label>
+                        {{ form.password2 }}
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="picture" style="margin-left: -80%;">Profile Picture</label>
+                    {{ form.picture }}
+                </div>
+                <button type="submit" id="register-btn">REGISTER</button>
+            </form>
+            <div class="sign-link">
+                <p>Already have an account? <a href="{% url 'customer_login' %}"> Sign In</a></p>
+            </div>
+        </div>
+    </div>
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

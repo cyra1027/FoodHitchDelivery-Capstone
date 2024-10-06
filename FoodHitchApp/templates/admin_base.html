@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHitch Delivery</title>
+    <link rel="stylesheet" href="{% static 'css/admin_base.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.6.3/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'admin_base' %}">
+                <img src="{% static 'images/sidebarlogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
+            </a>
+        </div>
+        <div class="sidebar-menus">
+            <a href="{% url 'admin_home' %}" class="{% if request.path == '/admin_home/' %}active{% endif %}">
+                <ion-icon name="home-outline"></ion-icon>Dashboard
+            </a>
+            <a href="{% url 'admin_rider_table' %}" class="{% if request.path == '/riders/' %}active{% endif %}">
+                <ion-icon name="document-outline"></ion-icon>Rider's Application
+            </a>
+            <a href="{% url 'view_riders' %}" class="{% if request.path == '/view_riders/' %}active{% endif %}">
+                <ion-icon name="person-outline"></ion-icon>Riders
+            </a>
+            <a href="{% url 'partner_request_list' %}" class="{% if request.path == '/partner-requests/' %}active{% endif %}">
+                <ion-icon name="mail-outline"></ion-icon>Partner Request
+            </a>
+            <a href="{% url 'restaurant_partners' %}" class="{% if request.path == '/restaurant-partners/' %}active{% endif %}">
+                <ion-icon name="restaurant-outline"></ion-icon>Restaurant Partners
+            </a>
+            <a href="{% url 'admin_feedback_list' %}" class="{% if request.path == '/feedback/' %}active{% endif %}">
+                <ion-icon name="chatbox-ellipses-outline"></ion-icon>Feedbacks
+            </a>
+        </div>
+        <div class="sidebar-logout">
+            <a href="{% url 'customer_login' %}" class="{% if request.path == '/customer_login/' %}active{% endif %}">
+                <ion-icon name="exit-outline"></ion-icon>Logout
+            </a>
+        </div>
+    </div>
+    
+    <header class="header">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search...">
+        </div>
+        <div class="icons">
+            <div class="cart-container">    
+                <a href="{% url 'admin_notifications' %}">
+                    <ion-icon name="notifications-outline"></ion-icon>
+                    <span id="notification-count" class="notification-count">{{ notification_count }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+    
+    <script src="{% static 'js/customer_countcart.js' %}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const query = encodeURIComponent(searchInput.value);
+                    window.location.href = `/view_riders/?query=${query}`; 
+                }
+            });
+        });
+    </script>
+</body>
+</html>

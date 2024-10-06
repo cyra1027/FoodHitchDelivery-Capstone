@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHitch Delivery</title>
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+ 
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <!-- Logo -->
+            <a href="{% url 'foodhitch' %}" class="logo-link">
+                <img src="{% static 'images/sidebarlogo.png' %}" height="50px" width="200px">
+            </a>
+            <ul class="nav-links">
+                <!-- Add your navigation links here if any -->
+            </ul>
+            <a href="{% url 'customer_login' %}" class="login-button">Log In</a>
+        </div>
+    </nav>
+    
+    <section class="video-container">
+        <video autoplay muted loop id="background-video">
+            <source src="{% static 'images/backgroundvid.mp4' %}" type="video/mp4">
+        </video>
+        <div class="quote1">
+            <h1>happy tummy with<br>foodhitch delivery</h1>
+        </div>
+    </section>
+    
+    <div class="page2">
+        <h1>Hungry? Your favorite meals are just a click away.</h1><br> <p>Get them delivered fast and fresh!</p>
+        <a href="{% url 'customer_login' %}" class="cta-button">Order Now</a>
+    </div>
+
+
+    <div class="page3">
+        <img src="{% static 'images/picmenu.png' %}" alt="Logo" class="logo">
+        <div class="text-content">
+            <h1>Share your flavors with more people!</h1>
+            <p>Interested? Let's start our partnership today!</p>
+            <a href="{% url 'owners_register' %}" class="cta-button">Get Started</a>
+        </div>
+    </div>
+    <hr class="divider"> <!-- Divider after page 3 -->
+
+    <div class="page4">
+        <div class="text-content">
+            <h1>Become a delivery rider!</h1>
+            <p>Ride with us and deliver smiles along with great food!</p>
+            <a href="{% url 'rider_register' %}" class="button2">Apply Now</a>
+        </div>
+        <img src="{% static 'images/rider_4x.gif' %}" alt="Logo" class="logo">
+    </div>
+    <hr class="divider"> <!-- Divider after page 3 -->
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© FoodHitch 2024</p>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=foodhitchdelivery@gmail.com" class="gmail-icon" target="_blank">
+                <img src="static/images/gmail.png" alt="Gmail Icon" />            </a>
+        </div>
+    </footer>
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

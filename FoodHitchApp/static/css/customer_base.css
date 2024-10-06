@@ -1,0 +1,779 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+  :root {
+    --primaryColor: #fff;
+    --secondaryColor: #ffc107;
+    --whitecolor: #fff;
+    --softGreenColor: #f5f5f5;
+    --darkGreyColor: #a7a7a7;
+    --greyColor: #f5f5f5;
+    --blackColor: #000;
+    --navbarColor: #ff0000; /* Red color for navbar */
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins',sans-serif;
+  }
+
+  body {
+    display: flex;
+    min-height: 100vh; /* Ensure full height for proper content placement */
+    flex-direction: column; /* Align content vertically */
+  }
+
+  .sidebar {
+    height: 100%;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 2%;
+    background-color: #fdfcf3;
+    color: var(--blackColor);
+    box-shadow: 0 4px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
+}
+  .sidebar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .logo {
+    width: 100%;
+    height: 100px;
+    background-color: rgb(31, 31, 31);
+    object-fit: cover;
+  }
+
+  .sidebar-menus {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .sidebar-menus h1{
+    font-size: 1em;
+  }
+
+  .sidebar-menus a, .sidebar-logout a {
+    padding: 5% 8%;
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--blackColor);
+  }
+
+  .sidebar-menus a ion-icon, .sidebar-logout a ion-icon {
+    font-size: 20px;
+    color: var(--blackColor);
+  }
+
+  .sidebar-menus a ion-icon:hover, .sidebar-logout a ion-icon:hover {
+    color: #000;
+  }
+
+  .sidebar-menus a:hover, .sidebar-logout a:hover {
+    background-color: #cfcbcb;
+    border-radius: 50px;
+    color: #000;
+  }
+
+  /* Header Styles */
+  .header {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 250px; /* Adjust to accommodate the sidebar */
+    right: 0;
+    background: #e2e6df;
+    padding: 10px 20px;
+    z-index: 1000;
+    height: 60px; /* Adjust height as needed */
+    justify-content: space-between; /* Distribute space between search bar and icons */
+  }
+
+  .header .search-bar {
+    flex: 1;
+    max-width: 600px;
+    background-color: #fff;
+    margin: 0 auto; /* Center the search bar */
+  }
+  
+  .header .search-bar input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--greyColor);
+    font-size: 16px;
+  }
+
+  .header .icons {
+    display: flex;
+    align-items: center;
+  }
+
+  .header .icons ion-icon {
+    font-size: 24px;
+    margin-left: 20px;
+    cursor: pointer;
+    color: var(--blackColor);
+  }
+
+  .header .icons ion-icon:hover {
+    color: #3d3c3c; /* Change color on hover */
+  }
+
+  .main-content {
+    margin-left: 250px; /* Leave space for the sidebar */
+    margin-top: 60px; /* Space for the header */
+    padding: 20px;
+    flex: 1; /* Take up remaining space */
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: flex-start; /* Align content to the start vertically */
+  }
+
+  /* Store container adjustment */
+  .store-container {
+    width: 100%;
+    max-width: 1200px; /* Max width for content */
+    background-color: var(--softGreenColor);
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 10px;
+  }
+
+
+  .store-container {
+    padding: 20px;
+    background-color: var(--softGreenColor);
+    min-height: calc(100vh - 60px); /* Adjust height to fit the content below the header */
+  }
+
+  .store-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--blackColor);
+  }
+
+  .store-list {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .store-card {
+    background: var(--whitecolor);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+    width: 300px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .store-card img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--greyColor);
+  }
+
+  .store-card h1 {
+    font-size: 1rem;
+    margin: 15px 0;
+    color: var(--blackColor);
+  } 
+
+
+  .store-card h2 {
+    font-size: 1.1rem;
+    margin: 15px 0;
+    color: var(--blackColor);
+  }
+
+  .store-card p {
+    color: var(--darkGreyColor);
+  }
+
+  .store-card .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #009914;
+    color: var(--whitecolor);
+    text-decoration: none;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+
+  .btn add-to-cart-btn{
+    background: #009914;
+  }
+
+  .store-card .btn:hover {
+    background-color: #02520c;
+  }
+  /* Container for the image and favorite icon */
+  .image-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+
+  }
+
+  .favorite-icon {
+    font-size: 24px; /* Adjust size as needed */
+    color: gray; /* Default color */
+    margin-left: auto;
+    transition: color 0.3s;
+    cursor: pointer;
+}
+
+.favorite-icon.active {
+    color: red; /* Color when active */
+}
+
+/* In your customer_base.css or another CSS file */
+.btn-back {
+  background: none;
+  border: none;
+  padding: 10px 2px;
+  cursor: pointer;
+  color: black; /* or any color you prefer */
+  font-size: 24px; /* adjust size as needed */
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.btn-back:hover {
+  color: red; /* hover color */
+}
+
+.btn-back ion-icon {
+  vertical-align: middle; /* Aligns the icon vertically */
+}
+
+.restaurant-name{
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.cart-container {
+  position: relative;
+}
+
+.cart-count {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 14px;
+}
+/* Cart styles */
+.cart-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
+.cart-title {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  color: var(--blackColor);
+}
+
+.cart-list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: var(--whitecolor);
+  border-radius: 8px;
+  box-shadow: 0 1cap 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item img {
+  width: 60px; /* Adjust as needed */
+  height: 60px; /* Adjust as needed */
+  border-radius: none;
+  margin-right: 10px;
+}
+
+.item-details {
+  display: flex;
+  align-items: center;
+  flex: 2;
+  justify-content: space-between; /* Aligns name and price side by side */
+  margin-right: 200px;
+}
+
+.item-name {
+  font-weight: bold;
+  color: var(--blackColor);
+}
+
+.item-price {
+  color: var(--blackColor);
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.quantity-control .btn-increase {
+  background-color: transparent ;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  color: var(--blackColor);
+  border: 1px solid var(--blackColor);
+  border-radius: 5px;
+}
+
+.quantity-control .btn-decrease {
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  color: var(--blackColor);
+  border: 1px solid var(--blackColor);
+  border-radius: 5px;
+}
+
+
+.quantity-control input {
+  width: 30px;
+  height: 30px; /* Set height for better alignment */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px;
+  border: none;
+  padding: 0; /* Remove padding for better centering */
+  font-size: 16px; /* Increase font size if needed */
+}
+.quantity-control input::-webkit-outer-spin-button,
+.quantity-control input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+.btn-remove {
+  background-color: var(--navbarColor);
+  border: none;
+  color: var(--whitecolor);
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 20px;
+}
+
+.btn-remove:hover {
+  background-color: var(--blackColor);
+}
+
+.btn-checkout {
+  background-color: #14a800; /* Change this to the desired primary color */
+  color: var(--whitecolor); /* Text color */
+  padding: 8px 15px; /* Padding for button */
+  font-size: 18px; /* Font size for the text */
+  font-weight: bold; /* Make the text bold */
+  text-align: center; /* Center the text */
+  border: none; /* Remove default borders */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition effects */
+  width: 150px; /* Full-width button */
+  margin: 20px auto 0; /* Center the button and add top margin */
+  display: block; /* Ensure the button is centered */
+  margin-left: 10%;
+}
+
+/* Hover and active states for the button */
+.btn-checkout:hover {
+  background-color: #009914; /* Change background on hover */
+}
+
+.item-total-price {
+  margin-left: 20px; /* Add space between the total price and the increase button */
+  color: var(--blackColor); /* Ensure consistent color */
+}
+.cart-summary {
+  display: flex;
+  flex-direction: column; /* Stack the total price and button vertically */
+  align-items: flex-end; /* Align items to the right */
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+.total-price {
+  font-size: 1rem; /* Increase font size for readability */
+  font-weight: bold;
+  color: var(--blackColor); /* Ensuring visibility */
+  margin-bottom: 5px; /* Space between the total price and button */
+}
+
+#total-price {
+  font-size: 1rem; /* Emphasize the total price */
+  color: var(--blackColor); /* Use your primary color for a vibrant look */
+}
+/* Container for search results */
+.custom-search-results-container {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* Adjust height to fit content below the header */
+  border-radius: 10px;
+  margin: 0 auto; /* Center the container */
+}
+
+/* Title of the search results page */
+.custom-search-results-header {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--blackColor);
+  font-size: 2rem; /* Larger font size for visibility */
+}
+
+/* Flex container for the list of results */
+.custom-results-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Center items horizontally */
+  gap: 20px; /* Adjust gap between items */
+}
+
+/* Individual card for each menu item */
+.custom-menu-item-card {
+  background: var(--greyColor);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%; /* Full width for better responsive design */
+  max-width: 800px; /* Increased width for menu items */
+  display: flex; /* Align items in a row */
+  flex-direction: row; /* Arrange items horizontally */
+  margin: 10px 0; /* Margin around each card */
+  align-items: center; /* Center items vertically */
+  height: 266px;
+}
+
+/* Container for images */
+.custom-image-container {
+  flex: 1.1; /* Image takes up space in flex container */
+  display: block; /* Display as block element */
+  border-radius: 10px; /* Ensure image border radius is consistent */
+}
+
+/* Image inside the container */
+.custom-image-container img {
+  width: 100%; /* Ensure images fit within the container */
+  height: 70%; /* Maintain aspect ratio */
+  border-radius: 10px; /* Consistent border radius */
+}
+
+/* Container for item details */
+.custom-item-details {
+  flex: 2; /* Details take up more space in flex container */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+}
+
+/* Title of menu item */
+.custom-item-details h2 {
+  font-size: 1.25rem;
+  margin: 15px 0; /* Consistent margin for titles */
+  color: var(--blackColor);
+}
+
+/* Price of the menu item */
+.custom-item-price {
+  font-size: 1.1rem;
+  color: var(--blackColor);
+  margin-bottom: 15px;
+}
+
+/* Availability of the menu item */
+.custom-item-availability {
+  font-size: 1rem;
+  color: var(--blackColor );
+  margin-bottom: 15px;
+}
+
+/* Button for adding to cart */
+.custom-view-details-btn {
+  padding: 10px 20px;
+  background: var(--blackColor);
+  color: var(--whitecolor);
+  text-decoration: none;
+  border-radius: 20px;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+/* Button hover effect */
+.custom-view-details-btn:hover {
+  background: var(--blackColor);
+  color: var(--whitecolor);
+}
+
+/* No results message */
+.custom-no-results-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--darkGreyColor);
+  margin-top: 20px;
+}
+
+/* Restaurant card */
+.custom-restaurant-card {
+  background: var(--whitecolor);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%; /* Full width for better responsive design */
+  max-width: 900px; /* Adjusted width for restaurant cards */
+  margin: 10px 0; /* Margin around each card */
+  text-align: center;
+  padding: 20px;
+}
+
+/* Container for restaurant images */
+.custom-restaurant-image-container {
+  display: block; /* Display images as block elements */
+  width: 100%; /* Ensure images fit within the container */
+}
+
+/* Image inside the restaurant card */
+.custom-restaurant-image {
+  width: 100%; /* Ensure images fit within the container */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 10px; /* Ensure image border radius is consistent */
+  max-width: 300px; /* Increased size for restaurant images */
+  margin-left: 250px;
+}
+
+/* Title of restaurant card */
+.custom-restaurant-title {
+  font-size: 1.25rem;
+  margin: 15px 0; /* Consistent margin for titles */
+  color: var(--blackColor);
+  margin-left: 250px;
+}
+
+/* Availability of the restaurant */
+.custom-restaurant-availability {
+  font-size: 1rem;
+  color: var(--whitecolor);
+}
+
+.profile-container {
+  display: flex;
+  width: 900px;
+  height: auto;
+  margin: 60px auto;
+  margin-top: 120px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 8px;
+  margin-left: 25%;
+}
+
+.profile-sidebar {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid #eee;
+}
+
+.profile-sidebar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.profile-sidebar h2 {
+  margin: 10px 0;
+  color: #333;
+}
+
+.profile-sidebar p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.profile-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.profile-content h3 {
+  margin-top: 0;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  gap: 15px;
+}
+
+.row .input-group {
+  flex: 1;
+}
+
+.profile-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-content form .input-group {
+  margin-bottom: 20px;
+}
+
+.profile-content form .input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+}
+
+.profile-content form .input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.profile-content form .input-group button {
+  padding: 10px 40px;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-content form .input-group button:hover {
+  background-color: #0056b3;
+}
+
+.update-image-button {
+  padding: 10px 20px;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.update-image-button:hover {
+  background-color: #504f4f;
+}
+
+.success-message {
+  color: green;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Style for Add to Cart button */
+.add-to-cart-btn {
+  background-color: #14a800; /* Green color */
+  color: white; /* White text color */
+  border: none; /* Remove default border */
+  padding: 10px 20px; /* Add padding for better spacing */
+  font-size: 16px; /* Set font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth color transition */
+}
+
+.add-to-cart-btn:hover {
+  background-color: #007a0d; /* Darker green color on hover */
+}
+
+.add-to-cart-btn:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 3px rgba(0, 153, 20, 0.5); /* Add a subtle focus ring */
+}
+.messages {
+  background-color: #f8d7da; /* Light red background */
+  color: #721c24; /* Dark red text */
+  padding: 10px;
+  border: 1px solid #f5c6cb; /* Red border */
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.messages ul {
+  list-style-type: none; /* Remove bullet points */
+  margin: 0;
+  padding: 0;
+}
+
+.messages li {
+  margin: 5px 0; /* Space between messages */
+  list-style-type: none;
+}

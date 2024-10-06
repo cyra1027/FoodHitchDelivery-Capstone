@@ -1,0 +1,80 @@
+{% extends "customer_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="feedback-container">
+    <h1 class="feedback-title">Write Your Delivery Feedback</h1>
+
+    <!-- Display error message if present -->
+    {% if error %}
+        <div style="color: red; font-weight: bold;">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{% url 'submit_feedback' delivery_id %}">
+        {% csrf_token %}
+        <label for="message">Feedback Message:</label>
+        <textarea id="message" name="feedback_message" rows="5" required></textarea>
+        <button type="submit" class="btn">Submit Feedback</button>
+    </form>
+</div>
+
+<style>
+/* Your CSS styles */
+.feedback-container {
+    max-width: 600px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    margin-top: 80px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 550px;
+}
+
+.feedback-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 40px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    margin-top: 50px;
+    height: 300px;
+}
+
+.btn {
+    background-color: #009914;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #007a0e;
+}
+</style>
+
+{% endblock %}
