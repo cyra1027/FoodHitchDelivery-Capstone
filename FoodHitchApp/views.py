@@ -880,6 +880,25 @@ def toggle_favorite(request):
     
     except Menu.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Menu item not found.'})
+    
+@login_required
+def remove_favorite(request, food_id):
+    if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            # Fetch the favorite item for the current customer (adjust the field to CustomerID)
+            favorite = get_object_or_404(Favorite, CustomerID=request.user.customer, FoodID=food_id)
+            
+            # Delete the favorite item
+            favorite.delete()
+
+            # Return a JSON response indicating success
+            return JsonResponse({'success': True})
+        
+        except Favorite.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Favorite item not found'}, status=404)
+    
+    # If it's not an AJAX request, redirect to the favorites page (fallback)
+    return redirect('view_favorites')
 
 
 

@@ -4,21 +4,19 @@
 {% load static %}
 <div class="main-content">
     <div class="store-container">
-        <h1>Your Favorites</h1>
+        <h1>My Favorites</h1>
         
         <div class="store-list">
             {% for favorite in favorites %}
-                <div class="store-card">
+                <div class="store-card" data-id="{{ favorite.FoodID.FoodID }}">
                     <div class="image-container">
-                        <!-- Display the restaurant name -->
-                        <div class="restaurant-name">Restaurant: {{ favorite.FoodID.restaurant.RestaurantName }}</div>
-                        <br>
                         <!-- Check if the menu item has an image -->
                         {% if favorite.FoodID.Image %}
                             <img src="{{ favorite.FoodID.Image.url }}" alt="{{ favorite.FoodID.FoodName }}">
                         {% else %}
                             <img src="{% static 'default_image.jpg' %}" alt="Default Image">
                         {% endif %}
+                        <!-- Heart icon for removing from favorites -->
                         <ion-icon 
                             name="heart" 
                             class="favorite-icon active" 
@@ -29,6 +27,7 @@
                     <h2>{{ favorite.FoodID.FoodName }}</h2>
                     <!-- Display the price -->
                     <div class="price">₱{{ favorite.FoodID.Price }}</div>
+                    <div class="restaurant-name">Restaurant: {{ favorite.FoodID.restaurant.RestaurantName }}</div>
                     
                     <!-- Form to add the item to the cart -->
                     <form method="POST" class="add-to-cart-form">
@@ -36,7 +35,6 @@
                         <input type="hidden" name="food_id" value="{{ favorite.FoodID.FoodID }}">
                         <button type="submit" class="btn add-to-cart-btn">Add to Cart</button>
                     </form>
-
                 </div>
             {% endfor %}
         </div>
@@ -45,9 +43,38 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle heart icon click to remove favorite
+    const favoriteIcons = document.querySelectorAll('.favorite-icon');
+    
+    favoriteIcons.forEach(icon => {
+        icon.addEventListener('click', function() {
+            const foodId = this.getAttribute('data-id');
+
+            fetch("{% url 'remove_favorite' 0 %}".replace('0', foodId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ food_id: foodId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Optionally remove the item from the DOM after removal
+                    const storeCard = document.querySelector(`.store-card[data-id="${foodId}"]`);
+                    if (storeCard) {
+                        storeCard.remove();
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Handle adding to cart functionality
     const forms = document.querySelectorAll('.add-to-cart-form');
-    const cartIcon = document.querySelector('.cart-icon'); // Adjust the selector based on your cart icon's class
-    const cartCountElement = document.querySelector('.cart-count'); // Adjust the selector based on where the cart count is displayed
+    const cartCountElement = document.querySelector('.cart-count'); // Adjust the selector based on your cart count element
 
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -70,10 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (cartCountElement) {
                         const newCount = data.cart_count || 0; // Assuming `cart_count` is sent in the response
                         cartCountElement.textContent = newCount;
-                    }
-                    // Optionally, update cart icon appearance
-                    if (cartIcon) {
-                        cartIcon.classList.add('updated'); // Example class to show an update
                     }
                 }
             })

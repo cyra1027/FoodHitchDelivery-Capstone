@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+body {
+    margin: 0;
+    font-family: 'Poppins',sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    background-color: #deffd6;
+}
+
+.navbar {
+    background-color: white;
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    color: black;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+.login-button {
+    color: #fff;
+    padding: 7px 20px;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 16px;
+    display: inline-block;
+    background-color: #2baa47;
+}
+
+.login-button:hover {
+    color: #fff ;
+    background-color: #009914;
+}
+
+.video-container {
+    position: relative;
+    height: 75vh; /* Full viewport height */
+    overflow: hidden; /* Hide overflow to ensure the video stays within its container */
+}
+
+#background-video {
+    position: absolute;
+    width: 100vw;
+    height: 75vh;
+    object-fit: cover;
+}
+
+.quote1 {
+    position: absolute;
+    top: 40%;
+    left: 5%; 
+    z-index: 1; 
+    color: white; 
+    padding: 20px;
+    max-width: 600px;
+}
+
+.quote1 h1 {
+    font-size: 3em; 
+    margin: 0; 
+    line-height: 1.2; 
+    opacity: 0.5;
+}
+.divider {
+    border: none;          
+    height: 2.4px;           
+    background-color: #0000006e; 
+    margin: 20px auto;        
+    max-width: 80%;
+}
+
+.page2 {
+    background-color: rgb(255, 254, 237);
+    padding: 20px; 
+    height: 40vh;
+    text-align: center; 
+    position: relative;
+}
+
+.page2 h1 {
+    text-align: center;
+    color: #1f1f1f;
+    font-size: 2.5em; 
+    margin-bottom: -30px; 
+}
+.page2 p {
+    text-align: center;
+    color: #1f1f1f;
+    font-size: 1.7em; 
+    margin-bottom: 1%; 
+}
+
+.cta-button {
+    text-align: center;
+    background-color: #2baa47; /* Bright, eye-catching color */
+    color: white; /* White text */
+    padding: 10px 20px; /* Adequate padding for the button */
+    border: none; /* Remove default border */
+    border-radius: 25px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    font-size: 18px; /* Font size */
+    display: inline-block;
+    margin-top: 15px; /* Space above the button */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+}
+
+.cta-button:hover {
+    background-color: #009914;
+    color: #fff; 
+}
+
+h1 {
+    font-size: 2em; /* Larger font size for better visibility */
+}
+.page3 {
+    display: flex;
+    flex-direction: column; 
+    align-items: stretch; 
+    height: 123vh; 
+    margin-bottom: 5%;
+    max-width: 80%;
+    margin: 0 auto; 
+    padding: 50px; 
+}
+
+.page3 .text-content {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+    padding: 20px;
+}
+
+.page3 h1 {
+    font-size: 2em; 
+    margin: 0 0 10px 0;
+    line-height: 1.2; 
+}
+
+.button2 {
+    background-color: #2baa47; /* Button color */
+    color: white; /* Button text color */
+    padding: 10px 20px; /* Adequate padding for the button */
+    border: none; /* Remove border */
+    border-radius: 25px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    font-size: 18px; /* Font size */
+    display: inline-block; /* Align the button correctly */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+    margin-top: 10px;
+}
+
+.button2:hover {
+    background-color: #009914;
+    color: #fff; 
+
+}
+
+.page3 img.logo {
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: cover; 
+    margin-top: 3%;
+    margin-bottom: 2%;
+    box-shadow: 3px 3px 5px 5px rgba(0, 0, 0, 0.1);
+
+}
+
+.page4 {
+    margin-top: 10%;
+    display: flex; /* Flexbox layout */
+    align-items: center; /* Center items vertically */
+    justify-content: space-around;
+    height: 60vh; 
+    background-color: none; /* Background color */
+    margin-bottom: 5%;
+    max-width: 80%;
+    margin: 0 auto;        /* Center the container */
+    width: 100%;           /* Full width for smaller screens */
+    padding: 50px 20px;  
+}
+
+.page4 .text-content {
+    display: flex;
+    flex-direction: column; /* Stack text and button vertically */
+    align-items: flex-start; /* Align items to the start (left) */
+}
+
+.page4 h1 {
+    font-size: 2em; /* Font size for the heading */
+    margin: 0 0 10px 0; /* Margin bottom to space out from the button */
+    line-height: 1.2; /* Line height for better spacing */
+}
+
+.button2 {
+    background-color: #2baa47; /* Button color */
+    color: white; /* Button text color */
+    padding: 10px 20px; /* Adequate padding for the button */
+    border: none; /* Remove border */
+    border-radius: 25px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    font-size: 18px; /* Font size */
+    display: inline-block; /* Align the button correctly */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+    margin-top: 10px;
+}
+
+.button2:hover {
+    background-color: #009914;
+    color: #fff; 
+
+}
+
+.page4 img.logo {
+    max-height: 100%; 
+    max-width: 65%; 
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.1);
+
+}
+
+.footer {
+    background-color: rgb(255, 254, 237); 
+    color: #009914; 
+    text-align: center; 
+    padding: 20px;
+    position: relative;
+    margin-top: 15%;
+}
+
+.footer-content {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.footer-content p {
+    margin: 0; 
+    font-size: 1em;
+}
+
+.gmail-icon {
+    margin-top: 10px; 
+}
+
+.gmail-icon img {
+    width: 24px; 
+    height: auto; 
+}

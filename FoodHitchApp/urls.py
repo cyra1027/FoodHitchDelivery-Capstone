@@ -63,7 +63,7 @@ from .views import (
     rider_earnings,
     rider_notifications,
     update_store_owner_profile, reorder, update_availability, password_reset_request, password_reset_set,
-    check_username
+    check_username, remove_favorite
 )
 
 urlpatterns = [
@@ -98,6 +98,7 @@ urlpatterns = [
     path('rider/earnings/', rider_earnings, name='rider_earnings'),
     path('reorder/<int:order_id>/', reorder, name='reorder'),
      path('update_availability/', update_availability, name='update_availability'),
+     path('remove_favorite/<int:food_id>/', remove_favorite, name='remove_favorite'),
 
     # Admin
     path('admin_home/', admin_home, name='admin_home'),
