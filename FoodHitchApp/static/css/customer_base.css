@@ -184,7 +184,6 @@
     text-align: center;
     padding: 20px;
   }
-
   .store-card img {
     width: 100%;
     height: auto;
@@ -235,18 +234,17 @@
 
   .image-container img {
     width: 100%;
-    height: auto;
+    height: 50%;
     display: block;
-    margin-bottom: -30px;
-
   }
 
   .favorite-icon {
-    font-size: 24px; /* Adjust size as needed */
-    color: gray; /* Default color */
-    margin-left: auto;
-    transition: color 0.3s;
-    cursor: pointer;
+    position: absolute; /* Position relative to the nearest positioned ancestor */
+    top: 10px; /* Adjust distance from the top */
+    right: 10px; /* Adjust distance from the right */
+    font-size: 24px; /* Adjust icon size */
+    color: red; /* Change color as needed */
+    cursor: pointer; /* Change cursor to pointer for interaction */
 }
 
 .favorite-icon.active {
