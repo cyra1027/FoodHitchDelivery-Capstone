@@ -339,8 +339,8 @@ def partner_request_list(request):
 @login_required
 def manage_business_request(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, RestaurantID=restaurant_id)
-    notifications = get_notifications()  # Get notifications
-    notification_count = len(notifications)  # Count notifications
+    notifications = get_notifications()
+    notification_count = len(notifications)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -350,7 +350,6 @@ def manage_business_request(request, restaurant_id):
             restaurant.save()
 
             if restaurant.OwnerID and restaurant.OwnerID.Email:
-                # Send approval email
                 send_mail(
                     'Your Partnership Request Approved',
                     'Congratulations! Your request to partner with us has been approved. You can now add your menu.',
@@ -364,7 +363,6 @@ def manage_business_request(request, restaurant_id):
             restaurant.save()
 
             if restaurant.OwnerID and restaurant.OwnerID.Email:
-                # Send rejection email
                 send_mail(
                     'Your Partnership Request Rejected',
                     'We regret to inform you that your request to partner with us has been declined.',
@@ -373,18 +371,12 @@ def manage_business_request(request, restaurant_id):
                     fail_silently=False,
                 )
         
-        return redirect('partner_request_list')  # Redirect to the partner request list
+        return redirect('partner_request_list')
 
-    # Get all partner requests to display in the template
-    partner_requests = Restaurant.objects.filter(Status='pending')  # Adjust filter as needed
-
-    # Render the admin_request.html with the restaurant details and partner requests
     return render(request, 'admin_request.html', {
         'restaurant': restaurant,
-        'partner_requests': partner_requests,
-        'notification_count': notification_count,  # Include notification count
+        'notification_count': notification_count,
     })
-
 @never_cache
 @login_required
 def admin_rider_table(request):

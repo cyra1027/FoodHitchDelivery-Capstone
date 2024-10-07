@@ -1,131 +1,156 @@
 {% extends "admin_base.html" %}
 
-{% block title %}Admin Partner Request Table{% endblock %}
+{% block title %}Restaurant Details{% endblock %}
 
 {% block content %}
 <div class="main-content">
-    <div class="store-container">
-        <h1>Partner Request List</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Restaurant ID</th>
-                    <th>Business Name</th>
-                    <th>Owner ID</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in partner_requests %}
-                <tr>
-                    <td>{{ request.RestaurantID }}</td>
-                    <td>{{ request.RestaurantName }}</td>
-                    <td>{{ request.OwnerID.OwnerID }}</td>
-                    <td>{{ request.get_Status_display }}</td>
-                    <td>
-                        <form method="post" action="{% url 'manage_business_request' request.RestaurantID %}">
-                            {% csrf_token %}
-                            <button type="submit" name="action" value="approve" class="btnn btn-accept">Approve</button>
-                            <button type="submit" name="action" value="decline" class="btnn btn-decline">Decline</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5">No partner requests available</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="container">
+        <div class="header-section">
+            <h1>Restaurant Details</h1>
+            <a href="javascript:void(0)" class="btn-back" onclick="window.history.back();">
+                <ion-icon name="arrow-back-outline"></ion-icon> Back
+            </a>
+        </div>
+
+        <div class="request-card">
+            <div class="request-image">
+                <img src="{{ restaurant.Image.url }}" alt="Restaurant Image">
+            </div>
+            <div class="request-info">
+                <p><strong>Restaurant Name:</strong> {{ restaurant.RestaurantName  }}</p>
+                <p><strong>Owner Name:</strong> {{ restaurant.OwnerID.FullName }}</p>
+                <p><strong>Address:</strong> {{ restaurant.Address }}</p>
+                <p><strong>Status:</strong> {{ restaurant.get_Status_display }}</p>
+                <p><strong>Business Permit:</strong> <a href="{{ restaurant.BusinessPermitImage.url }}" target="_blank">View Permit</a></p>
+               
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <form method="post" action="{% url 'manage_business_request' restaurant.RestaurantID %}">
+                {% csrf_token %}
+                <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+                <button type="submit" name="action" value="decline" class="btn-decline">Decline</button>
+            </form>
+        </div>
     </div>
 </div>
 
 <style>
+    /* General page styling */
     body {
-        background-color: #f8f9fa; /* Soft background for contrast */
         font-family: 'Poppins', sans-serif;
+        background-color: #f2f5f7;
+        color: #333;
+        margin: 0;
+        padding: 0;
     }
 
-    .main-content {
-        padding: 20px;
-    }
-
-    .store-container {
-        background-color: #ffffff; /* White background for the container */
+    .container {
+        max-width: 700px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 25px;
         border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        max-width: 900px; /* Wider maximum width for better presentation */
-        margin: auto; /* Center the container */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-        text-align: center;
-        color: #333333; /* Darker text for better readability */
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 20px;
     }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
+    .header-section h1 {
+        font-size: 24px;
+        font-weight: 600;
     }
 
-    th, td {
-        padding: 10px;
-        text-align: center;
-        border: 1px solid #dee2e6; /* Light border color */
+    .btn-back {
+        font-size: 16px;
+        color: #007bff;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
     }
 
-    th {
-        background-color: #343a40; /* Dark header for contrast */
-        color: #ffffff; /* White text for header */
+    /* Request Card */
+    .request-card {
+        display: flex;
+        align-items: flex-start;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #fafafa;
     }
 
-    tr:nth-child(even) {
-        background-color: #f2f2f2; /* Light gray for even rows */
+    .request-image img {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 20px;
     }
 
-    tr:hover {
-        background-color: #e2e6ea; /* Highlight on row hover */
+    .request-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .btnn {
-        padding: 10px 15px;
-        border: none;
+    .request-info h2 {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .request-info p {
+        margin: 6px 0;
+        font-size: 16px;
+    }
+
+    .permit-image {
+        width: 200px; /* Adjust width as necessary */
+        height: auto; /* Maintain aspect ratio */
         border-radius: 5px;
+        margin-top: 10px; /* Add margin for better spacing */
+    }
+
+    /* Buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .action-buttons button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
     }
 
-    .btn-accept {
-        background-color: #28a745; /* Green for approve */
-        color: white;
+    .btn-approve {
+        background-color: #28a745;
+        color: #fff;
     }
 
-    .btn-accept:hover {
-        background-color: #218838; /* Darker shade on hover */
+    .btn-approve:hover {
+        background-color: #218838;
     }
 
     .btn-decline {
-        background-color: #dc3545; /* Red for decline */
-        color: white;
+        background-color: #dc3545;
+        color: #fff;
     }
 
     .btn-decline:hover {
-        background-color: #c82333; /* Darker shade on hover */
+        background-color: #c82333;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-        .store-container {
-            padding: 15px; /* Less padding on smaller screens */
-        }
-        table {
-            font-size: 0.9rem; /* Smaller font on mobile */
-        }
-    }
 </style>
-
 {% endblock %}
