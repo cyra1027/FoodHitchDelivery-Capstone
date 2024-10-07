@@ -9,13 +9,11 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, Http404
 import json
 import random
+from django.db.models.functions import ExtractMonth
+from django.db.models.functions import TruncMonth, TruncDate
 from django.contrib.auth.hashers import make_password
 from .forms import PasswordResetForm, PasswordSetForm
 import logging
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 import os
 from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
@@ -35,28 +33,10 @@ from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User
 from datetime import datetime
-from PIL import Image, ImageFilter
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import Q
-import matplotlib
-matplotlib.use('Agg')
 
-def is_blurred(image_file: InMemoryUploadedFile) -> bool:
-    img = Image.open(image_file).convert('RGB')  # Ensure the image is in RGB format
-    sharpened = img.filter(ImageFilter.SHARPEN)
 
-    original_data = list(img.getdata())
-    sharpened_data = list(sharpened.getdata())
 
-    # Calculate the differences for each channel in the RGB tuples
-    differences = sum(
-        sum(abs(o - s) for o, s in zip(original_pixel, sharpened_pixel))
-        for original_pixel, sharpened_pixel in zip(original_data, sharpened_data)
-    )
-
-    threshold = 5000  # Adjust this value based on your needs
-
-    return differences < threshold  # Return True if blurred
 def customer_register(request):
     if request.method == 'POST':
         form = CustomerRegisterForm(request.POST, request.FILES)
@@ -75,16 +55,8 @@ def rider_register(request):
     if request.method == 'POST':
         form = RiderRegisterForm(request.POST, request.FILES)
         if form.is_valid():
-            picture = form.cleaned_data['picture']
-            license_file = form.cleaned_data['license']
-
-            # Check if the uploaded images are blurred
-            if is_blurred(picture):
-                return JsonResponse({'status': 'error', 'message': 'Profile picture is blurred. Please upload a clearer image.'})
-            if is_blurred(license_file):
-                return JsonResponse({'status': 'error', 'message': 'Driver\'s license image is blurred. Please upload a clearer image.'})
-
             user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])  # Set the password
             user.save()
 
             Rider.objects.create(
@@ -99,11 +71,13 @@ def rider_register(request):
                 Status='pending'
             )
 
-            # Success message
-            return JsonResponse({'status': 'success', 'message': 'Your application has been sent. You will be receiving an email about your application.'})
+            messages.success(request, 'Rider registration successful. Your application is pending approval.')
+            return render(request, 'rider_register.html', {'form': form, 'registration_success': True})
+
         else:
             errors = {field: errors for field, errors in form.errors.items()}
             return JsonResponse({'status': 'error', 'errors': errors})
+
     else:
         form = RiderRegisterForm()
 
@@ -1195,93 +1169,45 @@ def admin_home(request):
     total_customers = Customer.objects.count()
     total_riders = Rider.objects.count()
     total_deliveries = Delivery.objects.count()
-    total_users = total_customers
+    total_users = total_customers + total_riders
 
-    today = now().date()
+    # Prepare a full list of months and initialize earnings
+    months = list(month_name)[1:]  # Get all month names
+    earnings = [0.0] * 12  # Initialize earnings for all months
 
-    # Monthly Earnings Data (Corrected)
-    months = list(month_name)[1:]  # Jan-Dec
-    monthly_earnings = [0.0] * 12
-    monthly_data = Delivery.objects.annotate(month=TruncMonth('Date')).values('month').annotate(total=Sum('DeliveryFee')).order_by('month')
-    
+    # Monthly earnings calculation
+    monthly_data = Delivery.objects.annotate(month=ExtractMonth('Date')).values('month').annotate(total=Sum('DeliveryFee')).order_by('month')
     for entry in monthly_data:
-        month_index = entry['month'].month - 1  # Ensure it matches Jan (1) to Dec (12)
-        monthly_earnings[month_index] = float(entry['total'] or 0)
+        month_index = entry['month'] - 1  # Convert to 0-based index
+        earnings[month_index] = float(entry['total'] or 0)  # Convert Decimal to float
 
-    # Daily Earnings Data (last 7 days, corrected)
-    last_week = today - timedelta(days=6)  # Show last 7 days including today
-    days = [(last_week + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
-    daily_earnings = [0.0] * 7
+    # Calculate daily earnings (for the last 7 days)
+    today = timezone.now().date()
+    daily_earnings = []
+    for i in range(7):
+        day = today - timedelta(days=i)
+        # Use __date to filter by date part if Date is DateTimeField
+        daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
+        daily_earnings.append(float(daily_total))
+    daily_earnings.reverse()  # To show in the correct order (oldest to newest)
 
-    daily_data = Delivery.objects.filter(Date__date__gte=last_week, Date__date__lte=today) \
-                                  .annotate(day=TruncDay('Date')).values('day') \
-                                  .annotate(total=Sum('DeliveryFee')).order_by('day')
+    # Calculate weekly earnings
+    start_week = today - timedelta(days=today.weekday())  # Start of the current week (Monday)
+    weekly_earnings = []
+    for i in range(7):  # For each day in the current week
+        day = start_week + timedelta(days=i)
+        daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
+        weekly_earnings.append(float(daily_total))
 
-    for entry in daily_data:
-        day_str = entry['day'].strftime('%Y-%m-%d')
-        if day_str in days:
-            day_index = days.index(day_str)  # Find the correct day index
-            daily_earnings[day_index] = float(entry['total'] or 0)
-
-    # Weekly Earnings Data (last 4 weeks, corrected)
-    weekly_earnings = [0.0] * 4
-    weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4']
-    for i in range(4):
-        week_start = today - timedelta(days=(i * 7 + 6))  # 1st week will have latest days
-        week_end = week_start + timedelta(days=6)
-        week_data = Delivery.objects.filter(Date__date__gte=week_start, Date__date__lte=week_end).aggregate(total=Sum('DeliveryFee'))
-        weekly_earnings[3 - i] = float(week_data['total'] or 0)  # Reverse the week order
-
-    # Plot Charts (Daily, Weekly, Monthly)
-    # Daily Earnings Chart
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(days, daily_earnings, marker='o', color='g', linestyle='-', markersize=10, label="Daily Earnings")
-    ax.set_xlabel('Day')
-    ax.set_ylabel('Earnings (₱)')
-    ax.set_title('Daily Earnings (Last 7 Days)')
-    ax.legend()
-    daily_image_path = os.path.join(settings.MEDIA_ROOT, 'charts', 'daily_earnings.png')
-    os.makedirs(os.path.dirname(daily_image_path), exist_ok=True)
-    fig.savefig(daily_image_path)
-    plt.close(fig)
-
-    # Weekly Earnings Chart
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(weeks, weekly_earnings, marker='o', color='r', linestyle='-', markersize=10, label="Weekly Earnings")
-    ax.set_xlabel('Week')
-    ax.set_ylabel('Earnings (₱)')
-    ax.set_title('Weekly Earnings (Last 4 Weeks)')
-    ax.legend()
-    weekly_image_path = os.path.join(settings.MEDIA_ROOT, 'charts', 'weekly_earnings.png')
-    fig.savefig(weekly_image_path)
-    plt.close(fig)
-
-    # Monthly Earnings Chart
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(months, monthly_earnings, marker='o', color='b', linestyle='-', markersize=10, label="Monthly Earnings")
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Earnings (₱)')
-    ax.set_title('Monthly Earnings Overview')
-    ax.legend()
-    monthly_image_path = os.path.join(settings.MEDIA_ROOT, 'charts', 'monthly_earnings.png')
-    fig.savefig(monthly_image_path)
-    plt.close(fig)
-
-    notifications = request.session.get('notifications', get_notifications())
-    notification_count = len(notifications)
-
-
-    # Pass the image paths and stats to the template
     context = {
-        'total_riders': total_riders,
+        'total_deliveries': total_deliveries,
         'total_restaurants': total_restaurants,
         'total_users': total_users,
-        'notification_count': notification_count,
-        'monthly_earnings_image': os.path.join(settings.MEDIA_URL, 'charts', 'monthly_earnings.png'),
-        'daily_earnings_image': os.path.join(settings.MEDIA_URL, 'charts', 'daily_earnings.png'),
-        'weekly_earnings_image': os.path.join(settings.MEDIA_URL, 'charts', 'weekly_earnings.png'),
+        'months': json.dumps(months),
+        'earnings': json.dumps(earnings),
+        'daily_earnings': json.dumps(daily_earnings),  # List of daily earnings for the last 7 days
+        'weekly_earnings': json.dumps(weekly_earnings),  # List of weekly earnings for the current week
     }
-
     return render(request, 'admin_home.html', context)
 
 def foodhitch(request):

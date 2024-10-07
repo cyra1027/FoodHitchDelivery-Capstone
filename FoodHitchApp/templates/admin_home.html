@@ -4,130 +4,130 @@
 
 {% block content %}
 <div class="admin-home-dashboard-container">
-    <!-- Main Content -->
     <div class="admin-home-main-content">
 
         <!-- Dashboard Stats -->
         <div class="admin-home-dashboard-stats">
-            <div class="admin-home-card" style="margin-left: 300px; background-color: #0004e4;">
-                <p>{{ total_riders }}</p>
-                <h3><i class="fas fa-motorcycle"></i> Total Riders</h3>
+            <div class="admin-home-card" style="margin-left: 300px; background-color: #36aaf7;">
+                <p>{{ total_deliveries }}</p>
+                <h3><i class="fas fa-truck"></i> Total Deliveries</h3>
             </div>
-            <div class="admin-home-card" style="background-color: #009914;">
+            <div class="admin-home-card" style="background-color: rgb(2, 224, 2);">
                 <p>{{ total_restaurants }}</p>
                 <h3><i class="fas fa-utensils"></i> Total Restaurants</h3>
             </div>
-            <div class="admin-home-card" style="background-color: rgb(255, 102, 0);">
+            <div class="admin-home-card" style="background-color: rgb(255, 136, 0);">
                 <p>{{ total_users }}</p>
-                <h3><i class="fas fa-users"></i> Total Customers</h3>
+                <h3><i class="fas fa-users"></i> Total Users</h3>
             </div>
         </div>
 
-        <!-- Buttons to Toggle Graphs -->
-        <div class="toggle-buttons" style="margin-top: 20px; display: flex; justify-content: flex-end;">
-            <button class="toggle-button" onclick="showGraph('daily')">Daily</button>
-            <button class="toggle-button" onclick="showGraph('weekly')">Weekly</button>
-            <button class="toggle-button" onclick="showGraph('monthly')">Monthly</button>
-        </div>
+        <!-- Additional section for charts, reports, etc. -->
+        <div class="admin-home-additional-section" style="margin-top: 5px;">
+            <div class="admin-home-chart-container">
+                <h3>Sales Overview</h3>
 
-        <!-- Charts Section -->
-        <div class="admin-home-additional-section" style="margin-top: 20px;">
-            <h3>Sales Overview</h3>
+                <!-- Buttons for selecting the graph type -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <button id="dailyBtn" class="chart-toggle-button" style="padding: 10px 20px; margin-right: 10px;">Daily</button>
+                    <button id="weeklyBtn" class="chart-toggle-button" style="padding: 10px 20px; margin-right: 10px;">Weekly</button>
+                    <button id="monthlyBtn" class="chart-toggle-button" style="padding: 10px 20px;">Monthly</button>
+                </div>
 
-            <!-- Chart 1: Daily Earnings -->
-            <div id="daily-chart" class="admin-home-chart-container" style="display: block;">
-                <h4>Daily Earnings</h4>
-                <img src="{{ daily_earnings_image }}" alt="Daily Earnings Chart" class="center-chart">
-                
-            </div>
-
-            <!-- Chart 2: Weekly Earnings -->
-            <div id="weekly-chart" class="admin-home-chart-container" style="display: none;">
-                <h4>Weekly Earnings</h4>
-                <img src="{{ weekly_earnings_image }}" alt="Weekly Earnings Chart" class="center-chart">
-            </div>
-
-            <!-- Chart 3: Monthly Earnings -->
-            <div id="monthly-chart" class="admin-home-chart-container" style="display: none;">
-                <h4>Monthly Earnings</h4>
-                <img src="{{ monthly_earnings_image }}" alt="Monthly Earnings Chart" class="center-chart">
+                <!-- Chart container -->
+                <div class="admin-home-chart-placeholder">
+                    <canvas id="earningsChart"></canvas>
+                    <script id="months-data" type="application/json">{{ months|safe }}</script>
+                    <script id="earnings-data" type="application/json">{{ earnings|safe }}</script>
+                    <script id="daily-earnings-data" type="application/json">{{ daily_earnings|safe }}</script>
+                    <script id="weekly-earnings-data" type="application/json">{{ weekly_earnings|safe }}</script>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript to Toggle Graphs -->
+<!-- Load your scripts here -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    function showGraph(graphType) {
-        // Hide all graphs
-        document.getElementById('daily-chart').style.display = 'none';
-        document.getElementById('weekly-chart').style.display = 'none';
-        document.getElementById('monthly-chart').style.display = 'none';
+document.addEventListener('DOMContentLoaded', function () {
+    const months = JSON.parse(document.getElementById('months-data').textContent);
+    const earnings = JSON.parse(document.getElementById('earnings-data').textContent);
+    const dailyEarnings = JSON.parse(document.getElementById('daily-earnings-data').textContent); // Daily earnings array
+    const weeklyEarnings = JSON.parse(document.getElementById('weekly-earnings-data').textContent); // Weekly earnings array
 
-        // Show the selected graph
-        if (graphType === 'daily') {
-            document.getElementById('daily-chart').style.display = 'block';
-        } else if (graphType === 'weekly') {
-            document.getElementById('weekly-chart').style.display = 'block';
-        } else if (graphType === 'monthly') {
-            document.getElementById('monthly-chart').style.display = 'block';
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+
+    // Initial Chart (Monthly)
+    let earningsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months, // Use month labels for the default (monthly) view
+            datasets: [
+                {
+                    label: 'Monthly Earnings',
+                    data: earnings, // Monthly earnings by default
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Earnings (₱)'
+                    }
+                },
+            },
         }
+    });
+
+    // Function to update the chart data
+    function updateChart(type) {
+        let label = '';
+        let data = [];
+        let labels = [];
+
+        if (type === 'daily') {
+            label = 'Daily Earnings';
+            data = dailyEarnings;
+            labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7']; // Label days for daily earnings
+        } else if (type === 'weekly') {
+            label = 'Weekly Earnings';
+            data = weeklyEarnings;
+            labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; // Weekly labels
+        } else {
+            label = 'Monthly Earnings';
+            data = earnings;
+            labels = months; // Default to months
+        }
+
+        earningsChart.data.labels = labels;
+        earningsChart.data.datasets[0].label = label;
+        earningsChart.data.datasets[0].data = data;
+        earningsChart.update();
     }
+
+    // Event listeners for buttons
+    document.getElementById('dailyBtn').addEventListener('click', function () {
+        updateChart('daily');
+    });
+
+    document.getElementById('weeklyBtn').addEventListener('click', function () {
+        updateChart('weekly');
+    });
+
+    document.getElementById('monthlyBtn').addEventListener('click', function () {
+        updateChart('monthly');
+    });
+    console.log('Daily Earnings:', dailyEarnings);
+    console.log('Weekly Earnings:', weeklyEarnings);
+});
 </script>
-
-<!-- CSS for Styling Buttons and Centering -->
-<style>
-    .toggle-buttons {
-        margin-top: 20px;
-        display: flex;
-        justify-content: flex-end; /* Align buttons to the right */
-    }
-
-    .toggle-button {
-        background-color: #8aa376;
-        color: rgb(0, 0, 0);
-        padding: 8px 30px;
-        margin: 0 10px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-
-    .toggle-button:hover {
-        background-color: #5f7a49;
-    }
-
-    .toggle-button:focus {
-        outline: none;
-    }
-
-    /* Active button state (optional) */
-    .toggle-button.active {
-        background-color: #28a745;
-    }
-
-    /* Centering the chart and h4 */
-    .admin-home-chart-container {
-        text-align: center;
-        margin-top: 20px;
-        background-color: transparent; /* No background color */
-        box-shadow: none; /* No box shadow */
-    }
-
-    .center-chart {
-        width: 100%;
-        max-width: 800px;
-        display: block;
-        margin: 0 auto;
-    }
-
-    h4 {
-        text-align: center;
-        font-weight: bold;
-    }
-</style>
-
 {% endblock %}
