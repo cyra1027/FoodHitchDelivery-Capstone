@@ -45,12 +45,38 @@ def customer_register(request):
             messages.success(request, 'Your account has been created successfully!')
             return redirect('customer_login')
         else:
-            messages.error(request, 'There was an error with your registration. Please check the form and try again.')
-            print(form.errors)
+            # Handle form errors and display them
+            error_messages = []
+            password_errors = []
+
+            # Collect errors
+            for field, errors in form.errors.items():
+                # Handle password1 errors
+                if field == 'password1':
+                    for error in errors:
+                        password_errors.append(f"Password: {error}")
+                # Handle password2 errors separately
+                elif field == 'password2':
+                    for error in errors:
+                        password_errors.append(f"Password: {error}")
+                # Handle other fields normally
+                else:
+                    error_messages.append(f"{field.capitalize()}: {errors[0]}")
+
+            # Combine all error messages
+            if password_errors:
+                error_messages.extend(password_errors)
+
+            # Join all error messages with a line break
+            if error_messages:
+                messages.error(request, '<br>'.join(set(error_messages)))  # Use set to avoid duplicates
+
+            print(form.errors)  # Optional: for debugging
     else:
         form = CustomerRegisterForm()
 
     return render(request, 'customer_register.html', {'form': form})
+
 def rider_register(request):
     if request.method == 'POST':
         form = RiderRegisterForm(request.POST, request.FILES)
@@ -274,7 +300,6 @@ def owner_add_menu(request, restaurant_id):
     return render(request, 'owner_add_menu.html', context)
 
 def owner_edit_menu(request, restaurant_id, food_id):
-    # Get the menu item by the given FoodID
     menu_item = get_object_or_404(Menu, FoodID=food_id)
     store_owner = get_object_or_404(StoreOwner, user=request.user)
 
@@ -284,8 +309,7 @@ def owner_edit_menu(request, restaurant_id, food_id):
 
         # Ensure restaurant is associated correctly
         if form.is_valid():
-            form.instance.restaurant = menu_item.restaurant  # Keep the existing restaurant
-            form.save()
+            form.save()  # This will also save the restaurant since it's part of the Menu model
             messages.success(request, 'Menu item updated successfully!')
             return JsonResponse({
                 'success': True,
@@ -298,13 +322,14 @@ def owner_edit_menu(request, restaurant_id, food_id):
             return JsonResponse({'success': False, 'error': form.errors.as_json()})
 
     else:
-        form = MenuForm(instance=menu_item)
+        form = MenuForm(instance=menu_item)  # Use the existing menu item instance here
 
     return render(request, 'owner_edit_menu.html', {
         'menu_form': form,
         'menu_item': menu_item,
         'store_owner': store_owner,
     })
+# Initialize logger
 logger = logging.getLogger(__name__)
 
 def owner_delete_menu(request, restaurant_id, food_id):
@@ -1191,6 +1216,9 @@ def admin_home(request):
         daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
         weekly_earnings.append(float(daily_total))
 
+    notifications = request.session.get('notifications', get_notifications())
+    notification_count = len(notifications)
+
     context = {
         'total_deliveries': total_deliveries,
         'total_restaurants': total_restaurants,
@@ -1199,6 +1227,7 @@ def admin_home(request):
         'earnings': json.dumps(earnings),
         'daily_earnings': json.dumps(daily_earnings),  # List of daily earnings for the last 7 days
         'weekly_earnings': json.dumps(weekly_earnings),  # List of weekly earnings for the current week
+        'notification_count': notification_count,
     }
     return render(request, 'admin_home.html', context)
 

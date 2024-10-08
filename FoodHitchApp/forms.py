@@ -17,7 +17,7 @@ class CustomerRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['fullname', 'username', 'email', 'phone', 'picture', 'password1', 'password2']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -48,6 +48,30 @@ class CustomerRegisterForm(UserCreationForm):
             raise forms.ValidationError('This email is already registered.')
         return email
 
+    def clean_password1(self):
+        password1 = self.cleaned_data.get("password1")
+        errors = []
+
+        if password1:
+            if len(password1) < 8:
+                errors.append("This password is too short. It must contain at least 8 characters.")
+            if password1 in ['12345678', 'password', '123456']:
+                errors.append("This password is too common.")
+
+        if errors:
+            raise forms.ValidationError(errors)
+
+        return password1
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("The two password fields didn't match.")
+
+        return password2
+    
 class CustomerLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))

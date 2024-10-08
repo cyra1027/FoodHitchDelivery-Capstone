@@ -145,3 +145,16 @@ button:hover {
 .ok-btn:hover {
     background-color: #45a049;
 }
+
+input {
+    transition: border-color 0.3s ease; /* Smooth transition for border color change */
+}
+
+
+input.invalid {
+    border-color: red;
+}
+
+input.valid {
+    border-color: green;
+}

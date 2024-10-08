@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/register.css' %}">
     <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
@@ -21,36 +22,36 @@
                 {% csrf_token %}
                 <div class="row">
                     <div class="input-group">
-                        <label for="fullname" style="margin-left: -70%;">Full Name</label>
+                        <label for="id_fullname" style="margin-left: -70%;">Full Name</label>
                         {{ form.fullname }}
                     </div>
                     <div class="input-group">
-                        <label for="username" style="margin-left: -69%;">Username</label>
+                        <label for="id_username" style="margin-left: -69%;">Username</label>
                         {{ form.username }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label for="email" style="margin-left: -82%;">Email</label>
+                        <label for="id_email" style="margin-left: -82%;">Email</label>
                         {{ form.email }}
                     </div>
                     <div class="input-group">
-                        <label for="phone" style="margin-left: -55%;">Phone Number</label>
+                        <label for="id_phone" style="margin-left: -55%;">Phone Number</label>
                         {{ form.phone }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label for="password1" style="margin-left: -70%;">Password</label>
+                        <label for="id_password1" style="margin-left: -70%;">Password</label>
                         {{ form.password1 }}
                     </div>
                     <div class="input-group">
-                        <label for="password2" style="margin-left: -46%;">Confirm Password</label>
+                        <label for="id_password2" style="margin-left: -46%;">Confirm Password</label>
                         {{ form.password2 }}
                     </div>
                 </div>
                 <div class="input-group">
-                    <label for="picture" style="margin-left: -80%;">Profile Picture</label>
+                    <label for="id_picture" style="margin-left: -80%;">Profile Picture</label>
                     {{ form.picture }}
                 </div>
                 <button type="submit" id="register-btn">REGISTER</button>
@@ -60,7 +61,56 @@
             </div>
         </div>
     </div>
-<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+    <!-- Inline JavaScript to handle messages -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get error and success messages from Django
+            const errorMessages = "{% for message in messages %}{% if message.tags == 'error' %}{{ message|escapejs }}{% endif %}{% endfor %}";
+            const successMessages = "{% for message in messages %}{% if message.tags == 'success' %}{{ message }}{% endif %}{% endfor %}";
+    
+            // Function to show messages using SweetAlert
+            function showMessage(icon, title, text) {
+                Swal.fire({
+                    icon: icon,
+                    title: title,
+                    html: text, // Use 'html' for line breaks
+                    confirmButtonText: 'OK'
+                });
+            }
+    
+            // Display error message if it exists
+            if (errorMessages) {
+                const formattedErrorMessages = errorMessages.replace(/(\r\n|\n|\r)/g, "<br>");
+                showMessage('error', 'Registration Error', formattedErrorMessages);
+            }
+    
+            // Display success message if it exists
+            if (successMessages) {
+                showMessage('success', 'Success', successMessages);
+            }
+    
+            // JavaScript for real-time password confirmation feedback
+            const password1 = document.getElementById('id_password1');
+        const password2 = document.getElementById('id_password2');
+
+        const checkPasswordMatch = () => {
+            if (password2.value === '') {
+                password2.style.borderColor = ''; // Reset border color if empty
+            } else if (password2.value === password1.value) {
+                password2.style.borderColor = 'green'; // Match
+            } else {
+                password2.style.borderColor = 'red'; // No match
+            }
+        };
+
+        password1.addEventListener('input', checkPasswordMatch);
+        password2.addEventListener('input', checkPasswordMatch);
+    });
+    </script>
+
 </body>
 </html>

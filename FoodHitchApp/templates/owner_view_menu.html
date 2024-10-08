@@ -105,7 +105,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.status === 'success') {
+                    if (data.success) {  // Check for the success property
                         Swal.fire({
                             title: 'Deleted!',
                             text: data.message,
@@ -114,7 +114,7 @@
                         }).then(() => {
                             location.reload(); // Reload the page to update the list
                         });
-                    } else if (data.status === 'error') {
+                    } else {
                         Swal.fire({
                             title: 'Error!',
                             text: data.message, // Display the error message from the server

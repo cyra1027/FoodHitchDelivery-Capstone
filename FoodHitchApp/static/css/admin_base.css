@@ -21,7 +21,7 @@ body {
   display: flex;
   min-height: 100vh; /* Ensure full height for proper content placement */
   flex-direction: column; /* Align content vertically */
-  background-color: #edfff0;
+  background-color: #F0FFF0;
 }
 
 .sidebar {
@@ -97,12 +97,12 @@ body {
 }
 .sidebar-menus a.active, .sidebar-logout a.active {
   background-color: #cfcbcb;  
-  color: #1a7000;                
+  color: rgb(0, 122, 0);                
   border-radius: 50px;        
 }
 .sidebar-menus a.active ion-icon,
 .sidebar-logout a.active ion-icon {
-  color: #005c0c; 
+  color: rgb(0, 122, 0); 
 }
 
 /* Header Styles */
@@ -463,20 +463,34 @@ margin-right: 5px; /* Space between the icon and text */
 }
 
 .admin-home-chart-container {
-  background-color: #ffffff;
+  background-color: #edfff0;
   padding: 20px;
   border-radius: 10px;
   margin-left: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .admin-home-chart-placeholder {
   text-align: center;
-  padding: 50px;
-  background-color: #e9ecef;
-  border-radius: 10px;
   color: #6c757d;
+  background-color: #f2fdf2; /* Light greenish-grey background */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px; /* Add some padding around the chart */
 }
+
+.chart-toggle-button {
+  background-color: #98FF98;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chart-toggle-button:hover {
+  background-color: #45d645; /* Darker shade on hover */
+}
+
 .image-upload-section {
     border: 2px dashed #ddd;
     padding: 20px;
@@ -560,4 +574,34 @@ input[type="file"] {
 /* Hover Effect */
 .filter-date-button:hover {
   background-color: #45a049; /* Darker green on hover */
+}
+
+.footer {
+  background-color: rgb(255, 254, 237); 
+  color: #009914; 
+  text-align: center; 
+  padding: 20px;
+  position: relative;
+  margin-top: 15%;
+}
+
+.footer-content {
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+.footer-content p {
+  margin: 0; 
+  font-size: 1em;
+}
+
+.gmail-icon {
+  margin-top: 10px; 
+}
+
+.gmail-icon img {
+  width: 24px; 
+  height: auto; 
 }

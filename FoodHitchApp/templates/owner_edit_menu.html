@@ -17,6 +17,14 @@
                 <form id="edit-menu-form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
+                    <div class="form-group" style="display: none;">
+                        <label for="restaurant">Select Restaurant:</label>
+                        {{ menu_form.restaurant }}
+                        {% if menu_form.restaurant.errors %}
+                            <div class="error">{{ menu_form.restaurant.errors }}</div>
+                        {% endif %}
+                    </div>
+
                     <div class="form-group">
                         <label>Food Name:</label>
                         {{ menu_form.FoodName }}
