@@ -11,11 +11,8 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k&callback=initializeMap" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
-    *{
-      font-family: 'Poppins', sans-serif; /* Updated to use Poppins */
-    }
-    body {
-      font-family: 'Poppins', sans-serif; /* Updated to use Poppins */
+    * {
+      font-family: 'Poppins', sans-serif;
     }
     .container {
       width: 500px;
@@ -58,7 +55,6 @@
     }
     .payment-option input[type="radio"] {
       margin-right: 10px;
-      top: 50%;
     }
     .paypal-button {
       border-radius: 5px;
@@ -80,8 +76,17 @@
       <label for="phone-number">Phone Number:</label>
       <input type="number" id="phone-number" name="phone-number" value="{{ customer.Phone }}" readonly>
 
+      <label for="city">City:</label>
+      <input type="text" id="city" name="city" required>
+
+      <label for="state">State/Province:</label>
+      <input type="text" id="state" name="state" required>
+
+      <label for="postal-code">Postal Code:</label>
+      <input type="text" id="postal-code" name="postal-code" required>
+
       <label for="address">Address:</label>
-      <input type="text" id="address" name="address" required placeholder="Type your address">
+      <input type="text" id="address" name="address" required>
 
       <button type="button" id="get-location">Use My Current Location</button>
 
@@ -208,57 +213,100 @@
 
     // PayPal integration
     document.addEventListener('DOMContentLoaded', function () {
-      var total = parseFloat('{{ cart_total }}');  // Get total from backend
+      var total = parseFloat('{{ total_amount }}');  // Get total from backend
+      if (isNaN(total) || total <= 0) {
+          console.error('Invalid total amount for PayPal transaction');
+          return;
+      }
 
       var paypalButtons = paypal.Buttons({
-        createOrder: function (data, actions) {
-          return actions.order.create({
-            purchase_units: [{
-              amount: {
-                value: total.toFixed(2)  // Set total amount here
-              }
-            }]
+          createOrder: function (data, actions) {
+              return actions.order.create({
+                  purchase_units: [{
+                      amount: {
+                          value: total.toFixed(2)  // Ensure total is a valid number
+                      },
+                      shipping: {
+                          name: {
+                              full_name: "{{ customer.CustomerName }}"
+                          },
+                          address: {
+                              address_line_1: "{{ customer.Address }}",
+                              admin_area_2: document.getElementById('city').value,
+                              admin_area_1: document.getElementById('state').value,
+                              postal_code: document.getElementById('postal-code').value,
+                              country_code: "PH"
+                          }
+                      }
+                  }]
+              });
+          },
+          onApprove: function (data, actions) {
+              return actions.order.capture().then(function (details) {
+                  Swal.fire({
+                      title: 'Payment Successful!',
+                      text: 'Thank you for your order!',
+                      icon: 'success',
+                      confirmButtonText: 'OK'
+                  }).then(() => {
+                      document.getElementById('checkout-form').submit();  // Submit the form on success
+                  });
+              });
+          }
+      });
+
+      paypalButtons.render('#paypal-button-container');  // Render PayPal buttons
+    });
+
+    document.getElementById('confirm-order').addEventListener('click', function () {
+        var selectedPaymentOption = document.querySelector('input[name="payment-option"]:checked').value;
+        
+        if (selectedPaymentOption === 'paypal') {
+          document.getElementById('paypal-button-container').classList.remove('hidden');
+        } else if (selectedPaymentOption === 'cod') {
+          // SweetAlert for COD confirmation
+          Swal.fire({
+            title: 'Confirm Cash on Delivery',
+            text: 'Are you sure you want to place your order with Cash on Delivery?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, place order',
+            cancelButtonText: 'No, go back'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Submit the form if the user confirms
+              document.getElementById('checkout-form').submit();
+            }
           });
-        },
-        onApprove: function (data, actions) {
-          return actions.order.capture().then(function (details) {
-            // Show a success message to your buyer
-            Swal.fire({
-              title: 'Transaction completed!',
-              text: 'Thank you for your order, ' + details.payer.name.given_name,
-              icon: 'success'
+        }
+      });
+       // Initialize the Google Places Autocomplete
+       function initAutocomplete() {
+            var input = document.getElementById('autocomplete');
+
+            // Create autocomplete object linked to the input field
+            var autocomplete = new google.maps.places.Autocomplete(input, {
+                // Restricting autocomplete to address results only
+                types: ['address'], // Suggest only addresses
+                componentRestrictions: { country: 'ph' } // Restrict to the Philippines
             });
 
-            // Submit form to save order in your backend
-            document.getElementById('checkout-form').submit();
-          });
-        },
-        onError: function (err) {
-          console.error(err);
-          Swal.fire({
-            title: 'Transaction failed!',
-            text: 'Please try again.',
-            icon: 'error'
-          });
-        }
-      });
+            // Specify what happens when a place is selected
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    // User did not select a valid place
+                    alert("Please select a valid address from the list.");
+                    return;
+                }
 
-      document.getElementById('confirm-order').addEventListener('click', function () {
-        var paymentOption = document.querySelector('input[name="payment-option"]:checked').value;
-        if (paymentOption === 'paypal') {
-          document.getElementById('paypal-button-container').classList.remove('hidden');
-          paypalButtons.render('#paypal-button-container');
-        } else {
-          // For Cash on Delivery
-          Swal.fire({
-            title: 'Order placed!',
-            text: 'Your order will be delivered soon.',
-            icon: 'success'
-          });
-          document.getElementById('checkout-form').submit(); // Submit the form for COD
+                // If needed, you can extract further details from the selected place
+                console.log('Full Address: ', place.formatted_address);
+            });
         }
-      });
-    });
+
+        // Load autocomplete when the page is loaded
+        window.onload = initAutocomplete;
   </script>
 </body>
 </html>

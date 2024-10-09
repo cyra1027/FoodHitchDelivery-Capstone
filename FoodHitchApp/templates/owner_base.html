@@ -29,6 +29,7 @@
                 <span>{{ store_owner.FirstName }} {{ store_owner.LastName }}</span>
                 <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon> <!-- Dropdown arrow -->
                 <div class="dropdown-content">
+                    <a href="{% url 'owner_view_restaurant' %}">Home</a>
                     <a href="{% url 'update_store_owner_profile' %}">My Profile</a>
                     <a href="{% url 'customer_login' %}">Logout</a>
                 </div>

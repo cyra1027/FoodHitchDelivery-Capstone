@@ -34,7 +34,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.db.models import Q
-
+from paypal.standard.forms import PayPalPaymentsForm
 
 
 def customer_register(request):
@@ -1222,6 +1222,8 @@ def admin_home(request):
     context = {
         'total_deliveries': total_deliveries,
         'total_restaurants': total_restaurants,
+        'total_riders': total_riders,
+        'total_customers': total_customers,
         'total_users': total_users,
         'months': json.dumps(months),
         'earnings': json.dumps(earnings),
@@ -1378,6 +1380,23 @@ def place_order(request):
         order.OrderTotal = total_order_amount
         order.save()
 
+        # Handle payment options
+        if payment_option == 'paypal':
+            paypal_dict = {
+                'business': settings.PAYPAL_RECEIVER_EMAIL,
+                'amount': total_amount,
+                'item_name': f'Order from {customer.CustomerName}',
+                'invoice': order.id,
+                'notify_url': request.build_absolute_uri('/paypal-ipn/'),  # IPN URL
+                'return': request.build_absolute_uri('/order-completed/'),
+                'cancel_return': request.build_absolute_uri('/order-cancelled/'),
+                'address_override': 1,
+                'address': address,
+            }
+
+            form = PayPalPaymentsForm(initial=paypal_dict)
+            return form.render()  # Render the PayPal button here
+
         # Create a single delivery record for the entire order
         rider = order.get_assigned_rider()  # Assuming this method retrieves the assigned rider instance
         if rider is not None:
@@ -1462,7 +1481,6 @@ def place_order(request):
         return redirect('customer_home')
 
     return redirect('customer_home')
-    print(order_id)  # Debugging statement
 def reorder(request, order_id):
     # Get the order using OrderID
     order = get_object_or_404(Order, OrderID=order_id)

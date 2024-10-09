@@ -243,12 +243,12 @@
     top: 10px; /* Adjust distance from the top */
     right: 10px; /* Adjust distance from the right */
     font-size: 24px; /* Adjust icon size */
-    color: red; /* Change color as needed */
+    color: rgb(250, 248, 248); /* Change color as needed */
     cursor: pointer; /* Change cursor to pointer for interaction */
 }
 
 .favorite-icon.active {
-    color: red; /* Color when active */
+    color:  rgb(250, 248, 248); /* Color when active */
 }
 
 /* In your customer_base.css or another CSS file */
