@@ -142,7 +142,7 @@ class Delivery(models.Model):
     RiderID = models.ForeignKey('Rider', on_delete=models.CASCADE)
     RestaurantID = models.ForeignKey('Restaurant', on_delete=models.CASCADE, default=1)
     Date = models.DateTimeField(auto_now_add=True)
-    Address = models.CharField(max_length=255)
+    Address = models.CharField(max_length=255, null=True)
     OrderTotal = models.DecimalField(max_digits=10, decimal_places=2)
     DeliveryFee = models.DecimalField(max_digits=10, decimal_places=2)
     TotalPayableAmount = models.DecimalField(max_digits=10, decimal_places=2)

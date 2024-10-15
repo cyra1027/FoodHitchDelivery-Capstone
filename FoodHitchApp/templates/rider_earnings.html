@@ -1,8 +1,11 @@
 {% extends 'rider_base.html' %}
 
 {% block content %}
+<div class="page-header"> <!-- New container for h1 and h2 -->
+    <h1 class="page-title">Earnings Overview</h1>
+    <h4 class="subtitle">Keep track of your performance metrics</h4>
+</div>
 <div class="earnings-container">
-    <h2>Earnings</h2>
 
     <!-- Form for selecting a date -->
     <form method="get" class="filter-form">
@@ -52,10 +55,37 @@
     body {
         font-family: 'Poppins', sans-serif;
     }
+    .page-header {
+        position: fixed;
+        top: 60px;
+        left: 18.3%;
+        width: 100%;
+        background-color: #ffffff;
+        padding: 20px 30px 0 70px;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+}
+
+    .page-title {
+        color: #018513;
+        font-size: 25px;
+        margin-top: -3%;
+  
+}
+
+    .subtitle {
+        color: #666;
+        font-size: 18px;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        font-family: 'Calibri';  
+}
     
     .earnings-container {
         text-align: center;
         padding: 20px;
+        margin-top: 8%;
     }
     .earnings-cards {
         display: flex;

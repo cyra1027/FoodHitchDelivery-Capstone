@@ -2,8 +2,12 @@
 {% load static %}
 {% block content %}
 <div class="main-content">
-    <div class="store-container">
+    <div class="page-header"> <!-- New container for h1 and h2 -->
         <h1 class="page-title">Customer Feedback</h1>
+        <h4 class="subtitle">Here's what they have to say...</h4>
+    </div>
+    <div class="store-container">
+        
 
         {% if feedbacks %}
         {% for feedback in feedbacks %}

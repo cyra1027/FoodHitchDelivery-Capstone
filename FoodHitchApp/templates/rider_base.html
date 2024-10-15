@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
+        
         .toggle-container {
             display: flex;
             align-items: center;
@@ -47,7 +48,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: #cccccc;
             transition: 0.4s;
             border-radius: 34px;
         }
@@ -65,34 +66,43 @@
         }
 
         input:checked + .slider {
-            background-color: #4CAF50;
+            background-color: #082c01;
         }
 
         input:checked + .slider:before {
             transform: translateX(18px);
         }
+        
+
     </style>
+
 </head>
+
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{% url 'rider_base' %}">
-                <img src="{% static 'images/sidebarlogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
+                <img src="{% static 'images/nobgwhitelogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
             </a>
         </div>
 
         <div class="sidebar-menus">
-            <a href="{% url 'rider_home' %}"><ion-icon name="home-outline"></ion-icon>Home</a>
-            <a href="{% url 'update_rider_profile' %}"><ion-icon name="person-outline"></ion-icon>Profile</a>
-            <a href="{% url 'rider_transactions' %}"><ion-icon name="car-outline"></ion-icon>Transaction</a>
-            <a href="{% url 'rider_earnings' %}"><ion-icon name="cash-outline"></ion-icon>Earnings</a>
-            <a href="{% url 'rider_delivery_history' %}"><ion-icon name="car-outline"></ion-icon>Delivery History</a>
+            <a href="{% url 'rider_home' %}" class="{% if request.path == '/rider_home/' %}active{% endif %}">
+                <ion-icon name="home-outline"></ion-icon>Home</a>
+            <a href="{% url 'update_rider_profile' %}" class="{% if request.path == '/profile/update/' %}active{% endif %}">
+                    <ion-icon name="person-outline"></ion-icon>Profile</a>            
+            <a href="{% url 'rider_transactions' %}" class="{% if request.path == '/rider_transactions/' %}active{% endif %}">
+                        <ion-icon name="card-outline"></ion-icon>Transactions</a>
+            <a href="{% url 'rider_earnings' %}" class="{% if request.path == '/rider/earnings/' %}active{% endif %}">
+                            <ion-icon name="cash-outline"></ion-icon>Earnings</a>            
+            <a href="{% url 'rider_delivery_history' %}" class="{% if request.path == '/rider_delivery_history/' %}active{% endif %}">
+                                <ion-icon name="car-outline" style="font-size: 21px;"></ion-icon>Delivery History</a>
 
             <!-- Toggle Switch for Availability -->
 <!-- Toggle Switch for Availability -->
             <div class="toggle-container">
-                <ion-icon name="radio-button-on-outline" style="color: #000; margin-left: 10px;"></ion-icon> <!-- Ion Icon for Status -->
-                <label for="availability-toggle" style="color: #000; margin-left: 15px;">Status</label>
+                <ion-icon name="checkmark-circle-outline" style="color: #fff; margin-left: 5px; font-size: 21.5px;"></ion-icon> <!-- Ion Icon for Status -->
+                <label for="availability-toggle" style="color: #fff; margin-left: 15px;">Status</label>
                 <label class="toggle-switch">
                     <!-- Check if availability is 'available' and set the checkbox accordingly -->
                     <input type="checkbox" id="availability-toggle" name="availability" {% if rider.Availability == 'available' %} checked {% endif %}>
@@ -102,7 +112,7 @@
         </div>
 
         <div class="sidebar-logout">
-            <a href="{% url 'customer_login' %}"><ion-icon name="exit-outline"></ion-icon>Logout</a>
+            <a href="{% url 'logout' %}"><ion-icon name="exit-outline"></ion-icon>Logout</a>
         </div>
     </div>
 
@@ -125,43 +135,46 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Toggle Switch Script -->
+
 <script>
     document.getElementById('availability-toggle').addEventListener('change', function() {
-        let availabilityStatus = this.checked ? 'available' : 'unavailable'; // Set availability status
-        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value; // Get CSRF token
+    let availabilityStatus = this.checked ? 'available' : 'unavailable'; // Updated values
+    let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value; // Get CSRF token
 
-        // AJAX request to update availability status
-        fetch("{% url 'update_availability' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                'availability': availabilityStatus
-            })
+    // AJAX request to update availability status
+    fetch("{% url 'update_availability' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            'availability': availabilityStatus // Use the updated status
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: `You are now ${availabilityStatus}!`,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Failed to update availability.'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Log the response
+        if (data.success) {
+            const icon = this.checked ? 'success' : 'error'; // Use this.checked for icon
+            Swal.fire({
+                icon: icon,
+                title: `You are now ${availabilityStatus}!`,
+                showConfirmButton: false,
+                timer: 2500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Failed to update availability.'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
     });
+});
 </script>
 </body>
 </html>

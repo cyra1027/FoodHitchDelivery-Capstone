@@ -25,12 +25,12 @@
                 {% csrf_token %}
                 <h2>SIGN IN</h2>
                 <label for="username" style="margin-left:-10%;">Username </label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
                 <label for="password" style="margin-left:-10%;">Password</label>
                 <input type="password" id="password" name="password" required>
                 
                 <div class="forgot-password">
-                    <a href="{% url 'password_reset_request' %}">Forgot Password?</a>
+                    <a href="{% url 'password_reset_request' %}">Forgot Password</a>
                 </div>
 
                 <!-- Hidden inputs for latitude and longitude -->
@@ -39,7 +39,12 @@
                 <button type="submit">SIGN IN</button>
             </form>
             <div class="sign-link">
-                <p>Don't have an account? <a href="{% url 'customer_register' %}" class="register-link">Register Here!</a></p>
+                <p>Don't have an account? <br>Register as:</p>
+                <ul class="horizontal-links">
+                    <li><a href="{% url 'customer_register' %}" class="register-link">CUSTOMER</a></li>
+                    <li><a href="{% url 'rider_register' %}" class="register-link">RIDER</a></li>
+                    <li><a href="{% url 'owners_register' %}" class="register-link">STORE OWNER</a></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -85,6 +90,7 @@
                             title: 'Verification Required',
                             text: "An OTP has been sent to your email. Please verify to continue.",
                             showConfirmButton: true,
+                            confirmButtonColor: '#009914',
                         }).then(() => {
                             window.location.href = data.redirect_url; // Redirect to OTP verification page
                         });
@@ -94,8 +100,8 @@
                             title: 'Success',
                             text: "Login successful!",
                             showConfirmButton: true,
-                            confirmButtonColor: '#32cd32',
-                            cancelButtonColor: '#32cd32',
+                            confirmButtonColor: '#009914',
+                            cancelButtonColor: 'red',
                         }).then(() => {
                             // Redirect after SweetAlert closes
                             window.location.href = data.redirect_url;

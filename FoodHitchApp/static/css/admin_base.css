@@ -21,7 +21,7 @@ body {
   display: flex;
   min-height: 100vh; /* Ensure full height for proper content placement */
   flex-direction: column; /* Align content vertically */
-  background-color: #F0FFF0;
+  background-color: #f0f4f8;
 }
 
 .sidebar {
@@ -34,7 +34,7 @@ body {
   top: 0;
   left: 0;
   padding: 2%;
-  background-color: #fdfcf3;
+  background-color: #018513;
   color: var(--blackColor);
   box-shadow: 0 4px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
 }
@@ -52,7 +52,6 @@ body {
 .logo {
   width: 100%;
   height: 100px;
-  background-color: rgb(31, 31, 31);
   object-fit: cover;
 }
 
@@ -75,28 +74,27 @@ body {
   align-items: center;
   justify-content: flex-start;
   gap: 10px; /* Consistent gap between icon and text */
-  font-size: 13.5px;
+  font-size: 14px;
   text-decoration: none;
-  color: var(--blackColor);
+  color: #fff;
   border-radius: 30px; /* Slight border radius to maintain roundness when hovered */
-  transition: background-color 0.3s ease; /* Smooth hover transition */
 }
 
 .sidebar-menus a ion-icon, .sidebar-logout a ion-icon {
-  font-size: 20px;
+  font-size: 14.5px;
   margin-right: 0; /* Removed negative margin to prevent icon misalignment */
-  color: var(--blackColor);
+  color: #fff;
 }
 .sidebar-menus a:hover, .sidebar-logout a:hover {
-  background-color: #cfcbcb;
-  color: #000;
+  background-color: #cfcbcb83;
+  color: #fff;
   text-align: center; /* Ensures that both icon and text are aligned */
 }
 .sidebar-menus a:hover ion-icon, .sidebar-logout a:hover ion-icon {
-  color: #000;
+  color: #fff;
 }
 .sidebar-menus a.active, .sidebar-logout a.active {
-  background-color: #cfcbcb;  
+  background-color: #feffef;  
   color: rgb(0, 122, 0);                
   border-radius: 50px;        
 }
@@ -127,16 +125,18 @@ body {
   max-width: 600px;
   margin: 0 auto; /* Center the search bar */
   border-radius: 12px;
+  background-color: #fff;
+
   
 }
 
 .header .search-bar input {
   width: 115%;
   padding: 10px;
-  background-color: #efffed;
-  border: 1px solid var(--greyColor);
+  background-color: #fefff2;
+  border: 1px solid rgba(145, 145, 145, 0.301);
   font-size: 14px;
-  border-radius: 12px;
+  border-radius: 20px;
 }
 
 .header .icons {

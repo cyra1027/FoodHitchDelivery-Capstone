@@ -5,9 +5,11 @@
 
 {% block content %}
 <div class="main-content">
-    <div class="transaction-container">
-        <h1 class="transaction-title">Transaction Details</h1>
-        
+    <div class="page-header"> <!-- New container for h1 and h2 -->
+        <h1 class="page-title">Order Transactions</h1>
+        <h4 class="subtitle">Monitor and update delivery progress</h4>
+    </div>
+    <div class="transaction-container">       
         {% if deliveries %}
             {% for delivery in deliveries %}
             <div class="transaction-card">
@@ -39,8 +41,8 @@
                 
                 <form class="status-update-form" data-delivery-id="{{ delivery.DeliveryID }}">
                     {% csrf_token %}
-                    <button type="button" name="status" value="In Transit" class="status-button" onclick="updateStatus('{{ delivery.DeliveryID }}', 'On Transit')">Mark as In Transit</button>
-                    <button type="button" name="status" value="Delivered" class="status-button" onclick="updateStatus('{{ delivery.DeliveryID }}', 'Delivered')">Mark as Delivered</button>
+                    <button type="button" name="status" value="In Transit" class="status-button in-transit" onclick="updateStatus('{{ delivery.DeliveryID }}', 'On Transit')">Mark as In Transit</button>
+                    <button type="button" name="status" value="Delivered" class="status-button delivered" onclick="updateStatus('{{ delivery.DeliveryID }}', 'Delivered')">Mark as Delivered</button>
                 </form>
             </div>
             {% endfor %}
@@ -200,7 +202,7 @@
 
     .main-content {
         padding: 20px;
-        max-width: 700px;
+        max-width: 900px;
         margin: auto;
     }
 
@@ -217,17 +219,16 @@
         border-radius: 10px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         padding: 40px;
-        margin-top: 100px;
+        margin-top: 20%;
         margin-left: 200px;
+        width: 100%;
     }
 
     .transaction-card {
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        
     }
 
     .transaction-info p {
@@ -246,7 +247,6 @@
         font-weight: bold;
     }
     .track-button {
-        background-color: #009914;
         color: white;
         border: none;
         border-radius: 5px;
@@ -259,28 +259,44 @@
         font-size: 16px;
     }
 
-    .track-button:hover {
-        background-color: #007d12;
-    }
-
     .status-update {
         margin-top: 20px;
     }
 
     .status-button {
-        background-color: #007BFF;
         color: white;
         border: none;
         border-radius: 5px;
         padding: 10px 15px;
         cursor: pointer;
-        margin-left: 16px;
         transition: background-color 0.3s;
+        width: 48%;
     }
 
-    .status-button:hover {
-        background-color: #0056b3;
-    }
+.status-button.in-transit {
+    background-color: #f0b000;
+}
+
+.status-button.in-transit:hover {
+    background-color: #d89400;
+}
+
+.status-button.delivered {
+    background-color: #009914;
+    margin-left: 3%;
+}
+
+.status-button.delivered:hover {
+    background-color: #007e11;
+}
+
+.track-button {
+    background-color: #333;
+}
+
+.track-button:hover {
+    background-color: #131313;
+}
 
     /* Modal styles */
     .modal {
@@ -320,19 +336,16 @@
     }
 
     /* Additional styling for status colors */
-    .status-in-transit {
-        background-color: #ffcc00;
-        color: #fff;
+    .transaction-info .status-indicator.status-in-transit {
+        color: #ffcc00;
     }
 
-    .status-delivered {
-        background-color: #28a745;
-        color: #fff;
+    .transaction-info .status-indicator.status-delivered {
+        color: #28a745;
     }
 
-    .status-pending {
-        background-color: #dc3545;
-        color: #fff;
+    .transaction-info .status-indicator.status-pending {
+        color: #dc3545;
     }
 </style>
 {% endblock %}

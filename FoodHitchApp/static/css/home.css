@@ -3,18 +3,18 @@ body {
     margin: 0;
     font-family: 'Poppins',sans-serif;
     overflow-x: hidden; /* Prevent horizontal scrolling */
-    background-color: #deffd6;
+    background-color: #ffffff;
 }
 
 .navbar {
     background-color: white;
-    padding: 10px 0;
+    padding: 0;
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
     z-index: 2000;
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    box-shadow:3px 3px 20px rgba(0, 0, 0, 0.281);
 }
 
 .container {
@@ -25,6 +25,7 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+
 
 .nav-links {
     list-style: none;
@@ -55,12 +56,14 @@ body {
     text-decoration: none;
     font-size: 16px;
     display: inline-block;
-    background-color: #2baa47;
+    background-color: #009914;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
 }
 
 .login-button:hover {
     color: #fff ;
-    background-color: #009914;
+    background-color: #007e11;
 }
 
 .video-container {
@@ -123,7 +126,7 @@ body {
 
 .cta-button {
     text-align: center;
-    background-color: #2baa47; /* Bright, eye-catching color */
+    background-color: #009914; /* Bright, eye-catching color */
     color: white; /* White text */
     padding: 10px 20px; /* Adequate padding for the button */
     border: none; /* Remove default border */
@@ -136,7 +139,7 @@ body {
 }
 
 .cta-button:hover {
-    background-color: #009914;
+    background-color: #007e11;
     color: #fff; 
 }
 
@@ -168,7 +171,7 @@ h1 {
 }
 
 .button2 {
-    background-color: #2baa47; /* Button color */
+    background-color: #009914; /* Button color */
     color: white; /* Button text color */
     padding: 10px 20px; /* Adequate padding for the button */
     border: none; /* Remove border */
@@ -181,7 +184,7 @@ h1 {
 }
 
 .button2:hover {
-    background-color: #009914;
+    background-color: #007e11;
     color: #fff; 
 
 }
@@ -223,7 +226,7 @@ h1 {
 }
 
 .button2 {
-    background-color: #2baa47; /* Button color */
+    background-color: #009914; /* Button color */
     color: white; /* Button text color */
     padding: 10px 20px; /* Adequate padding for the button */
     border: none; /* Remove border */
@@ -236,7 +239,7 @@ h1 {
 }
 
 .button2:hover {
-    background-color: #009914;
+    background-color: #007e11;
     color: #fff; 
 
 }

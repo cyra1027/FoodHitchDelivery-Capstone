@@ -7,17 +7,6 @@
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <title>Store Owner Sign Up</title>
-    <style>
-        /* Align the radio buttons horizontally */
-        .radio-group {
-            display: flex;
-            align-items: center;
-            gap: 15px; /* Gap between Yes and No options */
-        }
-        .radio-group label {
-            margin-right: 10px;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -77,11 +66,14 @@
                 </div>
 
                 <!-- BIR 203 Radio Button -->
-                <div class="input-group">
-                    <label for="HasBIR203" style="margin-right: 350px;">BIR 203 Available?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="HasBIR203" value="True" required> Yes</label>
-                        <label><input type="radio" name="HasBIR203" value="False" required> No</label>
+                <div class="input-group input-group-inline">
+                    <label for="HasBIR203" style="margin-right: 20px;">Do you have a BIR 203?</label>
+                    <div class="radio-group-inline">
+                        <input type="radio" id="HasBIR203_yes" name="HasBIR203" value="True" required>
+                        <label for="HasBIR203_yes">Yes</label>
+                
+                        <input type="radio" id="HasBIR203_no" name="HasBIR203" value="False" required>
+                        <label for="HasBIR203_no">No</label>
                     </div>
                 </div>
                 
@@ -89,7 +81,7 @@
                 <button type="submit" id="register-btn">REGISTER</button>
             </form>
             <div class="sign-link">
-                <p>Already have an account? <a href="{% url 'customer_login' %}"> Sign In</a></p>
+                <p>Already have an account? <a href="{% url 'customer_login' %}"> SIGN IN</a></p>
             </div>
         </div>
     </div>
@@ -109,6 +101,7 @@
                     icon: 'error',
                     title: 'Registration Blocked',
                     text: 'You cannot register without BIR 203.',
+                    confirmButtonColor: '#009914',
                 });
             } else {
                 // Gather form data

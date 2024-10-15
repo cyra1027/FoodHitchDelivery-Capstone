@@ -134,7 +134,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'foodhitchdelivery@gmail.com'
 EMAIL_HOST_PASSWORD = 'wygc sbco utxl glkg'
 DEFAULT_FROM_EMAIL = 'foodhitchdelivery@gmail.com'
-
+EMAIL_USE_DEBUG = True  # Add this line
 # PayPal settings
 PAYPAL_RECEIVER_EMAIL = 'foodhitchdelivery2024@gmail.com'  # PayPal Sandbox Business Account
 PAYPAL_TEST = True  # Set to True for testing with Sandbox, False for production

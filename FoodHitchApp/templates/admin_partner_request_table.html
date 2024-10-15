@@ -56,40 +56,38 @@
     }
 
     .styled-table {
-        width: 80%; /* Set width to a percentage */
+        width: 80%; 
         border-collapse: collapse;
-        margin: 0 auto; /* Center the table */
-        border-radius: 8px; /* Rounded corners */
-        overflow: hidden; /* Ensures the border radius is applied */
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        margin: 0 auto; 
+        border-radius: 8px; 
+        overflow: hidden; 
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); 
         margin-left: -34.5%;
         margin-top: -11%;
     }
 
     .styled-table thead tr {
-        background-color: #8aa376; /* Green header */
+        background-color: rgb(107, 206, 107); 
         color: white;
         text-align: left;
     }
 
     .styled-table th, .styled-table td {
-        padding: 12px 15px; /* Increased padding for better appearance */
-        text-align: center; /* Center text */
-        border-bottom: 1px solid #8aa376; /* Green border color for rows */
+        padding: 12px 15px; 
+        text-align: center; 
     }
 
     .styled-table tbody tr {
-        border-bottom: 2px solid #8aa376; /* Green bottom border for rows */
+        border-bottom: 1px solid #dddddd;
     }
 
     .styled-table tbody tr:nth-of-type(even) {
         background-color: #f2f2f2; /* Light gray for even rows */
     }
-
-    .styled-table tbody tr:hover {
-        background-color: #e8f5e9; /* Highlight on row hover */
-        cursor: pointer; /* Cursor pointer for hover */
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid rgb(107, 206, 107);
     }
+
 
     a {
         text-decoration: none;
@@ -99,14 +97,14 @@
     .view {
         display: inline-block;
         padding: 5px 10px;
-        background-color: #8aa376;
+        background-color: rgb(107, 206, 107);
         border-radius: 5px;
         transition: background-color 0.3s; 
         font-size: 13px;
     }
 
     .view:hover {
-        background-color: #5f7a49; 
+        background-color: rgb(39, 182, 39); 
     }
 
     /* Responsive adjustments */

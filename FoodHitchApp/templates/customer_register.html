@@ -48,16 +48,17 @@
                     <div class="input-group">
                         <label for="id_password2" style="margin-left: -46%;">Confirm Password</label>
                         {{ form.password2 }}
+                        <div id="password-message" style="color: red; display: none; font-size: 14px;">Password does not match</div>
                     </div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-bottom: 5%;">
                     <label for="id_picture" style="margin-left: -80%;">Profile Picture</label>
                     {{ form.picture }}
                 </div>
                 <button type="submit" id="register-btn">REGISTER</button>
             </form>
             <div class="sign-link">
-                <p>Already have an account? <a href="{% url 'customer_login' %}"> Sign In</a></p>
+                <p>Already have an account? <a href="{% url 'customer_login' %}"> SIGN IN</a></p>
             </div>
         </div>
     </div>
@@ -94,16 +95,24 @@
             }
     
             // JavaScript for real-time password confirmation feedback
-            const password1 = document.getElementById('id_password1');
+        const password1 = document.getElementById('id_password1');
         const password2 = document.getElementById('id_password2');
+        const passwordMessage = document.getElementById('password-message');
+
 
         const checkPasswordMatch = () => {
             if (password2.value === '') {
                 password2.style.borderColor = ''; // Reset border color if empty
+                passwordMessage.style.display = 'none'; // Hide message
+
             } else if (password2.value === password1.value) {
-                password2.style.borderColor = 'green'; // Match
+                password2.style.borderColor = 'black'; // Match
+                passwordMessage.style.display = 'none'; // Hide message
+
             } else {
-                password2.style.borderColor = 'red'; // No match
+                password2.style.borderColor = 'rgb(240, 0, 0)'; // No match
+                passwordMessage.style.display = 'block'; // Show message
+
             }
         };
 

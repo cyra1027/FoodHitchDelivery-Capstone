@@ -3,26 +3,30 @@
 
 {% block content %}
 <div class="main-content">
-    <h1>Pending Feedback</h1>
-    <div class="table-container">
+    <h1>PENDING FEEDBACK</h1>
+    <div class="feedback-cards-container">
         {% if feedbacks %}
             {% for feedback in feedbacks %}
-            <div class="feedback-entry">
+            <div class="feedback-card">
                 <div class="feedback-header">
+                    <span class="customer-label">Customer: </span>
                     <span class="customer-name">{{ feedback.CustomerName }}</span>
-                    <span class="rider-name"> (Rider: {{ feedback.RiderID.FullName }})</span>
-                    <span class="feedback-time">{{ feedback.timestamp|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <div class="feedback-header">
+                    <span class="rider-label">Rider: </span>
+                    <span class="rider-name">{{ feedback.RiderID.FullName }}</span>
+                </div>
+                <div class="feedback-time">
+                    {{ feedback.Date|date:"F j, Y, g:i a" }}
                 </div>
                 <div class="feedback-message">
+                    <span class="comment-label">Comment: </span>
                     {{ feedback.Message }}
                 </div>
                 <div class="feedback-actions">
-                    <a href="{% url 'approve_feedback' feedback.FeedbackID %}" class="approve">
-                        <i class="fas fa-check"></i> Approve
-                    </a>
-                    <a href="{% url 'reject_feedback' feedback.FeedbackID %}" class="reject">
-                        <i class="fas fa-times"></i> Reject
-                    </a>
+                    <a href="javascript:void(0);" class="approve" onclick="approveFeedback('{{ feedback.FeedbackID }}', '{{ feedback.RiderID.FullName }}')">Approve</a>
+                    
+                    <a href="javascript:void(0);" class="reject" onclick="rejectFeedback('{{ feedback.FeedbackID }}')">Reject</a>
                 </div>
             </div>
             {% endfor %}
@@ -32,6 +36,45 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function approveFeedback(feedbackId, riderName) {
+        // Show confirmation alert
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `The feedback will be posted to ${riderName}'s timeline.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, post it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to server-side approve_feedback view
+                window.location.href = "{% url 'approve_feedback' feedback_id=0 %}".replace('0', feedbackId);
+            }
+        });
+    }
+
+    function rejectFeedback(feedbackId) {
+        // Show confirmation alert
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'The comment will be rejected and will not be posted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, reject it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to server-side reject_feedback view
+                window.location.href = "{% url 'reject_feedback' feedback_id=0 %}".replace('0', feedbackId);
+            }
+        });
+    }
+</script>
+
 <style>
     .main-content {
         display: flex;
@@ -40,93 +83,121 @@
     }
 
     h1 {
-        position: relative; /* Allows for positioning without covering other elements */
+        position: fixed; /* Allows for positioning without covering other elements */
         color: #333; /* Darker text for better readability */
-        margin-bottom: -10px; /* Space below the title */
-        margin-top: 5%;
-        margin-left: -52%;
+        top: 80px;
+        margin-left: 18.6%;
         font-size: 25px;
+        background-color: #f0f4f8;
+        width: 100%;
+        height: 10%;
+        padding: 30px 30px 70px 70px;
 
     }
 
-    .table-container {
-        width: 100%; 
-        max-width: 800px; 
-        border: 1px solid #ddd; 
-        border-radius: 5px; 
-        padding: 20px;
-        margin-top: 5%;
-    }
+    .feedback-cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 4 cards in a row */
+    gap: 20px;
+    padding: 20px;
+    margin-top: 10%;
+}
 
-    .feedback-entry {
-        border-bottom: 1px solid #ddd; 
-        padding: 10px 0; 
-    }
+.feedback-card {
+    background-color: #ffffff;
+    border: 1px solid #f6ffe6;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: box-shadow 0.3s ease;
+    font-size: 0.9em; /* Adjusted size */
+}
 
-    .feedback-header {
-        display: flex;
-        justify-content: space-between; /* Space between name and time */
-        align-items: center;
-    }
+.feedback-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
 
-    .customer-name {
-        font-weight: bold; /* Highlight customer name */
-    }
+.feedback-header {
+    margin-bottom: 5px;
+}
 
-    .rider-name {
-        font-style: italic; /* Style rider name */
-        color: gray; /* Color for the rider's name */
-    }
+.customer-label, .rider-label, .comment-label {
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 5px;
+    color: #333;
+}
 
-    .feedback-time {
-        font-size: 0.9em; /* Smaller font for the timestamp */
-        color: #888; /* Lighter color for the timestamp */
-    }
+.feedback-time {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 10px;
+}
 
-    .feedback-message {
-        margin: 5px 0; /* Space between header and message */
-        padding: 10px;
-        background-color: #f9f9f9; /* Light background for message */
-        border-radius: 4px; /* Rounded corners for the message */
-    }
+.feedback-message {
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
 
-    .feedback-actions {
-        margin-top: 10px; /* Space above actions */
-        margin-bottom: 20px;
-    }
+.feedback-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
 
-    a {
-        text-decoration: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        color: white;
-        display: inline-block;
-        font-size: 12px;
-    }
+.feedback-actions a {
+    text-decoration: none;
+    color: white;
+    padding: 6px 10px; /* Adjusted button size */
+    border-radius: 5px;
+    font-size: 0.85em;
+}
 
-    .approve {
-        background-color: #28a745;
-    }
+.approve {
+    background-color: #009914;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-    .approve:hover {
-        background-color: #218838;
-    }
+.reject {
+    background-color: #d81818;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-    .reject {
-        background-color: #dd2537;
-        margin-left: 10px; /* Space between buttons */
-    }
+.approve:hover {
+    background-color: #007e11;
+}
+.reject:hover {
+    background-color: #c70404;
+}
 
-    .reject:hover {
-        background-color: #c82333;
-    }
+.no-feedback {
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 20px;
+}
 
-    .no-feedback {
-        text-align: center; /* Center the no feedback message */
-        color: #888; /* Gray color for the message */
-        font-size: 1.2em; /* Slightly larger font */
-        padding: 20px; /* Padding around the message */
+/* Ensure cards are responsive for smaller screens */
+@media (max-width: 1200px) {
+    .feedback-cards-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 cards in a row for smaller screens */
     }
+}
+
+@media (max-width: 900px) {
+    .feedback-cards-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 cards in a row */
+    }
+}
+
+@media (max-width: 600px) {
+    .feedback-cards-container {
+        grid-template-columns: 1fr; /* 1 card per row for mobile */
+    }
+}
 </style>
 
 {% endblock %}

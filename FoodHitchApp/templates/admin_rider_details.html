@@ -6,17 +6,16 @@
 {% load static %}
 <div class="main-content">
     <div class="container">
+        <a href="javascript:void(0)" class="btn-back" onclick="window.history.back();">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+        </a>
+        <h1>Rider Details</h1>
         <div class="header-section">
-            <h1>Rider Details</h1>
-            <a href="javascript:void(0)" class="btn-back" onclick="window.history.back();">
-                <ion-icon name="arrow-back-outline"></ion-icon> Back
-            </a>
+            
         </div>
 
         <div class="rider-card">
-            <div class="rider-image">
-                <img src="{{ rider.ProfilePicture.url }}" alt="Rider Picture">
-            </div>
+            
             <div class="rider-info">
                 <h2>{{ rider.FullName }}</h2>
                 <p><strong>Username:</strong> {{ rider.Username }}</p>
@@ -26,14 +25,19 @@
                 <p><strong>License:</strong> <a href="{{ rider.License.url }}" target="_blank">View License</a></p>
                 <p><strong>Status:</strong> {{ rider.get_Status_display }}</p>
             </div>
+            <div class="rider-image">
+                <img src="{{ rider.ProfilePicture.url }}" alt="Rider Picture">
+            </div>
         </div>
 
         <div class="action-buttons">
+            {% if rider.Status != 'accepted' %}
             <form method="post" action="{% url 'manage_rider_application' RiderID=rider.RiderID %}">
                 {% csrf_token %}
                 <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
                 <button type="submit" name="action" value="decline" class="btn-decline">Decline</button>
             </form>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -42,19 +46,29 @@
     /* General page styling */
     body {
         font-family: 'Poppins', sans-serif;
-        background-color: #f2f5f7;
         color: #333;
         margin: 0;
         padding: 0;
     }
 
     .container {
-        max-width: 700px;
+        width: 55%;
         margin: 40px auto;
         background-color: #fff;
-        padding: 25px;
+        padding: 25px 40px;
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn-back {
+        font-size: 24px;
+        color: #000000;
+        align-items: left;
+        text-decoration: none;
+        text-align: left;
+        
+    }
+    .btn-back:hover {
+        color: rgba(54, 54, 54, 0.61);
     }
 
     .header-section {
@@ -64,59 +78,67 @@
         margin-bottom: 20px;
     }
 
-    .header-section h1 {
-        font-size: 24px;
-        font-weight: 600;
+    h1 {
+        margin-top: -50px;
+        font-size: 25px;
+        margin-left: 10%;
     }
 
-    .btn-back {
-        font-size: 16px;
-        color: #007bff;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-    }
-
-    /* Rider Card */
     .rider-card {
-        display: flex;
-        align-items: flex-start;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #fafafa;
-    }
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #b7d1b4;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fffffff1;
+    position: relative;
+    border-radius: 5px;
+}
+
+    .rider-image {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 150px;
+    height: 150px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
 
     .rider-image img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 3px solid #007bff;
-        object-fit: cover;
-        margin-right: 20px;
-    }
+    width: 100%;
+    height: 100%;
+    border: 1px solid #005f05;
+    border-radius: 5px;
+    object-fit: cover;
+}
 
     .rider-info {
         display: flex;
         flex-direction: column;
         justify-content: center;
+        margin-left: 1%;
+        margin-top: 5%;
     }
 
     .rider-info h2 {
         font-size: 22px;
         font-weight: bold;
         margin-bottom: 10px;
+        color: #005f05;
     }
 
     .rider-info p {
         margin: 6px 0;
         font-size: 16px;
+        font-family: 'Calibri';
     }
 
     .rider-info a {
+        font-family: 'Calibri';
+
         color: #007bff;
         text-decoration: none;
+        font-size: 16px;
     }
 
     .rider-info a:hover {
@@ -130,7 +152,7 @@
     }
 
     .action-buttons button {
-        padding: 12px 18px;
+        padding: 5px 10px;
         border: none;
         border-radius: 6px;
         font-size: 16px;
@@ -140,21 +162,21 @@
     }
 
     .btn-approve {
-        background-color: #28a745;
+        background-color: #009914;
         color: #fff;
     }
 
     .btn-approve:hover {
-        background-color: #218838;
+        background-color: #007e11;
     }
 
     .btn-decline {
-        background-color: #dc3545;
+        background-color: #d81428;
         color: #fff;
     }
 
     .btn-decline:hover {
-        background-color: #c82333;
+        background-color: #b40113;
     }
 
 </style>

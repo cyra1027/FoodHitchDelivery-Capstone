@@ -5,12 +5,15 @@
 
 {% block content %}
 <div class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Delivery History</h1>
+        <h4 class="subtitle">List of your past completed deliveries</h4>
+    </div>
 
     <div class="transaction-container">
-        <h1 class="transaction-title text-center">Delivery History List</h1>
-        <div class="delivery-history">
+        <div class="delivery-history" id="delivery-history">
             {% for delivery in deliveries %}
-            <div class="transaction-card">
+            <div class="transaction-card" id="delivery-{{ delivery.DeliveryID }}">
                 <div class="transaction-info">
                     <p><strong>Delivery ID:</strong> {{ delivery.DeliveryID }}</p>
                     <p><strong>Order ID:</strong> {{ delivery.OrderID }}</p>
@@ -31,7 +34,6 @@
 </div>
 
 <style>
-
     /* Import Poppins font */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -41,31 +43,21 @@
 
     .main-content {
         padding: 20px;
-        background-color: #e9fdecec; 
-
     }
 
     .transaction-container {
         max-width: 1200px;
         width: 70%;
         margin: auto;
-        /*background-color: #d4fdda; */
         border-radius: 10px;
         padding: 40px;
-    }
-
-    .transaction-title {
-        color: #333;
-        font-size: 32px;
-        margin-bottom: 30px;
-        font-weight: bold;
-        text-align: left; 
     }
 
     .delivery-history {
         display: flex;
         flex-direction: column;
         gap: 20px; /* Space between cards */
+        margin-top: 10%;
     }
 
     .transaction-card {
@@ -122,15 +114,57 @@
         font-size: 18px;
         color: #777; /* Light gray for no deliveries message */
     }
+    .custom-confirm-button {
+    background-color: #009914 !important; /* Set the button color */
+    color: white !important; /* Set the text color */
+    border: none !important; /* Remove the border */
+}
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function deleteDelivery(deliveryId) {
-        if (confirm('Are you sure you want to delete this delivery?')) {
-            // Implement the delete functionality here
-            console.log('Deleting delivery with ID:', deliveryId);
-            // You might want to send a request to your backend to delete this record
+    // Check local storage for deleted deliveries
+    const deletedDeliveries = JSON.parse(localStorage.getItem('deletedDeliveries')) || [];
+
+    // Hide deleted deliveries on page load
+    deletedDeliveries.forEach(deliveryId => {
+        const deliveryElement = document.getElementById('delivery-' + deliveryId);
+        if (deliveryElement) {
+            deliveryElement.style.display = 'none';
         }
+    });
+
+    function deleteDelivery(deliveryId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This can't be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Remove the delivery from the UI
+                const deliveryElement = document.getElementById('delivery-' + deliveryId);
+                if (deliveryElement) {
+                    deliveryElement.style.display = 'none';
+                }
+                
+                // Store the deleted delivery ID in local storage
+                deletedDeliveries.push(deliveryId);
+                localStorage.setItem('deletedDeliveries', JSON.stringify(deletedDeliveries));
+                
+                Swal.fire({
+    title: 'Deleted!',
+    text: 'Your delivery has been deleted.',
+    icon: 'success',
+    customClass: {
+        confirmButton: 'custom-confirm-button' // Add a custom class to the confirm button
+    }
+});
+            }
+        });
     }
 </script>
 

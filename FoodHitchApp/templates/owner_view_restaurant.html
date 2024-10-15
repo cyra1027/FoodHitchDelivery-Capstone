@@ -48,6 +48,25 @@
         color: yellowgreen; /* Match hover effect */
     }
     </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdownContent = document.querySelector('.dropdown-content');
+  
+        // Toggle the dropdown visibility when the profile or name is clicked
+        dropdown.addEventListener('click', function() {
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+  
+        // Close the dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            if (!dropdown.contains(event.target)) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+    });
+  </script>
     
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -57,8 +76,8 @@ function confirmDelete(restaurantId) {
         text: "You want to delete this restaurant?",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
+        confirmButtonColor: '#009914',
+        cancelButtonColor: 'red',
         confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
     }).then((result) => {

@@ -8,6 +8,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, Http404
 import json
+from paypal.standard.models import ST_PP_COMPLETED  # Import PayPal status
 import random
 from django.db.models.functions import ExtractMonth
 from django.db.models.functions import TruncMonth, TruncDate
@@ -97,10 +98,14 @@ def rider_register(request):
                 Status='pending'
             )
 
-            messages.success(request, 'Rider registration successful. Your application is pending approval.')
-            return render(request, 'rider_register.html', {'form': form, 'registration_success': True})
+            # Send a success response with a message
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Rider registration successful. Your application is pending approval.'
+            })
 
         else:
+            # Return the errors if the form is invalid
             errors = {field: errors for field, errors in form.errors.items()}
             return JsonResponse({'status': 'error', 'errors': errors})
 
@@ -1182,7 +1187,7 @@ def restaurant_partners(request):
 
 @login_required
 def admin_home(request):
-    total_restaurants = Restaurant.objects.count()
+    total_storeowners = StoreOwner.objects.values('user').distinct().count()  # Count unique storeowners
     total_customers = Customer.objects.count()
     total_riders = Rider.objects.count()
     total_deliveries = Delivery.objects.count()
@@ -1203,7 +1208,6 @@ def admin_home(request):
     daily_earnings = []
     for i in range(7):
         day = today - timedelta(days=i)
-        # Use __date to filter by date part if Date is DateTimeField
         daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
         daily_earnings.append(float(daily_total))
     daily_earnings.reverse()  # To show in the correct order (oldest to newest)
@@ -1221,7 +1225,7 @@ def admin_home(request):
 
     context = {
         'total_deliveries': total_deliveries,
-        'total_restaurants': total_restaurants,
+        'total_storeowners': total_storeowners,  # StoreOwner count
         'total_riders': total_riders,
         'total_customers': total_customers,
         'total_users': total_users,
@@ -1232,6 +1236,7 @@ def admin_home(request):
         'notification_count': notification_count,
     }
     return render(request, 'admin_home.html', context)
+
 
 def foodhitch(request):
     return render(request, "foodhitch.html")
@@ -1346,113 +1351,109 @@ def place_order(request):
             messages.error(request, "You cannot place an order with items from different restaurants.")
             return redirect('customer_home')
 
-        # Get order details
+        # Get order details from POST data and convert them to Decimal
         payment_option = request.POST.get('payment-option')
         address = request.POST.get('address')
-        subtotal = float(request.POST.get('subtotal', 0))
-        delivery_fee = float(request.POST.get('delivery-fee', 0))
-        total_amount = float(request.POST.get('total-payable-amount', 0))
+        subtotal = Decimal(request.POST.get('subtotal', '0'))
+        delivery_fee = Decimal(request.POST.get('delivery-fee', '0'))
+        total_amount = Decimal(request.POST.get('total-payable-amount', '0'))
 
         if not address:
             messages.error(request, "Address is required to place an order.")
             return redirect('place_order')
 
-        # Prepare order details for email
-        order_details = []
-        total_order_amount = 0  # Total for all food items
-
         # Create a single order record
+        total_order_amount = Decimal(0)  # Initialize total amount as Decimal
+        order_details = []
+
+        # Create the order with a zero amount to finalize later
         order = Order(
             CustomerID=customer,
-            OrderTotal=total_order_amount,  # Start with 0, will update later
+            OrderTotal=total_order_amount,
             Date=timezone.now(),
-            TransactionID='',  # Placeholder for Transaction ID
+            TransactionID='',
         )
-        order.save()  # Save the order to get OrderID
+        order.save()
 
-        # Loop through cart items and calculate total order amount
+        # Loop through cart items to calculate total order amount and details
         for item in cart_items:
-            order_total = item.Quantity * item.FoodID.Price
-            total_order_amount += order_total  # Add to the total order amount
+            item_total = Decimal(item.Quantity) * item.FoodID.Price  # Ensure calculation uses Decimal
+            total_order_amount += item_total
             order_details.append(f"{item.FoodID.FoodName} (Quantity: {item.Quantity})")
 
-        # Update order total after calculating all items
+        # Finalize order total after adding all cart items
         order.OrderTotal = total_order_amount
         order.save()
+
+        # Calculate the total payable amount (subtotal + delivery fee)
+        total_amount = total_order_amount + delivery_fee
 
         # Handle payment options
         if payment_option == 'paypal':
             paypal_dict = {
                 'business': settings.PAYPAL_RECEIVER_EMAIL,
-                'amount': total_amount,
+                'amount': total_amount,  # Use Decimal for accurate calculation
                 'item_name': f'Order from {customer.CustomerName}',
-                'invoice': order.id,
-                'notify_url': request.build_absolute_uri('/paypal-ipn/'),  # IPN URL
+                'invoice': order.OrderID,
+                'notify_url': request.build_absolute_uri('/paypal-ipn/'),
                 'return': request.build_absolute_uri('/order-completed/'),
                 'cancel_return': request.build_absolute_uri('/order-cancelled/'),
                 'address_override': 1,
                 'address': address,
             }
-
             form = PayPalPaymentsForm(initial=paypal_dict)
-            return form.render()  # Render the PayPal button here
+            rendered_form = form.render()
 
-        # Create a single delivery record for the entire order
-        rider = order.get_assigned_rider()  # Assuming this method retrieves the assigned rider instance
+        # Create a delivery record for the order
+        rider = order.get_assigned_rider()  # Assuming method to get assigned rider
         if rider is not None:
             delivery = Delivery.objects.create(
                 CustomerID=customer,
                 RiderID=rider,
                 RestaurantID=cart_items.first().FoodID.restaurant,
                 Address=address,
-                OrderTotal=total_order_amount,  # Use total_order_amount for the entire delivery
+                OrderTotal=total_order_amount,
                 DeliveryFee=delivery_fee,
                 TotalPayableAmount=total_amount,
                 DeliveryStatus='Pending',
-                OrderID=order  # Link the order instance here
+                OrderID=order
             )
 
-            # Create delivery items for each order
+            # Create delivery items for each cart item
             for item in cart_items:
                 DeliveryItem.objects.create(
-                    Delivery=delivery,  # Link the delivery instance
+                    Delivery=delivery,
                     FoodID=item.FoodID,
                     Quantity=item.Quantity
                 )
 
-            # Send email notification to the assigned rider
+            # Notify rider via email
             rider_email = rider.user.email
             subject = 'New Order Notification'
-
-            # Get customer's full name
             customer_name = f"{customer.CustomerName}"
-            restaurant_name = cart_items.first().FoodID.restaurant.RestaurantName  # Get restaurant name
-
-            # Format message with customer name, restaurant name, and order details
+            restaurant_name = cart_items.first().FoodID.restaurant.RestaurantName
             order_items = ", ".join(order_details)
             message = (
                 f"You have a new order from {customer_name}.\n"
                 f"Restaurant: {restaurant_name}\n"
                 f"Items: {order_items}\n"
                 f"Address: {address}\n"
-                f"Delivery ID: {delivery.DeliveryID}"  # Include the delivery ID for reference
+                f"Delivery ID: {delivery.DeliveryID}"
             )
 
-            # Send email notification
             try:
                 send_mail(subject, message, settings.EMAIL_HOST_USER, [rider_email])
             except Exception as e:
                 messages.error(request, "Failed to send email notification.")
-                print(f"Email send error: {e}")  # Log error to console
+                print(f"Email send error: {e}")
 
-            # Add notification to rider's session
+            # Store rider notifications in session
             rider_notifications = request.session.get('rider_notifications', [])
             rider_notifications.append({
                 'message': f"New order from {customer_name} at {restaurant_name}: {order_items}.",
                 'timestamp': timezone.now().strftime('%Y-%m-%d %H:%M:%S')
             })
             request.session['rider_notifications'] = rider_notifications
-
         else:
             messages.error(request, "No rider is assigned to this order.")
             return redirect('customer_home')
@@ -1460,14 +1461,14 @@ def place_order(request):
         # Calculate points earned based on total_amount
         points_earned = 0
         if total_amount < 50:
-            points_earned = 0.1
+            points_earned = Decimal(0.1)
         elif 50 <= total_amount < 100:
-            points_earned = 0.5
+            points_earned = Decimal(0.5)
         else:
-            points_earned = (total_amount // 100) * 1.0
-            remaining_amount = total_amount % 100
-            if remaining_amount >= 50:
-                points_earned += 0.5
+            points_earned = (total_amount // Decimal(100)) * Decimal(1.0)
+            remaining_amount = total_amount % Decimal(100)
+            if remaining_amount >= Decimal(50):
+                points_earned += Decimal(0.5)
 
         # Update customer's points
         customer.Points += points_earned
@@ -1481,6 +1482,66 @@ def place_order(request):
         return redirect('customer_home')
 
     return redirect('customer_home')
+
+
+
+@login_required
+def order_completed(request):
+    order_id = request.GET.get('invoice')  # Get the order ID from PayPal's response
+
+    if order_id:
+        try:
+            order = Order.objects.get(OrderID=order_id)
+
+            # Validate payment here using PayPal API or other means
+
+            # Retrieve customer and cart items
+            customer = request.user.customer
+            cart_items = CartItem.objects.filter(CustomerID=customer)
+
+            # Create the delivery record
+            rider = order.get_assigned_rider()  # You may need to adjust this based on your logic
+            
+            if rider is not None:
+                delivery = Delivery.objects.create(
+                    CustomerID=customer,
+                    RiderID=rider,
+                    RestaurantID=cart_items.first().FoodID.restaurant,
+                    Address=order.Address,  # Ensure you stored the address in the order
+                    OrderTotal=order.OrderTotal,
+                    DeliveryFee=order.DeliveryFee,
+                    TotalPayableAmount=order.OrderTotal,  # Assuming total amount here
+                    DeliveryStatus='Pending',
+                    OrderID=order  # Reference to the order
+                )
+
+                # Create delivery items for each order
+                for item in cart_items:
+                    DeliveryItem.objects.create(
+                        Delivery=delivery,
+                        FoodID=item.FoodID,
+                        Quantity=item.Quantity
+                    )
+
+                messages.info(request, "Your order has been placed successfully, and delivery has been scheduled.")
+                
+                # Clear the cart after successful delivery creation
+                cart_items.delete()  # Clear the cart items for the customer
+
+            else:
+                messages.error(request, "No rider is assigned to this order.")
+                return redirect('customer_home')
+
+        except Order.DoesNotExist:
+            messages.error(request, "The order does not exist.")
+            return redirect('customer_home')
+    else:
+        messages.error(request, "Invalid order ID.")
+        return redirect('customer_home')
+
+    return redirect('customer_home')
+
+
 def reorder(request, order_id):
     # Get the order using OrderID
     order = get_object_or_404(Order, OrderID=order_id)
@@ -1586,7 +1647,7 @@ def logout_view(request):
             pass  # If the user is not a rider, do nothing
 
     logout(request) 
-    return redirect('foodhitch')  
+    return redirect('foodhitch') 
 
 def get_notifications():
     notifications = []
@@ -1793,19 +1854,23 @@ def update_delivery_status(request):
 def view_riders(request):
     query = request.GET.get('query', '')  # Get the search query from the URL parameters
     if query:
-        # Search for riders based on full name or email
-        riders = Rider.objects.filter(Q(FullName__icontains=query) | Q(Email__icontains=query))
+        # Search for accepted riders based on full name or email
+        riders = Rider.objects.filter(
+            Q(FullName__icontains=query) | Q(Email__icontains=query),
+            Status='accepted'  # Filter only accepted riders
+        )
     else:
-        riders = Rider.objects.all()
+        # Display all accepted riders
+        riders = Rider.objects.filter(Status='accepted')  # Filter only accepted riders
     
     notifications = request.session.get('notifications', get_notifications())
     notification_count = len(notifications)
 
-    
     return render(request, 'admin_riders.html', {
         'riders': riders,
         'notification_count': notification_count
     })
+
 
 # View to handle delete request
 def delete_rider(request, rider_id):
@@ -1833,30 +1898,62 @@ def update_availability(request):
             rider.save()
 
             return JsonResponse({'success': True})
+        except Rider.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Rider not found'})
         except Exception as e:
             print(e)
-            return JsonResponse({'success': False})
+            return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False})
 
 def password_reset_request(request):
-    form = PasswordResetForm(request.POST or None)
-
     if request.method == 'POST':
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            try:
-                user = User.objects.get(username=username)
-                request.session['reset_username'] = username  # Save username in session
-                return redirect('password_reset_set')
-            except User.DoesNotExist:
-                return render(request, 'password_reset_request.html', {'form': form, 'username_error': True})
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            otp = generate_otp()
+            request.session['reset_otp'] = otp  # Store OTP in session
+            request.session['reset_username'] = username  # Store username in session
 
-    return render(request, 'password_reset_request.html', {'form': form})
+            # Send OTP via email
+            send_mail(
+                'Password Reset OTP',
+                f'Your OTP for password reset is {otp}',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+
+            # Pass the user's email to the template
+            return render(request, 'password_reset_request.html', {
+                'success': 'An OTP has been sent to your email.',
+                'email': user.email  # Pass the email to the context
+            })
+
+        except User.DoesNotExist:
+            return render(request, 'password_reset_request.html', {
+                'error': 'Username not found. Please check your input.'
+            })
+
+    return render(request, 'password_reset_request.html')
+
+def verify_otp(request):
+    user_otp = request.GET.get('otp')
+    session_otp = request.session.get('reset_otp')
+    
+    if str(user_otp) == str(session_otp):
+        return JsonResponse({'verified': True})
+    else:
+        return JsonResponse({'verified': False})
 
 def check_username(request):
-    username = request.GET.get('username', '')
-    user_exists = User.objects.filter(username=username).exists()
-    return JsonResponse({'exists': user_exists})    
+    username = request.GET.get('username')
+    try:
+        user = User.objects.get(username=username)
+        # Return a JSON response with the user's email
+        return JsonResponse({'exists': True, 'email': user.email})
+    except User.DoesNotExist:
+        # Return a JSON response indicating the username doesn't exist
+        return JsonResponse({'exists': False})   
 
 def password_reset_set(request):
     if 'reset_username' not in request.session:

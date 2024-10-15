@@ -8,12 +8,12 @@ from .models import Customer, Restaurant, Menu, Rider,Delivery, Order, Customers
 
 class CustomerRegisterForm(UserCreationForm):
     fullname = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Juan Dela Cruz'}))
-    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'placeholder': 'Enter username'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'juandelacruz@gmail.com'}))
-    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'placeholder': '09123456789'}))
+    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'placeholder': 'Enter a username'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'example@gmail.com'}))
+    phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'placeholder': '09*********'}))
     picture = forms.ImageField(required=False)  # Optional profile picture field
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Re-enter password'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Choose a strong password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Re-enter your password'}))
 
     class Meta:
         model = User

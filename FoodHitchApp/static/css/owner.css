@@ -4,20 +4,23 @@ body {
     padding: 0;
     font-family: 'Poppins',sans-serif;
     color: #333;
-    background-color: #fff9e3;
+    background-color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     
 }
+.swal2-confirm:hover {
+    background-color: #007e11 !important; /* Set hover background color */
+}
 
 .container {
-    background-color: rgb(241, 241, 241);
-    padding: 20px;
+    background-color: #eaffee;
+    padding: 20px 50px;
     width: 510px;
     border-radius: 10px;
-    margin-left: 675px;
+    margin-left: 580px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 0px 30px 30px 0px;
     padding-bottom: -40px;
@@ -28,12 +31,12 @@ body {
 .logo {
     position: absolute;
     top: 31px;
-    left: 96px;
+    left: 88px;
 
 }
 
 .logo img {
-    width: 650px;
+    max-width: 600px;
     height: 580px;
     border-radius: 30px 0px 0px 30px;
     box-shadow: rgba(255, 255, 255, 0.1);
@@ -41,10 +44,12 @@ body {
 
 .registration-form {
     width: 100%;
+    text-align: left;
 }
 
 .registration-form h2 {
     margin-bottom: 20px;
+    margin-top: 5px;
 }
 
 .input-group {
@@ -55,7 +60,6 @@ body {
 .input-group label {
     display: block;
     margin-bottom: 5px;
-    font-family: Arial, sans-serif;
     font-size: 1rem;
     
     
@@ -66,8 +70,80 @@ body {
     padding: 10px;
     border: 2px solid black;
     border-radius: 5px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
+    background-color: transparent;
+
+}
+.input-group-inline {
+    display: flex;
+    align-items: center;
+}
+
+.radio-group-inline {
+    display: flex;
+    gap: 20px; 
+    align-items: center;
+}
+
+.radio-group-inline label {
+    position: relative;
+    padding-left: 30px; 
+    font-size: 1rem;
     cursor: pointer;
+    display: flex;
+    align-items: center; 
+    user-select: none;
+}
+
+/* Hide the default radio button */
+.radio-group-inline input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Custom radio button */
+.radio-group-inline label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+
+/* Inner dot (when selected) */
+.radio-group-inline label::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
+.radio-group-inline input[type="radio"]:checked + label::before {
+    background-color: #009914;
+    border-color: #009914;
+}
+
+.radio-group-inline input[type="radio"]:checked + label::after {
+    background-color: white;
+}
+
+.radio-group-inline label:hover::before {
+    border-color: #009914;
 }
 
 button {
@@ -79,20 +155,21 @@ button {
     width: 100%; 
     cursor: pointer;
     font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 button:hover {
-    background-color: #01580d;
+    background-color: #007e11;
 }
 
 .sign-link {
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .sign-link p {
     color: black;
-    font-family: Arial, sans-serif;
     font-size: 1rem;
+    text-align: center;
 }
 
 .sign-link a {
@@ -102,6 +179,11 @@ button:hover {
     text-decoration: underline;
     color: var(--main-color);
     font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
+}
+.sign-link a:hover {
+    color: rgb(63, 63, 63);
 }
 .row {
     display: flex;

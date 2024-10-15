@@ -7,19 +7,57 @@
   <title>Checkout</title>
   <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AZu6FUzyWch2r3UjD_6M8YoKoTVPjo3eXmli2voMiD_25rb2YEbiMur6QWRFpsTcEsG8ZRvY6qrI6h9N&currency=USD"></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AZu6FUzyWch2r3UjD_6M8YoKoTVPjo3eXmli2voMiD_25rb2YEbiMur6QWRFpsTcEsG8ZRvY6qrI6h9N&currency=USD&disable-funding=credit"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAahMs9GBd2ChJopz74dhOjL8a0ZxXo9-k&callback=initializeMap" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
     * {
       font-family: 'Poppins', sans-serif;
     }
+    body {
+      background-color: #eeffd8;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      margin-left: 24%;
+      
+}
+
+    .header a {
+      margin-right: 2%;
+      text-decoration: none;
+      margin-top: 5%;
+      margin-bottom: 5%;
+}
+
+    .header ion-icon {
+      font-size: 24px;
+      color: #000;
+}
+    .header ion-icon:hover {
+      color: #333333a6;
+    }
+    .page-title {
+      font-size: 20px;
+      color: #333;
+}
+
     .container {
+      background-color: rgb(255, 255, 255);
       width: 500px;
       margin: 0 auto;
-      padding: 20px;
-      border: 1px solid #ccc;
+      padding: 30px 50px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
     }
+    p {
+      font-weight: 600;
+    }
+    
     label {
       display: block;
       margin-bottom: 5px;
@@ -29,17 +67,23 @@
       width: 100%;
       padding: 8px;
       margin-bottom: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #000000;
       box-sizing: border-box;
+      border-radius: 5px;
     }
     button {
-      background-color: #4CAF50;
+      background-color: #009914;
       color: white;
       padding: 12px 20px;
       margin: 10px 0;
       border: none;
       cursor: pointer;
       width: 100%;
+      border-radius: 10px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    button:hover {
+      background-color: #007e11;
     }
     .payment-options {
       margin-top: 20px;
@@ -66,8 +110,15 @@
   </style>
 </head>
 <body>
+  <div class="header">
+    <a href="javascript:void(0);" onclick="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </a>
+    <h1 class="page-title">Checkout</h1>
+  </div>
+
   <div class="container">
-    <h2>Checkout</h2>
+    <p>Complete the details to proceed.</p>
     <form id="checkout-form" method="POST" action="{% url 'place_order' %}">
       {% csrf_token %}
       <label for="customer-name">Customer Name:</label>
@@ -121,6 +172,9 @@
   </div>
 
   <script>
+    function goBack() {
+      window.history.back(); // Navigate to the previous page
+    }
     // Geolocation and reverse geocoding logic
     document.getElementById('get-location').addEventListener('click', function () {
       if (navigator.geolocation) {
@@ -213,7 +267,7 @@
 
     // PayPal integration
     document.addEventListener('DOMContentLoaded', function () {
-      var total = parseFloat('{{ total_amount }}');  // Get total from backend
+      var total = parseFloat('{{  total_amount }}');  // Get total from backend
       if (isNaN(total) || total <= 0) {
           console.error('Invalid total amount for PayPal transaction');
           return;
@@ -274,8 +328,9 @@
             cancelButtonText: 'No, go back'
           }).then((result) => {
             if (result.isConfirmed) {
-              // Submit the form if the user confirms
               document.getElementById('checkout-form').submit();
+            } else if (result.isDenied || result.isDismissed) {
+              window.location.href = "{% url 'customer_home' %}";
             }
           });
         }

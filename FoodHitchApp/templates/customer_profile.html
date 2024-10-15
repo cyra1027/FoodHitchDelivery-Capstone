@@ -5,7 +5,13 @@
 
 {% block content %}
 <div class="profile-container">
+
     <div class="profile-sidebar">
+        <h3 class="centered">Profile Settings</h3>
+        <a href="javascript:void(0)" class="btn-back" onclick="window.history.back();">
+            <ion-icon name="arrow-back-outline"></ion-icon> 
+        </a>
+        
         {% if customer.Picture %}
         <img src="{{ customer.Picture.url }}" alt="Profile Picture" class="profile-image">    
         {% else %}
@@ -16,7 +22,6 @@
     </div>
 
     <div class="profile-content">
-        <h3 class="centered">Profile Settings</h3>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
@@ -77,13 +82,15 @@
 
         <style>
             h1 {
-                color: red;
-                font-size: 18px;
+                color: rgb(0, 0, 0);
+                font-size: 13px;
                 display: inline; /* Change to inline to keep it on the same line */
             }
             p {
-                color: red;
-                display: inline; /* Change to inline to keep it on the same line */
+                color: rgb(0, 0, 0);
+                display: inline;
+                font-size: 13px;
+                font-style: italic;
             }
         </style>
         

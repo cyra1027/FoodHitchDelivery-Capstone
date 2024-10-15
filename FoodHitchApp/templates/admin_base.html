@@ -15,7 +15,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{% url 'admin_base' %}">
-                <img src="{% static 'images/sidebarlogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
+                <img src="{% static 'images/nobgwhitelogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
             </a>
         </div>
         <div class="sidebar-menus">
@@ -39,7 +39,7 @@
             </a>
         </div>
         <div class="sidebar-logout">
-            <a href="{% url 'customer_login' %}" class="{% if request.path == '/customer_login/' %}active{% endif %}">
+            <a href="{% url 'logout' %}" class="{% if request.path == '/customer_login/' %}active{% endif %}">
                 <ion-icon name="exit-outline"></ion-icon>Logout
             </a>
         </div>

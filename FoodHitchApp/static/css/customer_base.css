@@ -21,7 +21,7 @@
     display: flex;
     min-height: 100vh; /* Ensure full height for proper content placement */
     flex-direction: column; /* Align content vertically */
-    background-color: #edfff0;
+    background-color: #f0f4f8;
   }
 
   .sidebar {
@@ -34,9 +34,9 @@
     top: 0;
     left: 0;
     padding: 2%;
-    background-color: #fdfcf3;
+    background-color: #018513;
     color: var(--blackColor);
-    box-shadow: 0 4px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3); 
 }
   .sidebar-header {
     display: flex;
@@ -45,12 +45,13 @@
     height: 35px;
     width: 100%;
     margin-bottom: 10px;
+    
   }
+  
 
   .logo {
     width: 100%;
     height: 100px;
-    background-color: rgb(31, 31, 31);
     object-fit: cover;
   }
 
@@ -72,22 +73,31 @@
     justify-content: flex-start;
     gap: 1rem;
     text-decoration: none;
-    color: var(--blackColor);
+    color: #fff;
   }
 
   .sidebar-menus a ion-icon, .sidebar-logout a ion-icon {
     font-size: 20px;
-    color: var(--blackColor);
+    color: #fff;
   }
 
-  .sidebar-menus a ion-icon:hover, .sidebar-logout a ion-icon:hover {
-    color: #000;
+  .sidebar-menus a:hover ion-icon, .sidebar-logout a:hover ion-icon {
+    color: #fff;
   }
 
   .sidebar-menus a:hover, .sidebar-logout a:hover {
-    background-color: #cfcbcb;
+    background-color: #cfcbcb83;
     border-radius: 50px;
-    color: #000;
+    color: #fff;
+  }
+  .sidebar-menus a.active, .sidebar-logout a.active {
+    background-color: #feffef;  
+    color: rgb(0, 122, 0);                
+    border-radius: 50px;
+  }
+  .sidebar-menus a.active ion-icon,
+  .sidebar-logout a.active ion-icon {
+    color: rgb(0, 122, 0); 
   }
 
   /* Header Styles */
@@ -98,28 +108,30 @@
     top: 0;
     left: 250px; /* Adjust to accommodate the sidebar */
     right: 0;
-    background: #ffffff;
+    background: #feffef;
     padding: 10px 20px;
     z-index: 1000;
     height: 80px; /* Adjust height as needed */
-    justify-content: space-between; /* Distribute space between search bar and icons */
+    justify-content: space-between;
+    box-shadow: 2px 1px 5px #bdbcbc; 
+
   }
 
   .header .search-bar {
     flex: 1;
     max-width: 600px;
     background-color: #fff;
-    margin: 0 auto; /* Center the search bar */
+    margin: 0 auto; 
     border-radius: 12px;
   }
   
   .header .search-bar input {
     width: 100%;
-    padding: 8px;
-    background-color: #efffed;
-    border: 1px solid var(--greyColor);
-    font-size: 16px;
-    border-radius: 12px;
+    padding: 10px 20px;
+    background-color: #fefff2;
+    border: 1px solid rgba(145, 145, 145, 0.301);
+    font-size: 13px;
+    border-radius: 20px;
   }
 
   .header .icons {
@@ -129,7 +141,7 @@
 
   .header .icons ion-icon {
     font-size: 24px;
-    margin-left: 20px;
+    margin-left: 5px;
     cursor: pointer;
     color: var(--blackColor);
   }
@@ -162,10 +174,14 @@
     min-height: calc(100vh - 60px); 
   }
 
-  .store-container h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: var(--blackColor);
+  .store-container h2 {
+    text-align: left;
+    margin-bottom: 5%;
+    margin-left: 2%;
+    margin-top: 5%;
+    color: #000;
+    font-size: 24px;
+    
   }
 
   .store-list {
@@ -188,6 +204,7 @@
     width: 100%;
     height: auto;
     border-bottom: 1px solid var(--greyColor);
+    
   }
 
   .store-card h1 {
@@ -215,14 +232,16 @@
     text-decoration: none;
     border-radius: 20px;
     margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   .btn add-to-cart-btn{
     background: #009914;
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   .store-card .btn:hover {
-    background-color: #02520c;
+    background-color: #007e11;
   }
   /* Container for the image and favorite icon */
   .image-container {
@@ -243,12 +262,12 @@
     top: 10px; /* Adjust distance from the top */
     right: 10px; /* Adjust distance from the right */
     font-size: 24px; /* Adjust icon size */
-    color: rgb(250, 248, 248); /* Change color as needed */
+    color: rgb(255, 255, 255); /* Change color as needed */
     cursor: pointer; /* Change cursor to pointer for interaction */
 }
 
 .favorite-icon.active {
-    color:  rgb(250, 248, 248); /* Color when active */
+    color: rgb(255, 255, 255); /* Color when active */
 }
 
 /* In your customer_base.css or another CSS file */
@@ -266,7 +285,7 @@
 }
 
 .btn-back:hover {
-  color: red; /* hover color */
+  color: rgb(41, 41, 41); /* hover color */
 }
 
 .btn-back ion-icon {
@@ -280,6 +299,7 @@
 
 .cart-container {
   position: relative;
+  margin-top: 5%;
 }
 
 .cart-count {
@@ -297,6 +317,7 @@
   position: relative;
   width: 100%;
   max-width: 800px;
+  
 }
 
 .cart-title {
@@ -402,7 +423,7 @@
 
 
 .btn-remove {
-  background-color: var(--navbarColor);
+  background-color: rgb(228, 18, 18);
   border: none;
   color: var(--whitecolor);
   padding: 5px 10px;
@@ -410,14 +431,15 @@
   cursor: pointer;
   border-radius: 5px;
   margin-left: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-remove:hover {
-  background-color: var(--blackColor);
+  background-color:  rgba(201, 0, 0, 0.959);
 }
 
 .btn-checkout {
-  background-color: #14a800; /* Change this to the desired primary color */
+  background-color: #009914;
   color: var(--whitecolor); /* Text color */
   padding: 8px 15px; /* Padding for button */
   font-size: 18px; /* Font size for the text */
@@ -435,7 +457,7 @@
 
 /* Hover and active states for the button */
 .btn-checkout:hover {
-  background-color: #009914; /* Change background on hover */
+  background-color: #007e11; 
 }
 
 .item-total-price {
@@ -553,6 +575,7 @@
   border-radius: 20px;
   margin-top: 10px;
   font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 /* Button hover effect */
@@ -617,7 +640,7 @@
   margin: 60px auto;
   margin-top: 120px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
+  background-color: #ffffffad;
   border-radius: 8px;
   margin-left: 25%;
 }
@@ -630,7 +653,29 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-right: 1px solid #eee;
+  border-right: 1px solid #bdbdbd7c;
+  margin-left: 1%;
+  
+}
+.profile-sidebar h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 10%;
+  margin-bottom: 15%;
+  margin-top: -40%;
+
+}
+.btn-back {
+  font-size: 24px;
+  color: #414141;
+  align-items: left;
+  text-decoration: none;
+  margin-left: -80%;
+  margin-top: -33%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.btn-back:hover {
+  color: #7f7f7f;
 }
 
 .profile-sidebar img {
@@ -638,36 +683,38 @@
   height: 150px;
   border-radius: 50%;
   margin-bottom: 10px;
+  border: 1.5px solid #005f05;
+  margin-top: 10%;
 }
 
 .profile-sidebar h2 {
   margin: 10px 0;
-  color: #333;
+  color: #005f05;
 }
 
 .profile-sidebar p {
-  color: #666;
+  color: #005f05;
   margin: 0;
   font-size: 14px;
 }
 
 .profile-content {
   flex-grow: 1;
-  padding: 20px;
-}
+  padding: 20px 50px;
+  margin-top: 3%;
 
-.profile-content h3 {
-  margin-top: 0;
 }
 
 .input-group {
   margin-bottom: 15px;
   flex: 1;
+  
 }
 
 .row {
   display: flex;
   gap: 15px;
+  
 }
 
 .row .input-group {
@@ -680,13 +727,12 @@
 }
 
 .profile-content form .input-group {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .profile-content form .input-group label {
   display: block;
   margin-bottom: 5px;
-  font-family: Arial, sans-serif;
   font-size: 1rem;
 }
 
@@ -700,16 +746,18 @@
 }
 
 .profile-content form .input-group button {
-  padding: 10px 40px;
+  padding: 10px 20px;
   background-color: #009914;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  width: 30%;
+  margin-left: 70%;
 }
 
 .profile-content form .input-group button:hover {
-  background-color: #0056b3;
+  background-color: #007e11 ;
 }
 
 .update-image-button {
@@ -724,7 +772,7 @@
 }
 
 .update-image-button:hover {
-  background-color: #504f4f;
+  background-color: #4f504f;
 }
 
 .success-message {
@@ -741,7 +789,7 @@
 
 /* Style for Add to Cart button */
 .add-to-cart-btn {
-  background-color: #14a800; /* Green color */
+  background-color: #009914; /* Green color */
   color: white; /* White text color */
   border: none; /* Remove default border */
   padding: 10px 20px; /* Add padding for better spacing */
@@ -752,7 +800,7 @@
 }
 
 .add-to-cart-btn:hover {
-  background-color: #007a0d; /* Darker green color on hover */
+  background-color: #007e11 ; /* Darker green color on hover */
 }
 
 .add-to-cart-btn:focus {

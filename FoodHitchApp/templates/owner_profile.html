@@ -74,16 +74,35 @@
                 <button type="submit">Save Changes</button>
             </div>
         </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const dropdown = document.querySelector('.dropdown');
+                const dropdownContent = document.querySelector('.dropdown-content');
+          
+                // Toggle the dropdown visibility when the profile or name is clicked
+                dropdown.addEventListener('click', function() {
+                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                });
+          
+                // Close the dropdown if clicked outside
+                document.addEventListener('click', function(event) {
+                    if (!dropdown.contains(event.target)) {
+                        dropdownContent.style.display = 'none';
+                    }
+                });
+            });
+          </script>
+          
 
         {% if success %}
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
-                        title: 'Profile Updated Successfully',
-                        text: 'Your profile has been updated successfully.',
+                        title: 'Your profile has been successfully updated!',
                         icon: 'success',
-                        confirmButtonText: 'OK'
+                        confirmButtonColor: '#009914',
+                        
                     });
                 });
             </script>
@@ -97,11 +116,12 @@
                         title: 'Error!',
                         text: '{{ error_message|escapejs }}',
                         icon: 'error',
-                        confirmButtonText: 'OK'
+                        confirmButtonColor: '#009914',
                     });
                 });
             </script>
         {% endif %}
+
     </div>
 </div>
 

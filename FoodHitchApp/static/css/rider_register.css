@@ -4,7 +4,7 @@ body {
     padding: 0;
     font-family: 'Poppins',sans-serif;
     color: #333;
-    background-color: #fff9e3;
+    background-color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,29 +12,35 @@ body {
 }
 
 .container {
-    background-color: rgb(241, 241, 241);
-    padding: 20px;
+    background-color: #eaffee;
+    padding: 20px 60px;
     width: 510px;
+    height: 530px;
     border-radius: 10px;
-    margin-left: 675px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 570px;
+    box-shadow: 0px 5px 15px rgba(107, 107, 107, 0.199), /* Shadow below */
+                5px 0px 15px rgba(184, 184, 184, 0.089); /* Shadow on the right */
+                
     border-radius: 0px 30px 30px 0px;
     padding-bottom: 20px;
-    text-align: center;
+    text-align: left;
+    margin-bottom: 0.3%;
+    
 }
 
 .logo {
     position: absolute;
-    top: 12px;
-    left: 43.5px;
+    top: 16.5px;
+    left: 43px;
 
 }
 
 .logo img {
-    width: 659px;
-    height: 594px;
+    max-width: 600px;
+    height: 570px;
     border-radius: 30px 0px 0px 30px;
-    box-shadow: rgba(255, 255, 255, 0.1);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.199), /* Shadow below */
+            -5px 0px 15px rgba(148, 148, 148, 0.137); /* Shadow on the left */
 }
 
 .registration-form {
@@ -42,11 +48,12 @@ body {
 }
 
 .registration-form h2 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    margin-top: -1%;
 }
 
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     flex: 1;
 }
 
@@ -64,22 +71,28 @@ body {
     border: 2px solid black;
     border-radius: 5px;
     box-sizing: border-box; 
-    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.1);
+
 }
 
 button {
     background-color: #009914;
     color: #fefefe  ;
     border: none;
-    padding: 13px; 
+    padding: 10px; 
     border-radius: 5px;
     width: 100%; 
     cursor: pointer;
-    font-weight: 600;
+    margin-top: 20px;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
 }
 
 button:hover {
-    background-color: #222;
+    background-color: #007e11;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
 }
 
 .sign-link {
@@ -89,6 +102,7 @@ button:hover {
 .sign-link p {
     color: black;
     font-size: 1rem;
+    text-align: center;
 }
 
 .sign-link a {
@@ -98,7 +112,14 @@ button:hover {
     text-decoration: underline;
     color: var(--main-color);
     font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
 }
+
+.sign-link a:hover {
+    color: rgb(63, 63, 63);
+}
+
 .row {
     display: flex;
     gap: 15px;

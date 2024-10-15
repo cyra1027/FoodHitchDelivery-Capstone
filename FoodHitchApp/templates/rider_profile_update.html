@@ -4,6 +4,10 @@
 {% block title %}Rider Profile{% endblock %}
 
 {% block content %}
+<div class="page-header"> <!-- New container for h1 and h2 -->
+    <h1 class="page-title">Profile Settings</h1>
+    <h4 class="subtitle">Update your information</h4>
+</div>
 <div class="profile-container">
     <div class="profile-sidebar">
         {% if form.instance.ProfilePicture %}
@@ -16,7 +20,7 @@
     </div>
     
     <div class="profile-content">
-        <h3 class="centered">Profile Settings</h3>
+        
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <!-- Form fields as before -->

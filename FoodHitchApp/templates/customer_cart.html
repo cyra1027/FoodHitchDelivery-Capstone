@@ -50,21 +50,43 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkoutForm = document.getElementById('checkout-form');
-
+    
             checkoutForm.addEventListener('submit', function(event) {
+                // Prevent the form from submitting immediately
+                event.preventDefault();
+    
                 // Check if cart is empty
                 const cartItems = document.querySelectorAll('.cart-item');
                 if (cartItems.length === 0) {
-                    event.preventDefault();  // Prevent the form from submitting
                     Swal.fire({
                         title: 'Your cart is empty!',
                         text: "You can't proceed to checkout.",
                         icon: 'warning',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#009914'
                     });
-                }
-            });
-
+                } else {
+                // Ask the user for confirmation to proceed with checkout
+                Swal.fire({
+                    title: 'Are you sure you want to checkout?',
+                    text: 'You will not be able to make further changes once you proceed.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Checkout',
+                    cancelButtonText: 'No, Cancel',
+                    confirmButtonColor: '#009914',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Proceed with the checkout
+                        checkoutForm.submit();
+                    } else if (result.isDenied || result.isDismissed) {
+                        // Redirect to customer home if canceled
+                        window.location.href = "{% url 'customer_home' %}";
+                    }
+                });
+            }
+        });
             const updateCartItem = (itemId, action) => {
                 fetch("{% url 'update_cart_item_quantity' 0 %}".replace('0', itemId), {
                     method: 'POST',
@@ -84,13 +106,13 @@
                         const priceElement = cartItem.querySelector('.item-price');
                         const itemTotalPriceElement = cartItem.querySelector('.item-total-price');
                         const itemPrice = parseFloat(priceElement.textContent.replace('₱', ''));
-
+    
                         if (action === 'increase') {
                             quantityInput.value = parseInt(quantityInput.value) + 1;
                         } else if (action === 'decrease') {
                             quantityInput.value = parseInt(quantityInput.value) - 1;
                         }
-
+    
                         if (parseInt(quantityInput.value) === 0) {
                             cartItem.remove();
                         } else {
@@ -98,13 +120,13 @@
                             const newItemTotalPrice = (itemPrice * parseInt(quantityInput.value)).toFixed(2);
                             itemTotalPriceElement.textContent = '₱' + newItemTotalPrice;
                         }
-
+    
                         updateTotalPrice();
                         updateCartCount();
                     }
                 });
             };
-
+    
             const updateTotalPrice = () => {
                 let totalPrice = 0;
                 document.querySelectorAll('.cart-item').forEach(cartItem => {
@@ -114,7 +136,7 @@
                 });
                 document.getElementById('total-price').textContent = totalPrice.toFixed(2);
             };
-
+    
             const updateCartCount = () => {
                 fetch("{% url 'get_cart_count' %}")
                 .then(response => response.json())
@@ -124,21 +146,21 @@
                     }
                 });
             };
-
+    
             document.querySelectorAll('.btn-decrease').forEach(button => {
                 button.addEventListener('click', () => {
                     const itemId = button.closest('.cart-item').getAttribute('data-item-id');
                     updateCartItem(itemId, 'decrease');
                 });
             });
-
+    
             document.querySelectorAll('.btn-increase').forEach(button => {
                 button.addEventListener('click', () => {
                     const itemId = button.closest('.cart-item').getAttribute('data-item-id');
                     updateCartItem(itemId, 'increase');
                 });
             });
-
+    
             document.querySelectorAll('.btn-remove').forEach(button => {
                 button.addEventListener('click', () => {
                     const itemId = button.closest('.cart-item').getAttribute('data-item-id');
