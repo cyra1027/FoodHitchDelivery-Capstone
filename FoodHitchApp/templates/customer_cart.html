@@ -1,71 +1,73 @@
-    {% extends "customer_base.html" %}
+{% extends "customer_base.html" %}
 
-    {% block title %}My Cart{% endblock %}
+{% block title %}My Cart{% endblock %}
 
-    {% block content %}
-    <div class="main-content">
-        <div class="cart-container">
-            <h1 class="cart-title">My Cart</h1>
-            <ul class="cart-list">
-                {% for cart_item in cart_items %}
-                <li class="cart-item" data-item-id="{{ cart_item.id }}">
-                    <!-- Item Image -->
-                    <div class="item-image">
-                        <img src="{{ cart_item.FoodID.Image.url }}" alt="{{ cart_item.FoodID.FoodName }}">
-                    </div>
+{% block content %}
+<div class="main-content">
+    <div class="cart-container">
+        <h1 class="cart-title">My Cart</h1>
+        <ul class="cart-list">
+            {% for cart_item in cart_items %}
+            <li class="cart-item" data-item-id="{{ cart_item.id }}">
+                <!-- Item Image -->
+                <div class="item-image">
+                    <img src="{{ cart_item.FoodID.Image.url }}" alt="{{ cart_item.FoodID.FoodName }}">
+                </div>
 
-                    <!-- Item Details -->
-                    <div class="item-details">
-                        <span class="item-name">{{ cart_item.FoodID.FoodName }}</span>
-                        <span class="item-price">₱{{ cart_item.FoodID.Price }}</span>
-                    </div>
+                <!-- Item Details -->
+                <div class="item-details">
+                    <span class="item-name">{{ cart_item.FoodID.FoodName }}</span>
+                    <span class="item-price">₱{{ cart_item.FoodID.Price|floatformat:2 }}</span>
+                </div>
 
-                    <!-- Quantity Control -->
-                    <div class="quantity-control">
-                        <button type="button" style="margin-left: -40px;" class="btn-decrease">-</button>
-                        <input type="number" class="quantity" value="{{ cart_item.Quantity }}" readonly style="text-align: center;">
-                        <button type="button" class="btn-increase">+</button>
-                        <span class="item-total-price">₱{{ cart_item.FoodID.Price|floatformat:2 }}</span> <!-- Updated total price for each item -->
-                    </div>
+                <!-- Quantity Control -->
+                <div class="quantity-control">
+                    <button type="button" class="btn-decrease">-</button>
+                    <input type="number" class="quantity" value="{{ cart_item.Quantity }}" readonly style="text-align: center;">
+                    <button type="button" class="btn-increase">+</button>
+                    <span class="item-total-price">
+                        ₱{{ cart_item.item_total_price|floatformat:2 }} <!-- Use the calculated total price -->
+                    </span>
+                </div>
 
-                    <!-- Remove Button -->
-                    <button type="button" class="btn-remove">Delete</button>
-                </li>
-                {% endfor %}
-            </ul>
+                <!-- Remove Button -->
+                <button type="button" class="btn-remove">Delete</button>
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Cart Summary -->
+        <div class="cart-summary">
+            <span class="total-price">Total: ₱<span id="total-price">{{ total_price|floatformat:2 }}</span></span>
             
-            <!-- Cart Summary -->
-            <div class="cart-summary">
-                <span class="total-price">Total: ₱<span id="total-price">{{ total_price }}</span></span>
-                
-                <!-- Checkout Form -->
-                <form id="checkout-form" action="{% url 'check_out' %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-checkout">Checkout</button>
-                </form>
-            </div>
+            <!-- Checkout Form -->
+            <form id="checkout-form" action="{% url 'check_out' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-checkout">Checkout</button>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkoutForm = document.getElementById('checkout-form');
-    
-            checkoutForm.addEventListener('submit', function(event) {
-                // Prevent the form from submitting immediately
-                event.preventDefault();
-    
-                // Check if cart is empty
-                const cartItems = document.querySelectorAll('.cart-item');
-                if (cartItems.length === 0) {
-                    Swal.fire({
-                        title: 'Your cart is empty!',
-                        text: "You can't proceed to checkout.",
-                        icon: 'warning',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#009914'
-                    });
-                } else {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkoutForm = document.getElementById('checkout-form');
+
+        checkoutForm.addEventListener('submit', function(event) {
+            // Prevent the form from submitting immediately
+            event.preventDefault();
+
+            // Check if cart is empty
+            const cartItems = document.querySelectorAll('.cart-item');
+            if (cartItems.length === 0) {
+                Swal.fire({
+                    title: 'Your cart is empty!',
+                    text: "You can't proceed to checkout.",
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#009914'
+                });
+            } else {
                 // Ask the user for confirmation to proceed with checkout
                 Swal.fire({
                     title: 'Are you sure you want to checkout?',
@@ -87,100 +89,101 @@
                 });
             }
         });
-            const updateCartItem = (itemId, action) => {
-                fetch("{% url 'update_cart_item_quantity' 0 %}".replace('0', itemId), {
+
+        const updateCartItem = (itemId, action) => {
+            fetch("{% url 'update_cart_item_quantity' 0 %}".replace('0', itemId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'action': action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                    const quantityInput = cartItem.querySelector('.quantity');
+                    const priceElement = cartItem.querySelector('.item-price');
+                    const itemTotalPriceElement = cartItem.querySelector('.item-total-price');
+                    const itemPrice = parseFloat(priceElement.textContent.replace('₱', ''));
+
+                    if (action === 'increase') {
+                        quantityInput.value = parseInt(quantityInput.value) + 1;
+                    } else if (action === 'decrease') {
+                        quantityInput.value = parseInt(quantityInput.value) - 1;
+                    }
+
+                    if (parseInt(quantityInput.value) <= 0) {
+                        cartItem.remove();
+                    } else {
+                        // Update the item's total price
+                        const newItemTotalPrice = (itemPrice * parseInt(quantityInput.value)).toFixed(2);
+                        itemTotalPriceElement.textContent = '₱' + newItemTotalPrice;
+                    }
+
+                    updateTotalPrice();
+                    updateCartCount();
+                }
+            });
+        };
+
+        const updateTotalPrice = () => {
+            let totalPrice = 0;
+            document.querySelectorAll('.cart-item').forEach(cartItem => {
+                const quantity = parseInt(cartItem.querySelector('.quantity').value);
+                const price = parseFloat(cartItem.querySelector('.item-price').textContent.replace('₱', ''));
+                totalPrice += quantity * price;
+            });
+            document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+        };
+
+        const updateCartCount = () => {
+            fetch("{% url 'get_cart_count' %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cart-count').textContent = data.cart_count;
+                }
+            });
+        };
+
+        document.querySelectorAll('.btn-decrease').forEach(button => {
+            button.addEventListener('click', () => {
+                const itemId = button.closest('.cart-item').getAttribute('data-item-id');
+                updateCartItem(itemId, 'decrease');
+            });
+        });
+
+        document.querySelectorAll('.btn-increase').forEach(button => {
+            button.addEventListener('click', () => {
+                const itemId = button.closest('.cart-item').getAttribute('data-item-id');
+                updateCartItem(itemId, 'increase');
+            });
+        });
+
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', () => {
+                const itemId = button.closest('.cart-item').getAttribute('data-item-id');
+                fetch("{% url 'remove_cart_item' 0 %}".replace('0', itemId), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: new URLSearchParams({
-                        'action': action
-                    })
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-                        const quantityInput = cartItem.querySelector('.quantity');
-                        const priceElement = cartItem.querySelector('.item-price');
-                        const itemTotalPriceElement = cartItem.querySelector('.item-total-price');
-                        const itemPrice = parseFloat(priceElement.textContent.replace('₱', ''));
-    
-                        if (action === 'increase') {
-                            quantityInput.value = parseInt(quantityInput.value) + 1;
-                        } else if (action === 'decrease') {
-                            quantityInput.value = parseInt(quantityInput.value) - 1;
-                        }
-    
-                        if (parseInt(quantityInput.value) === 0) {
-                            cartItem.remove();
-                        } else {
-                            // Update the item's total price
-                            const newItemTotalPrice = (itemPrice * parseInt(quantityInput.value)).toFixed(2);
-                            itemTotalPriceElement.textContent = '₱' + newItemTotalPrice;
-                        }
-    
+                        button.closest('.cart-item').remove();
                         updateTotalPrice();
                         updateCartCount();
                     }
                 });
-            };
-    
-            const updateTotalPrice = () => {
-                let totalPrice = 0;
-                document.querySelectorAll('.cart-item').forEach(cartItem => {
-                    const quantity = parseInt(cartItem.querySelector('.quantity').value);
-                    const price = parseFloat(cartItem.querySelector('.item-price').textContent.replace('₱', ''));
-                    totalPrice += quantity * price;
-                });
-                document.getElementById('total-price').textContent = totalPrice.toFixed(2);
-            };
-    
-            const updateCartCount = () => {
-                fetch("{% url 'get_cart_count' %}")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('cart-count').textContent = data.cart_count;
-                    }
-                });
-            };
-    
-            document.querySelectorAll('.btn-decrease').forEach(button => {
-                button.addEventListener('click', () => {
-                    const itemId = button.closest('.cart-item').getAttribute('data-item-id');
-                    updateCartItem(itemId, 'decrease');
-                });
-            });
-    
-            document.querySelectorAll('.btn-increase').forEach(button => {
-                button.addEventListener('click', () => {
-                    const itemId = button.closest('.cart-item').getAttribute('data-item-id');
-                    updateCartItem(itemId, 'increase');
-                });
-            });
-    
-            document.querySelectorAll('.btn-remove').forEach(button => {
-                button.addEventListener('click', () => {
-                    const itemId = button.closest('.cart-item').getAttribute('data-item-id');
-                    fetch("{% url 'remove_cart_item' 0 %}".replace('0', itemId), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            button.closest('.cart-item').remove();
-                            updateTotalPrice();
-                            updateCartCount();
-                        }
-                    });
-                });
             });
         });
-    </script>
-    {% endblock %}
+    });
+</script>
+{% endblock %}

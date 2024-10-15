@@ -908,15 +908,17 @@ def add_to_cart(request):
     try:
         item = Menu.objects.get(FoodID=food_id)
         cart_item, created = CartItem.objects.get_or_create(CustomerID=request.user.customer, FoodID=item)
+        
         if not created:
             cart_item.Quantity += 1
-            cart_item.save()
-
+            cart_item.save()  # Save the updated quantity
+        
+        # Return the updated cart count
         cart_count = CartItem.objects.filter(CustomerID=request.user.customer).count()
-
         return JsonResponse({'success': True, 'cart_count': cart_count})
     except Menu.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Item not found.'})
+
 
 
 @login_required
@@ -939,9 +941,13 @@ def view_cart(request):
     
     # Fetch all cart items related to the current customer
     cart_items = CartItem.objects.filter(CustomerID=customer)
-    
-    # Calculate the total price of items in the cart
-    total_price = sum(item.FoodID.Price * item.Quantity for item in cart_items)
+    total_price = 0
+
+    # Calculate total prices for each cart item
+    for item in cart_items:
+        item_total_price = item.FoodID.Price * item.Quantity  # Calculate item total
+        total_price += item_total_price  # Accumulate total price
+        item.item_total_price = item_total_price  # Add total price for item to pass to template
 
     if cart_items.exists():
         # Get the restaurant of the first menu item
@@ -968,31 +974,8 @@ def view_cart(request):
     # Render the cart page with the context
     return render(request, 'customer_cart.html', context)
 
-@login_required
-@require_POST
-def update_cart_item_quantity(request, item_id):
-    action = request.POST.get('action')
-    cart_item = get_object_or_404(CartItem, id=item_id)
-    
-    # Fetch the customer related to the logged-in user
-    customer = get_object_or_404(Customer, user=request.user)
-    
-    # Ensure the cart item belongs to the logged-in user
-    if cart_item.CustomerID != customer:
-        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
 
-    if action == 'increase':
-        cart_item.Quantity += 1
-    elif action == 'decrease':
-        if cart_item.Quantity > 1:
-            cart_item.Quantity -= 1
-        else:
-            cart_item.delete()
-            return JsonResponse({'success': True, 'removed': True})
-    
-    cart_item.save()
-    
-    return JsonResponse({'success': True, 'removed': False})
+
 
 @login_required
 @require_POST
@@ -1067,30 +1050,21 @@ def get_cart_count(request):
     except Customer.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Customer not found'})
 
-@login_required
-@require_POST
 def update_cart_item_quantity(request, item_id):
-    # Get the customer based on the logged-in user
-    customer = get_object_or_404(Customer, user=request.user)
-    
-    # Get the CartItem based on the customer and item_id (FoodID)
-    cart_item = get_object_or_404(CartItem, id=item_id, CustomerID=customer)
-    
-    action = request.POST.get('action')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        cart_item = get_object_or_404(CartItem, id=item_id)
 
-    if action == 'increase':
-        cart_item.Quantity += 1
-    elif action == 'decrease':
-        if cart_item.Quantity > 1:
+        if action == 'increase':
+            cart_item.Quantity += 1
+        elif action == 'decrease':
             cart_item.Quantity -= 1
-        else:
-            cart_item.delete()  # Remove the item if the quantity is 0
-            return JsonResponse({'success': True, 'removed': True})
-
-    cart_item.save()
-
-    return JsonResponse({'success': True, 'removed': False})
-
+            if cart_item.Quantity <= 0:
+                cart_item.delete()  # Remove the item if quantity is 0
+                return JsonResponse({'success': True})
+        cart_item.save()
+        
+        return JsonResponse({'success': True})
 @login_required
 def view_favorites(request):
     # Get all favorite items for the logged-in customer

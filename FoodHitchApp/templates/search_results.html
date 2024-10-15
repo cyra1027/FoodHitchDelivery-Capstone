@@ -39,11 +39,11 @@
                     </div>
                 </div>
             {% empty %}
-                <p class="custom-no-results-message">No menu items found.</p>
+
             {% endfor %}
         </div>
     {% else %}
-        <p class="custom-no-results-message">No menu items found.</p>
+
     {% endif %}
 
     <!-- Hide restaurant search results if food_id is present -->
@@ -69,10 +69,10 @@
                         {% endif %}
                     </div>
                 {% empty %}
-                    <p class="custom-no-results-message">No restaurants found.</p>
+
                 {% endfor %}
             {% else %}
-                <p class="custom-no-results-message">No restaurants found.</p>
+
             {% endif %}
         </div>
     {% endif %}
