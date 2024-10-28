@@ -81,23 +81,25 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <a href="{% url 'rider_base' %}">
+            <a href="{% url 'rider_home' %}">
                 <img src="{% static 'images/nobgwhitelogo.png' %}" alt="FoodHitch Delivery Logo" class="logo">
             </a>
         </div>
 
         <div class="sidebar-menus">
-            <a href="{% url 'rider_home' %}" class="{% if request.path == '/rider_home/' %}active{% endif %}">
+            <a href="{% url 'rider_home' %}" class="{% if request.path == '/rider_home/' %}active{% endif %}" aria-label="Home">
                 <ion-icon name="home-outline"></ion-icon>Home</a>
-            <a href="{% url 'update_rider_profile' %}" class="{% if request.path == '/profile/update/' %}active{% endif %}">
-                    <ion-icon name="person-outline"></ion-icon>Profile</a>            
-            <a href="{% url 'rider_transactions' %}" class="{% if request.path == '/rider_transactions/' %}active{% endif %}">
-                        <ion-icon name="card-outline"></ion-icon>Transactions</a>
-            <a href="{% url 'rider_earnings' %}" class="{% if request.path == '/rider/earnings/' %}active{% endif %}">
-                            <ion-icon name="cash-outline"></ion-icon>Earnings</a>            
-            <a href="{% url 'rider_delivery_history' %}" class="{% if request.path == '/rider_delivery_history/' %}active{% endif %}">
-                                <ion-icon name="car-outline" style="font-size: 21px;"></ion-icon>Delivery History</a>
-
+            <a href="{% url 'update_rider_profile' %}" class="{% if request.path == '/profile/update/' %}active{% endif %}" aria-label="Profile">
+                <ion-icon name="person-outline"></ion-icon>Profile</a>
+            <a href="{% url 'rider_transactions' %}" class="{% if request.path == '/rider_transactions/' %}active{% endif %}" aria-label="Transactions">
+                <ion-icon name="card-outline"></ion-icon>Transactions</a>
+            <a href="{% url 'rider_earnings' %}" class="{% if request.path == '/rider/earnings/' %}active{% endif %}" aria-label="Earnings">
+                <ion-icon name="cash-outline"></ion-icon>Earnings</a>
+            <a href="{% url 'rider_delivery_history' %}" class="{% if request.path == '/rider_delivery_history/' %}active{% endif %}" aria-label="Delivery History">
+                <ion-icon name="car-outline" style="font-size: 21px;"></ion-icon>Delivery History</a>
+            <a href="{% url 'rider_archived_deliveries' %}" class="{% if request.path == '/archived-deliveries/' %}active{% endif %}" aria-label="Archive">
+                <ion-icon name="file-tray-full-outline" style="font-size: 21px;"></ion-icon>Archive</a>
+           
             <!-- Toggle Switch for Availability -->
 <!-- Toggle Switch for Availability -->
             <div class="toggle-container">

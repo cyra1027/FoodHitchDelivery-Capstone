@@ -34,7 +34,7 @@ body {
   top: 0;
   left: 0;
   padding: 2%;
-  background-color: #018513;
+  background-color: #005704;
   color: var(--blackColor);
   box-shadow: 0 4px 2.5px rgba(0, 0, 0, 0.3); /* Adjust the shadow properties as needed */
 }
@@ -95,12 +95,15 @@ body {
 }
 .sidebar-menus a.active, .sidebar-logout a.active {
   background-color: #feffef;  
-  color: rgb(0, 122, 0);                
-  border-radius: 50px;        
+  color: #005704;                
+  border-radius: 50px;
+  font-weight: 600;
 }
 .sidebar-menus a.active ion-icon,
 .sidebar-logout a.active ion-icon {
-  color: rgb(0, 122, 0); 
+  color: #005704;
+  font-size: 16px;
+
 }
 
 /* Header Styles */
@@ -479,8 +482,8 @@ margin-right: 5px; /* Space between the icon and text */
 }
 
 .chart-toggle-button {
-  background-color: #98FF98;
-  color: black;
+  background-color:  #005704;
+  color: #fefefe;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -488,7 +491,7 @@ margin-right: 5px; /* Space between the icon and text */
 }
 
 .chart-toggle-button:hover {
-  background-color: #45d645; /* Darker shade on hover */
+  background-color: #005704e5; /* Darker shade on hover */
 }
 
 .image-upload-section {

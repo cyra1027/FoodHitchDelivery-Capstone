@@ -360,7 +360,7 @@ class StoreOwnerUpdateForm(forms.ModelForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
     phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'placeholder': 'Phone Number'}))
     picture = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'accept': 'image/*'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Current Password'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Current Password'}), required=True)
     password1 = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'placeholder': 'New Password'}))
     password2 = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'placeholder': 'Confirm New Password'}))
 
@@ -382,7 +382,7 @@ class StoreOwnerUpdateForm(forms.ModelForm):
         # If a new password is provided, hash it and update it
         new_password = self.cleaned_data.get('password1')
         if new_password:
-            owner.Password = make_password(new_password)
+            owner.user.set_password(new_password)  # Set the new password for the user
 
         if commit:
             owner.save()
@@ -397,8 +397,8 @@ class StoreOwnerUpdateForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if StoreOwner.objects.filter(Email=email).exclude(OwnerID=self.instance.OwnerID).exists():
-            raise forms.ValidationError('This email is already registered.')
+        if StoreOwner.objects.filter(Email=email).exclude(user=self.instance.user).exists():
+             raise forms.ValidationError('This email is already registered.')
         return email
 
     def clean_phone(self):
@@ -406,6 +406,7 @@ class StoreOwnerUpdateForm(forms.ModelForm):
         if not phone.isdigit():
             raise forms.ValidationError("Phone number must contain only digits.")
         return phone
+
 
 class PasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150)

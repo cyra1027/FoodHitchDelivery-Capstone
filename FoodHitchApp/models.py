@@ -147,6 +147,7 @@ class Delivery(models.Model):
     DeliveryFee = models.DecimalField(max_digits=10, decimal_places=2)
     TotalPayableAmount = models.DecimalField(max_digits=10, decimal_places=2)
     DeliveryStatus = models.CharField(max_length=50, choices=DELIVERY_STATUS_CHOICES, default='Pending')
+    is_archived = models.BooleanField(default=False)  # New field for archiving
 
     def __str__(self):
         return f"Delivery {self.DeliveryID}"

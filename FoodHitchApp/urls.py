@@ -63,7 +63,7 @@ from .views import (
     rider_earnings,
     rider_notifications,
     update_store_owner_profile, reorder, update_availability, password_reset_request, password_reset_set,
-    check_username, remove_favorite, order_completed, verify_otp
+    check_username, remove_favorite, order_completed, verify_otp, owner_restaurants, archive_delivery, rider_archived_deliveries
 )
 
 urlpatterns = [
@@ -77,6 +77,11 @@ urlpatterns = [
     path('rider_home/', rider_home, name='rider_home'),
     path('logout/', logout_view, name='logout'),
     path('verify_otp/', verify_otp, name='verify_otp'),
+    path('owner/<int:owner_id>/restaurants/', owner_restaurants, name='owner_restaurants'),
+    path('archive-delivery/<int:delivery_id>/', archive_delivery, name='archive_delivery'),
+    path('archived-deliveries/', rider_archived_deliveries, name='rider_archived_deliveries'),
+    
+
 
     # Customer and Menu 
     path('otp-verification/', otp_verification, name='otp_verification'),

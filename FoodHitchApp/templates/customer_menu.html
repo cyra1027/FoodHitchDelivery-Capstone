@@ -79,10 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     // Show SweetAlert notification
                     Swal.fire({
-                        title: 'Added to Cart!',
+                        
                         text: 'The item has been added to your cart.',
                         icon: 'success',
-                        confirmButtonText: 'Okay'
+                        showConfirmButton: false,
+                        timer: 1500,
                     });
                 } else {
                     // Handle error (e.g., item could not be added)

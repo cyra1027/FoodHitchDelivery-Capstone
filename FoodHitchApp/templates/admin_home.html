@@ -8,21 +8,29 @@
 
         <!-- Dashboard Stats -->
         <div class="admin-home-dashboard-stats">
-            <div class="admin-home-card" style="margin-left: 300px; background-color: #36aaf7;">
+            <div class="admin-home-card" style="margin-left: 300px; background: linear-gradient(to bottom, #ff1818, #bd0101, #810000);">
                 <p>{{ total_riders }}</p>
                 <h3><i class="fas fa-motorcycle"></i> Total Riders</h3>
             </div>
-            <div class="admin-home-card" style="background-color: rgb(2, 224, 2);">
+            <div class="admin-home-card" style="background: linear-gradient(to bottom, #008000, #004b00, #004100);">
                 <p>{{ total_storeowners }}</p>
-                <h3><i class="fas fa-utensils"></i> Total Owners</h3>
+                <h3><i class="fas fa-user-tie"></i> Total Owners</h3>
             </div>
-            <div class="admin-home-card" style="background-color: rgb(255, 136, 0);">
+            <div class="admin-home-card" style="background: linear-gradient(to bottom, #010394, #00028b, #000269);">
                 <p>{{ total_customers }}</p>
                 <h3><i class="fas fa-users"></i> Total Customers</h3>
             </div>
         </div>
 
-        <!-- Additional section for charts, reports, etc. -->
+        <!-- Filter by Date Form -->
+        <div class="filter-by-date" style="margin-top: 40px; display: flex; justify-content: flex-end; margin-right: 50px;">
+            <form method="GET" action="{% url 'admin_home' %}" style="display: inline-flex; align-items: center;">
+                <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" required style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; margin-left: 10px;">
+                <button type="submit" style="margin-left: 10px; padding: 7px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+            </form> 
+        </div>
+
+        <!-- Sales Overview Section with Chart -->
         <div class="admin-home-additional-section" style="margin-top: 5px;">
             <div class="admin-home-chart-container">
                 <h3>Sales Overview</h3>
@@ -60,10 +68,9 @@
     
         // Create a custom gradient for the chart in green shades
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, '#98FF98'); // Dark green
-        gradient.addColorStop(1, '#F0FFF0'); // Light green
+        gradient.addColorStop(0, '#98FF98');
+        gradient.addColorStop(1, '#F0FFF0');
 
-    
         // Initial Chart (Monthly)
         let earningsChart = new Chart(ctx, {
             type: 'line',
@@ -166,5 +173,5 @@
             updateChart('monthly');
         });
     });
-    </script>
+</script>
 {% endblock %}

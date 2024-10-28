@@ -1,60 +1,108 @@
 {% extends 'rider_base.html' %}
 
 {% block content %}
-<div class="page-header"> <!-- New container for h1 and h2 -->
+<div class="page-header">
     <h1 class="page-title">Earnings Overview</h1>
     <h4 class="subtitle">Keep track of your performance metrics</h4>
 </div>
-<div class="earnings-container">
 
+<div class="earnings-container">
     <!-- Form for selecting a date -->
     <form method="get" class="filter-form">
         <div class="form-group">
             <label for="date">Select Date:</label>
-            <input type="date" name="date" id="date" value="{{ selected_date|default:None }}" required>
+            <input type="date" name="date" id="date" value="{{ selected_date|date:"Y-m-d" }}" required>
             <button class="btn" type="submit">Apply</button>
         </div>
     </form>
 
     <div class="earnings-cards">
-        <!-- Display earnings for daily, weekly, and monthly -->
-        <div class="card" style="background-color: #0300b1;">
+        <!-- Clickable cards -->
+        <div class="card" id="daily-card" style="background-color: #0300b1;" onclick="showTable('daily')">
             <h3>Daily Earnings</h3>
             <p>Total: ₱{{ daily_earnings }}</p>
         </div>
 
-        <div class="card" style="background-color: #00700f">
+        <div class="card" id="weekly-card" style="background-color: #00700f" onclick="showTable('weekly')">
             <h3>Weekly Earnings</h3>
             <p>Total: ₱{{ weekly_earnings }}</p>
         </div>
 
-        <div class="card" style="background-color: rgb(255, 136, 0);">
+        <div class="card" id="monthly-card" style="background-color: rgb(255, 136, 0);" onclick="showTable('monthly')">
             <h3>Monthly Earnings</h3>
             <p>Total: ₱{{ monthly_earnings }}</p>
         </div>
     </div>
 
-    <!-- Display detailed earnings for the selected period -->
-    <div class="earnings-details">
-        {% if earnings %}
-            <ul>
-                {% for earning in earnings %}
-                <li>Date: {{ earning.Date }} - Fee: ₱{{ earning.DeliveryFee }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-        {% endif %}
+    <!-- Display detailed earnings for the selected period in a table -->
+    <div class="earnings-details" id="earnings-table" style="display: none;">
+        <table class="earnings-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Address</th>
+                    <th>Delivery Fee</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- JSON data for earnings records -->
+                <script id="months-data" type="application/json">{{ months|safe }}</script>
+                <script id="daily-earnings-data" type="application/json">{{ daily_earnings_records|safe }}</script>
+                <script id="weekly-earnings-data" type="application/json">{{ weekly_earnings_records|safe }}</script>
+                <script id="monthly-earnings-data" type="application/json">{{ monthly_earnings_records|safe }}</script>
+            </tbody>
+        </table>
     </div>
 </div>
+
+<script>
+    const dailyEarnings = JSON.parse(document.getElementById('daily-earnings-data').textContent);
+    const weeklyEarnings = JSON.parse(document.getElementById('weekly-earnings-data').textContent);
+    const monthlyEarnings = JSON.parse(document.getElementById('monthly-earnings-data').textContent);
+
+    // Use the provided line to parse the months data
+    const months = JSON.parse(document.getElementById('months-data').textContent);
+
+    function showTable(type) {
+        var table = document.getElementById('earnings-table');
+        table.style.display = 'block'; // Show the table when a card is clicked
+
+        // Clear existing table content
+        var tbody = table.querySelector('tbody');
+        tbody.innerHTML = ''; // Clear previous table rows
+
+        // Populate the table based on selected type
+        var earningsData = [];
+        if (type === 'daily') {
+            earningsData = dailyEarnings;
+        } else if (type === 'weekly') {
+            earningsData = weeklyEarnings;
+        } else if (type === 'monthly') {
+            earningsData = monthlyEarnings;
+        }
+
+        // Loop through earningsData and create rows
+        earningsData.forEach(function(earning) {
+            var row = `
+                <tr>
+                    <td>${earning.Date}</td>
+                    <td>${earning.Address}</td>
+                    <td>₱${earning.DeliveryFee}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+</script>
 
 <style>
     /* Import the Poppins font */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-    /* Apply the font family */
     body {
         font-family: 'Poppins', sans-serif;
     }
+
     .page-header {
         position: fixed;
         top: 60px;
@@ -64,28 +112,26 @@
         padding: 20px 30px 0 70px;
         z-index: 1000;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-
-}
+    }
 
     .page-title {
         color: #018513;
         font-size: 25px;
         margin-top: -3%;
-  
-}
+    }
 
     .subtitle {
         color: #666;
         font-size: 18px;
         margin-top: 5px;
-        margin-bottom: 20px;
-        font-family: 'Calibri';  
-}
+        margin-bottom: 20px; 
+
+    }
     
     .earnings-container {
         text-align: center;
         padding: 20px;
-        margin-top: 8%;
+        margin-top: 5%;
     }
     .earnings-cards {
         display: flex;
@@ -100,6 +146,7 @@
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         text-align: center;
+        cursor: pointer;
     }
     .card h3 {
         font-size: 1.5em;
@@ -119,13 +166,13 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 10px; /* Space between input and button */
+        gap: 10px;
         margin-left:67%;
     }
     .btn {
         background: #00700f;
         color: #fff;
-        padding: 8px 30px; /* Adjusted padding for better appearance */
+        padding: 8px 30px;
         border: none;
         border-radius: 8px;
         font-size: 1.1em;
@@ -142,6 +189,37 @@
         border-radius: 8px;
         border: 1px solid #ccc;
         font-size: 1em;
+    }
+
+    /* Earnings table styling */
+    .earnings-table {
+        width: 80%;
+        border-collapse: collapse;
+        margin-top: -10px;
+        margin-left: 20%;
+    }
+
+    .earnings-table th, .earnings-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .earnings-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .earnings-table td {
+        font-size: 1.1em;
+    }
+
+    .earnings-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .earnings-table tr:hover {
+        background-color: #f1f1f1;
     }
 
     /* Optional media queries for responsiveness */

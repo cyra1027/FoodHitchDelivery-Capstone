@@ -1,39 +1,36 @@
 {% extends "rider_base.html" %}
 {% load static %}
 
-{% block title %}Rider Delivery History{% endblock %}
+{% block title %}Archived Deliveries{% endblock %}
 
 {% block content %}
 <div class="main-content">
     <div class="page-header">
-        <h1 class="page-title">Delivery History</h1>
-        <h4 class="subtitle">List of your past completed deliveries</h4>
+        <h1 class="page-title">Archived Deliveries</h1>
+        <h4 class="subtitle">List of your past archived deliveries</h4>
     </div>
 
     <div class="transaction-container">
-        <div class="delivery-history" id="delivery-history">
-            {% for delivery in deliveries %}
-            <div class="transaction-card" id="delivery-{{ delivery.DeliveryID }}">
+        <div class="archived-delivery-history" id="archived-delivery-history">
+            {% for delivery in archived_deliveries %}
+            <div class="transaction-card" id="archived-delivery-{{ delivery.DeliveryID }}">
                 <div class="transaction-info">
                     <p><strong>Delivery ID:</strong> {{ delivery.DeliveryID }}</p>
                     <p><strong>Order ID:</strong> {{ delivery.OrderID }}</p>
-                    <p><strong>Transaction ID:</strong> {{ delivery.OrderID.TransactionID }}</p>
                     <p><strong>Customer Name:</strong> {{ delivery.CustomerID.CustomerName }}</p> 
-                    <p><strong>Address:</strong> {{ delivery.Address }}</p> 
+                    <p><strong>Address:</strong> {{ delivery.Address }}</p>
                     <p><strong>Date:</strong> {{ delivery.Date|date:"F j, Y" }}</p> <!-- Added Date here -->
                     <p><strong>Restaurant Name:</strong> {{ delivery.RestaurantID.RestaurantName }}</p>
                     <p><strong>Total Payable:</strong> ₱{{ delivery.TotalPayableAmount }}</p>
-                    <p class="status"><strong>Status:</strong> <span class="status-received">Received</span></p>
+                    <p class="status"><strong>Status:</strong> <span class="status-archived">Archived</span></p>
                 </div>
-                <button class="archive-button" onclick="archiveDelivery('{{ delivery.DeliveryID }}')">Archive</button>
             </div>
             {% empty %}
-            <p class="no-deliveries-message">No deliveries found.</p>
+            <p class="no-archived-deliveries-message">No archived deliveries found.</p>
             {% endfor %}
         </div>
     </div>
 </div>
-
 <style>
     /* Import Poppins font */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -54,7 +51,7 @@
         padding: 40px;
     }
 
-    .delivery-history {
+    .archived-delivery-history {
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -84,7 +81,7 @@
         margin-top: 10px;
     }
 
-    .status-received {
+    .status-archived {
         color: #28a745;
         padding: 5px 10px;
         border-radius: 5px;
@@ -122,45 +119,4 @@
         border: none !important;
     }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function archiveDelivery(deliveryId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This will move the delivery to archive!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#17a2b8',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Archive'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Send POST request to archive the delivery
-                fetch(`/archive-delivery/${deliveryId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                    },
-                }).then(response => response.json()).then(data => {
-                    if (data.status === 'success') {
-                        // Hide the delivery from the UI
-                        document.getElementById('delivery-' + deliveryId).style.display = 'none';
-                        Swal.fire({
-                            title: 'Archived!',
-                            text: 'Your delivery has been moved to the archive.',
-                            icon: 'success',
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Failed to archive the delivery.',
-                            icon: 'error',
-                        });
-                    }
-                });
-            }
-        });
-    }
-</script>
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title">{{ owner.FirstName }} {{ owner.LastName }}'s Restaurants</h2>
+
+    <div class="restaurant-list">
+        {% for restaurant in restaurants %}
+        <div class="restaurant-card">
+            <img src="{{ restaurant.Image.url }}" alt="{{ restaurant.RestaurantName }}" class="restaurant-image">
+            <h3>{{ restaurant.RestaurantName }}</h3>
+        </div>
+        {% empty %}
+        <p>No restaurants found for this owner.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .container {
+        padding: 120px;
+        margin-left: 15%;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .restaurant-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+    }
+
+    .restaurant-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .restaurant-image {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}

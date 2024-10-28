@@ -10,14 +10,12 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, Http40
 import json
 from paypal.standard.models import ST_PP_COMPLETED  # Import PayPal status
 import random
-from django.db.models.functions import ExtractMonth
-from django.db.models.functions import TruncMonth, TruncDate
+from django.db.models.functions import ExtractMonth, TruncMonth, TruncDate, TruncDay, TruncWeek
 from django.contrib.auth.hashers import make_password
 from .forms import PasswordResetForm, PasswordSetForm
 import logging
 from datetime import datetime, timedelta
 import os
-from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
 from django.conf import settings
 from decimal import Decimal
 from django.utils.timezone import now
@@ -36,7 +34,6 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from django.db.models import Q
 from paypal.standard.forms import PayPalPaymentsForm
-
 
 def customer_register(request):
     if request.method == 'POST':
@@ -353,6 +350,20 @@ def owner_delete_menu(request, restaurant_id, food_id):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
+def owner_restaurants(request, owner_id):
+    owner = get_object_or_404(StoreOwner, OwnerID=owner_id)
+    restaurants = Restaurant.objects.filter(OwnerID=owner, Status='approved')  # Get all restaurants by this owner
+    
+    notifications = request.session.get('notifications', get_notifications())
+    notification_count = len(notifications)
+
+    context = {
+        'owner': owner,
+        'restaurants': restaurants,
+        'notification_count': notification_count,
+    }
+
+    return render(request, 'owner_restaurants.html', context)
 
 @login_required
 def partner_request_list(request):
@@ -634,26 +645,23 @@ def customer_reward_points(request):
 
 def rider_base(request):
     return render(request, "rider_base.html")
+
 @login_required
 def rider_home(request):
     # Retrieve notifications from the session
     rider_notifications = request.session.get('rider_notifications', [])
     notification_count = len(rider_notifications)
 
-    # Retrieve feedbacks
-    feedbacks = CustomersFeedback.objects.filter(Status='approved').order_by('-Date')
+    feedbacks = CustomersFeedback.objects.filter(Status='approved').order_by('-Date')[:10]
 
-    # Retrieve the current rider's availability status
     rider = Rider.objects.get(user=request.user)
 
-    # Pass notification count and rider's availability to the context
     context = {
         'feedbacks': feedbacks,
         'notification_count': notification_count,
-        'rider': rider,  # Add the rider object here
+        'rider': rider,
     }
 
-    # Render the template with the context
     return render(request, 'rider_home.html', context)
 
 @login_required
@@ -669,42 +677,77 @@ def rider_earnings(request):
     
     # Initialize earnings variables
     daily_earnings = weekly_earnings = monthly_earnings = 0
-    earnings = []
-    
+    daily_earnings_records = []
+    weekly_earnings_records = []
+    monthly_earnings_records = []
+
+    # Set the selected date if one is provided
     if selected_date:
         selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+    else:
+        selected_date = datetime.today().date()  # Default to today if no date is selected
 
-        # Handle Daily Earnings
-        daily_earnings_records = Delivery.objects.filter(RiderID=rider, Date=selected_date)
-        daily_earnings = sum(earning.DeliveryFee for earning in daily_earnings_records)
+    # Handle Daily Earnings
+    daily_earnings_records = Delivery.objects.filter(RiderID=rider, Date__date=selected_date)
+    daily_earnings = sum(earning.DeliveryFee for earning in daily_earnings_records)
 
-        # Handle Weekly Earnings
-        start_of_week = selected_date - timedelta(days=selected_date.weekday())
-        end_of_week = start_of_week + timedelta(days=6)
-        weekly_earnings_records = Delivery.objects.filter(RiderID=rider, Date__range=[start_of_week, end_of_week])
-        weekly_earnings = sum(earning.DeliveryFee for earning in weekly_earnings_records)
+    # Handle Weekly Earnings
+    start_of_week = selected_date - timedelta(days=selected_date.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+    weekly_earnings_records = Delivery.objects.filter(RiderID=rider, Date__date__range=[start_of_week, end_of_week])
+    weekly_earnings = sum(earning.DeliveryFee for earning in weekly_earnings_records)
 
-        # Handle Monthly Earnings
-        start_of_month = selected_date.replace(day=1)
-        next_month = (start_of_month.replace(month=start_of_month.month % 12 + 1, day=1) 
-                      if start_of_month.month < 12 else 
-                      (start_of_month.replace(year=start_of_month.year + 1, month=1, day=1)))
-        end_of_month = next_month - timedelta(days=1)
-        monthly_earnings_records = Delivery.objects.filter(RiderID=rider, Date__range=[start_of_month, end_of_month])
-        monthly_earnings = sum(earning.DeliveryFee for earning in monthly_earnings_records)
+    # Handle Monthly Earnings
+    start_of_month = selected_date.replace(day=1)
+    next_month = (start_of_month.replace(month=start_of_month.month % 12 + 1, day=1) 
+                  if start_of_month.month < 12 else 
+                  (start_of_month.replace(year=start_of_month.year + 1, month=1, day=1)))
+    end_of_month = next_month - timedelta(days=1)
+    monthly_earnings_records = Delivery.objects.filter(RiderID=rider, Date__date__range=[start_of_month, end_of_month])
+    monthly_earnings = sum(earning.DeliveryFee for earning in monthly_earnings_records)
 
-        # Use daily records for the detailed list
-        earnings = daily_earnings_records
-    
+    # Convert records to a serializable format
+    daily_earnings_records = [
+        {
+            'Date': earning.Date.strftime("%Y-%m-%d"),
+            'Address': earning.Address,
+            'DeliveryFee': float(earning.DeliveryFee),
+        } for earning in daily_earnings_records
+    ]
+
+    weekly_earnings_records = [
+        {
+            'Date': earning.Date.strftime("%Y-%m-%d"),
+            'Address': earning.Address,
+            'DeliveryFee': float(earning.DeliveryFee),
+        } for earning in weekly_earnings_records
+    ]
+
+    monthly_earnings_records = [
+        {
+            'Date': earning.Date.strftime("%Y-%m-%d"),
+            'Address': earning.Address,
+            'DeliveryFee': float(earning.DeliveryFee),
+        } for earning in monthly_earnings_records
+    ]
+
+    # Serialize QuerySets to JSON
+    daily_earnings_records_json = json.dumps(daily_earnings_records)
+    weekly_earnings_records_json = json.dumps(weekly_earnings_records)
+    monthly_earnings_records_json = json.dumps(monthly_earnings_records)
+
     # Pass the rider object to the context
     context = {
         'selected_date': selected_date,
         'daily_earnings': daily_earnings,
         'weekly_earnings': weekly_earnings,
         'monthly_earnings': monthly_earnings,
-        'earnings': earnings,
+        'earnings': daily_earnings_records,  # or keep this if needed for something else
         'notification_count': notification_count,
-        'rider': rider,  # Add the rider object to the context
+        'daily_earnings_records': daily_earnings_records_json,
+        'weekly_earnings_records': weekly_earnings_records_json,
+        'monthly_earnings_records': monthly_earnings_records_json,
+        'rider': rider,
     }
 
     return render(request, 'rider_earnings.html', context)
@@ -759,7 +802,6 @@ def update_rider_profile(request):
 
 @login_required
 def update_store_owner_profile(request):
-    # Retrieve notifications from the session
     owner_notifications = request.session.get('owner_notifications', [])
     notification_count = len(owner_notifications)
 
@@ -769,21 +811,30 @@ def update_store_owner_profile(request):
     if request.method == 'POST':
         form = StoreOwnerUpdateForm(request.POST, request.FILES, instance=store_owner)
         if form.is_valid():
-            # Check if the new password is being set
-            if form.cleaned_data.get('password1'):
-                # Save the user with the new password
-                form.save()
-                messages.success(request, "Your password changed successfully. You will be logged out and enter your new password.")
-                logout(request)  # Log the user out
-                return redirect(reverse('customer_login') + '?success=password')  # Redirect to login page with parameter
+            # Validate the current password before updating any changes
+            if form.cleaned_data.get('password'):
+                if not request.user.check_password(form.cleaned_data.get('password')):
+                    error_message = "Current password is incorrect."
+                else:
+                    # If a new password is being set, save the new password
+                    new_password = form.cleaned_data.get('password1')
+                    if new_password:
+                        store_owner.user.set_password(new_password)  # Update the password
+                        messages.success(request, "Your password has been changed. Please log in with the new password.")
+                        store_owner.save()
+                        logout(request)
+                        return redirect(reverse('customer_login') + '?success=password')
+                    else:
+                        form.save()
+                        messages.success(request, "Profile updated successfully.")
+                        return redirect(reverse('update_store_owner_profile') + '?success=true')
             else:
-                # Update the profile without changing the password
+                # Save profile without password change
                 form.save()
                 messages.success(request, "Profile updated successfully.")
                 return redirect(reverse('update_store_owner_profile') + '?success=true')
         else:
-            non_field_errors = form.non_field_errors()
-            error_message = str(non_field_errors[0]) if non_field_errors else None
+            error_message = form.errors
 
     else:
         initial_data = {
@@ -792,20 +843,19 @@ def update_store_owner_profile(request):
             'first_name': store_owner.FirstName,
             'last_name': store_owner.LastName,
             'phone': store_owner.Phone,
-            'picture': store_owner.Picture,
         }
         form = StoreOwnerUpdateForm(instance=store_owner, initial=initial_data)
 
     success = 'success' in request.GET
 
-    # Pass the notification_count to the template
     return render(request, 'owner_profile.html', {
         'form': form,
         'store_owner': store_owner,
         'success': success,
         'error_message': error_message,
-        'notification_count': notification_count,  # Include the notification count here
+        'notification_count': notification_count,
     })
+
 
 @login_required
 def customer_home(request):
@@ -1149,50 +1199,62 @@ def admin_base(request):
     return render(request, "admin_base.html")
 
 def restaurant_partners(request):
-    restaurants = Restaurant.objects.filter(Status='approved')  # Adjust filter as needed
+    # Fetch all store owners, regardless of restaurant status
+    store_owners = StoreOwner.objects.all()  # Get all store owners
+
     notifications = request.session.get('notifications', get_notifications())
     notification_count = len(notifications)
 
-
-    return render(request, 'restaurant_partners.html', {
-        'restaurants': restaurants,
+    context = {
+        'owners': store_owners,  # Pass store owners to the template
         'notification_count': notification_count,
-    })
+    }
+
+    return render(request, 'restaurant_partners.html', context)
 
 @login_required
 def admin_home(request):
-    total_storeowners = StoreOwner.objects.values('user').distinct().count()  # Count unique storeowners
+    # Fetch total counts
+    total_storeowners = StoreOwner.objects.values('user').distinct().count()
     total_customers = Customer.objects.count()
-    total_riders = Rider.objects.count()
+    total_riders = Rider.objects.filter(Status='accepted').count()
     total_deliveries = Delivery.objects.count()
     total_users = total_customers + total_riders
 
-    # Prepare a full list of months and initialize earnings
-    months = list(month_name)[1:]  # Get all month names
+    # Fetch the selected date from GET request
+    selected_date = request.GET.get('date')
+
+    # If no date is selected, use today's date as default
+    if selected_date:
+        selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+    else:
+        selected_date = timezone.now().date()
+
+    # Prepare a full list of months and initialize earnings (unchanged monthly earnings)
+    months = list(month_name)[1:]  # Get all month names (January to December)
     earnings = [0.0] * 12  # Initialize earnings for all months
 
-    # Monthly earnings calculation
+    # Monthly earnings calculation (always for the whole year, unaffected by selected_date)
     monthly_data = Delivery.objects.annotate(month=ExtractMonth('Date')).values('month').annotate(total=Sum('DeliveryFee')).order_by('month')
     for entry in monthly_data:
         month_index = entry['month'] - 1  # Convert to 0-based index
         earnings[month_index] = float(entry['total'] or 0)  # Convert Decimal to float
 
-    # Calculate daily earnings (for the last 7 days)
-    today = timezone.now().date()
+    # Fix for daily earnings (specific to the selected date)
     daily_earnings = []
     for i in range(7):
-        day = today - timedelta(days=i)
+        day = selected_date - timedelta(days=i)
         daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
         daily_earnings.append(float(daily_total))
     daily_earnings.reverse()  # To show in the correct order (oldest to newest)
 
-    # Calculate weekly earnings
-    start_week = today - timedelta(days=today.weekday())  # Start of the current week (Monday)
+    # Fix for weekly earnings (start from Monday of the selected week)
+    start_week = selected_date - timedelta(days=selected_date.weekday())  # Start of the selected week (Monday)
     weekly_earnings = []
-    for i in range(7):  # For each day in the current week
+    for i in range(7):  # Loop for 7 days of the week
         day = start_week + timedelta(days=i)
-        daily_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
-        weekly_earnings.append(float(daily_total))
+        weekly_total = Delivery.objects.filter(Date__date=day).aggregate(Sum('DeliveryFee'))['DeliveryFee__sum'] or 0
+        weekly_earnings.append(float(weekly_total))
 
     notifications = request.session.get('notifications', get_notifications())
     notification_count = len(notifications)
@@ -1204,12 +1266,14 @@ def admin_home(request):
         'total_customers': total_customers,
         'total_users': total_users,
         'months': json.dumps(months),
-        'earnings': json.dumps(earnings),
+        'earnings': json.dumps(earnings),  # Monthly data stays the same
         'daily_earnings': json.dumps(daily_earnings),  # List of daily earnings for the last 7 days
-        'weekly_earnings': json.dumps(weekly_earnings),  # List of weekly earnings for the current week
+        'weekly_earnings': json.dumps(weekly_earnings),  # List of weekly earnings for the selected week
         'notification_count': notification_count,
+        'selected_date': selected_date,  # Pass the selected date to the template
     }
     return render(request, 'admin_home.html', context)
+
 
 
 def foodhitch(request):
@@ -1746,12 +1810,12 @@ def rider_profile_update(request):
 
 @login_required
 def rider_delivery_history(request):
-    rider = request.user.rider 
+    rider = request.user.rider
     rider_notifications = get_rider_notifications(rider.RiderID)
     notification_count = len(rider_notifications)
 
-    # Get the deliveries that are delivered
-    deliveries = Delivery.objects.filter(RiderID=rider, DeliveryStatus='Received')
+    # Get the deliveries that are delivered and not archived
+    deliveries = Delivery.objects.filter(RiderID=rider, DeliveryStatus='Received', is_archived=False)
 
     latest_notifications = rider_notifications[-10:]
 
@@ -1759,10 +1823,39 @@ def rider_delivery_history(request):
         'deliveries': deliveries,
         'notifications': latest_notifications,
         'notification_count': notification_count,
-        'rider': rider,  # Add the rider object to the context
+        'rider': rider,
     }
     
     return render(request, 'rider_delivery_history.html', context)
+
+@login_required
+def rider_archived_deliveries(request):
+    rider = request.user.rider
+    rider_notifications = get_rider_notifications(rider.RiderID)
+    notification_count = len(rider_notifications)
+
+    # Get the deliveries that are archived
+    archived_deliveries = Delivery.objects.filter(RiderID=rider, is_archived=True)
+
+    latest_notifications = rider_notifications[-10:]
+
+    context = {
+        'archived_deliveries': archived_deliveries,
+        'notifications': latest_notifications,
+        'notification_count': notification_count,
+        'rider': rider,
+    }
+    
+    return render(request, 'rider_archived_deliveries.html', context)
+
+@login_required
+def archive_delivery(request, delivery_id):
+    delivery = get_object_or_404(Delivery, pk=delivery_id)
+    if request.method == 'POST':
+        delivery.is_archived = True
+        delivery.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
 def rider_transactions(request):
@@ -1897,18 +1990,21 @@ def password_reset_request(request):
                 fail_silently=False,
             )
 
-            # Pass the user's email to the template
-            return render(request, 'password_reset_request.html', {
-                'success': 'An OTP has been sent to your email.',
-                'email': user.email  # Pass the email to the context
-            })
+            # Return JSON response instead of rendering the template
+            return JsonResponse({'success': True, 'email': user.email})
 
         except User.DoesNotExist:
-            return render(request, 'password_reset_request.html', {
-                'error': 'Username not found. Please check your input.'
-            })
+            return JsonResponse({'success': False, 'error': 'Username not found. Please check your input.'})
 
     return render(request, 'password_reset_request.html')
+
+def check_username(request):
+    username = request.GET.get('username')
+    try:
+        user = User.objects.get(username=username)
+        return JsonResponse({'exists': True, 'email': user.email})
+    except User.DoesNotExist:
+        return JsonResponse({'exists': False})
 
 def verify_otp(request):
     user_otp = request.GET.get('otp')
@@ -1918,16 +2014,6 @@ def verify_otp(request):
         return JsonResponse({'verified': True})
     else:
         return JsonResponse({'verified': False})
-
-def check_username(request):
-    username = request.GET.get('username')
-    try:
-        user = User.objects.get(username=username)
-        # Return a JSON response with the user's email
-        return JsonResponse({'exists': True, 'email': user.email})
-    except User.DoesNotExist:
-        # Return a JSON response indicating the username doesn't exist
-        return JsonResponse({'exists': False})   
 
 def password_reset_set(request):
     if 'reset_username' not in request.session:

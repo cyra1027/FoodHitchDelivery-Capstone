@@ -216,8 +216,9 @@
 
   .store-card h2 {
     font-size: 1.1rem;
-    margin: 15px 0;
+    margin: 10px 0;
     color: var(--blackColor);
+    text-align: center;
   }
 
   .store-card p {
@@ -226,11 +227,11 @@
 
   .store-card .btn {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 5px 20px;
     background: #009914;
     color: var(--whitecolor);
     text-decoration: none;
-    border-radius: 20px;
+    border-radius: 50px;
     margin-top: 10px;
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
@@ -253,21 +254,27 @@
 
   .image-container img {
     width: 100%;
-    height: 50%;
+    height: auto;
     display: block;
+    border-radius: 7px;
   }
 
   .favorite-icon {
-    position: absolute; /* Position relative to the nearest positioned ancestor */
-    top: 10px; /* Adjust distance from the top */
-    right: 10px; /* Adjust distance from the right */
-    font-size: 24px; /* Adjust icon size */
-    color: rgb(255, 255, 255); /* Change color as needed */
-    cursor: pointer; /* Change cursor to pointer for interaction */
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 20px;
+    color: red;
+    cursor: pointer;
+
 }
 
 .favorite-icon.active {
-    color: rgb(255, 255, 255); /* Color when active */
+    color: red; /* Color when active */
 }
 
 /* In your customer_base.css or another CSS file */
