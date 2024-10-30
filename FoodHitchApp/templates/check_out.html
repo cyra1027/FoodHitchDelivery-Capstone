@@ -25,6 +25,12 @@
       margin-left: 24%;
       
 }
+.header .available-points {
+  margin-left: 60%;
+  font-weight: 700;
+  color: #000;
+  font-size: 16px;
+}
 
     .header a {
       margin-right: 2%;
@@ -115,6 +121,8 @@
       <ion-icon name="arrow-back-outline"></ion-icon>
     </a>
     <h1 class="page-title">Checkout</h1>
+
+    <span class="available-points">Available Points: {{ customer_points }}</span>
   </div>
 
   <div class="container">
@@ -146,6 +154,10 @@
 
       <label for="delivery-fee">Delivery Fee:</label>
       <input type="number" id="delivery-fee" name="delivery-fee" value="{{ delivery_fee }}" readonly>
+
+      <label for="points-used">Use Points:</label>
+      <input type="number" id="points-used" name="points-used" max="{{ customer_points }}" placeholder="Enter points" oninput="updateDeliveryFee()">
+
       
       <label for="total-payable-amount">Total Payable Amount:</label>
       <input type="number" id="total-payable-amount" name="total-payable-amount" value="{{ total_amount }}" readonly>
@@ -264,6 +276,33 @@
       var totalAmount = subtotal + deliveryFee;
       document.getElementById('total-payable-amount').value = totalAmount.toFixed(2);
     }
+
+    function updateDeliveryFee() {
+      var deliveryFee = parseFloat(document.getElementById('delivery-fee').value);
+      var pointsUsed = parseFloat(document.getElementById('points-used').value);
+      var customerPoints = parseFloat("{{ customer_points }}"); // gikan sa backend
+
+      // Check kung ang points nga gisulod malapas sa current points sa customer
+      if (pointsUsed > customerPoints) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Points',
+          text: 'The points entered exceed your available points.',
+          confirmButtonText: 'Okay'
+        });
+        document.getElementById('points-used').value = ''; // i-clear ang input kung invalid
+        return; // ayaw padayuna ang ubang calculations kung invalid
+      }
+
+      if (isNaN(pointsUsed) || pointsUsed <= 0) {
+        updateTotalAmount();
+      } else {
+        var adjustedDeliveryFee = Math.max(0, deliveryFee - pointsUsed);
+        document.getElementById('delivery-fee').value = adjustedDeliveryFee.toFixed(2);
+        updateTotalAmount();
+      }
+    }
+
 
     // PayPal integration
     document.addEventListener('DOMContentLoaded', function () {

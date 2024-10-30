@@ -1335,6 +1335,7 @@ def check_out(request):
         'delivery_fee': delivery_fee,  # Initially 0
         'total_amount': total_amount,
         'customer': customer,
+        'customer_points': customer.Points,
     }
 
     return render(request, 'check_out.html', context)
