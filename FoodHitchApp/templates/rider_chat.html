@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <title>FoodHitch Delivery</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #18191a;
+            color: #e4e6eb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .messenger {
+            display: flex;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: #242526;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3a3b3c;
+        }
+
+        .search-bar {
+            padding: 10px;
+            border-bottom: 1px solid #3a3b3c;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            background-color: #3a3b3c;
+            border: none;
+            border-radius: 15px;
+            color: #e4e6eb;
+        }
+
+        .chat-list {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .chat-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-item .chat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-item .name {
+            font-weight: bold;
+        }
+
+        .chat-item .last-message {
+            font-size: 0.9em;
+            color: #b0b3b8;
+        }
+
+        .chat-item.active {
+            background-color: #3a3b3c;
+        }
+
+        .chat-window {
+            width: 75%;
+            background-color: #242526;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #3a3b3c;
+        }
+
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .chat-header .chat-title h3 {
+            margin: 0;
+        }
+
+        .chat-header .chat-actions button {
+            background: none;
+            border: none;
+            color: #b0b3b8;
+            font-size: 1.5em;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .chat-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            max-width: 75%;
+        }
+
+        .message.left {
+            background-color: #3a3b3c;
+            color: #e4e6eb;
+            align-self: flex-start;
+        }
+
+        .message.right {
+            background-color: #28a745;
+            color: white;
+            align-self: flex-end;
+            margin-left: 25%;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #3a3b3c;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: #3a3b3c;
+            border: none;
+            color: #e4e6eb;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            background-color: #28a745; 
+            border: none;
+            color: #fff; 
+            font-size: 1em;
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="messenger">
+        <div class="sidebar">
+            <div class="chat-list">
+                {% for customer, profile in customer_profiles.items %}
+                    <div class="chat-item active">
+                        <!-- Use customer profile picture -->
+                        <img src="{{ profile.profile_picture }}" alt="Profile">
+                        <div class="chat-info">
+                            <!-- Use customer name -->
+                            <span class="name">{{ profile.name }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    
+        <!-- Main Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header">
+                {% for customer, profile in customer_profiles.items %}
+                    <!-- Use customer profile picture -->
+                    <img src="{{ profile.profile_picture }}" alt="Profile">
+                    <div class="chat-title">
+                        <!-- Use customer name -->
+                        <span class="name">{{ profile.name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-content" id="chatContent">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == user %}right{% else %}left{% endif %}">
+                        <p>{{ message.message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Message...">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sendButton = document.getElementById('sendButton');
+            const messageInput = document.getElementById('messageInput');
+            const chatContent = document.getElementById('chatContent');
+    
+            // Send message when the "Send" button is clicked
+            sendButton.addEventListener('click', function(event) {
+                event.preventDefault();  // Prevent form submission
+                sendMessage();
+            });
+    
+            // Send message when the Enter key is pressed
+            messageInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Prevent form submission on Enter key press
+                    sendMessage();
+                }
+            });
+    
+            // Function to send the message
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message !== '') {
+                    // Send AJAX request to the server to save the message
+                    fetch('{% url "send_message" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            rider_id: '{{ rider.RiderID }}'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Append new message to chat window
+                        const newMessage = document.createElement('div');
+                        newMessage.classList.add('message', 'right');
+                        newMessage.innerHTML = `<p>${data.message}</p>`;
+    
+                        chatContent.appendChild(newMessage);
+                        chatContent.scrollTop = chatContent.scrollHeight;
+    
+                        // Clear the input field
+                        messageInput.value = '';
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            }
+        });
+    </script>
+</body>

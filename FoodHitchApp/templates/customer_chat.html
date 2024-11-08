@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'images/foodhitch-green.png' %}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>FoodHitch Delivery</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5; /* Dirty white */
+            color: #000000; /* Black text */
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .messenger {
+            display: flex;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: #f0f0f0; /* Light dirty white */
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #000000;
+        }
+
+        .search-bar {
+            padding: 10px;
+            border-bottom: 1px solid #000000;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            background-color: #d3d3d3; /* Light gray */
+            border: none;
+            border-radius: 15px;
+            color: #000000; /* Black text */
+        }
+
+        .chat-list {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .chat-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-item .chat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-item .name {
+            font-weight: bold;
+            color: #000000; /* Black text */
+        }
+
+        .chat-item .last-message {
+            font-size: 0.9em;
+            color: #5f5f5f; /* Dark gray */
+        }
+
+        .chat-item.active {
+            background-color: #d3d3d3; /* Light gray */
+        }
+
+        .chat-window {
+            width: 75%;
+            background-color: #f0f0f0; /* Light dirty white */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #000000;
+        }
+
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .chat-header .chat-title h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #000000; /* Black text */
+        }
+
+        .chat-header .chat-actions button {
+            background: none;
+            border: none;
+            color: #5f5f5f; /* Dark gray */
+            font-size: 1.5em;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .chat-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            position: relative;
+            max-width: 70%; /* Optional: Limits how wide the message can grow */
+            word-wrap: break-word; /* Wraps text if too long */
+            line-height: 1.5; /* For readability */
+            width: auto; /* Ensures width adjusts based on content */
+            display: block; /* Default display property to keep design intact */
+        }
+
+        .message.left {
+            background-color: #d3d3d3; /* Light gray */
+            color: #000000; /* Black text */
+            align-self: flex-start;
+        }
+
+        .message.right {
+            background-color: #218838; /* Lighter green */
+            color: #ffffff;
+            align-self: self-end;
+            margin-left: 50%;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #5f5f5f; /* Dark gray */
+            position: absolute;
+            bottom: -20px; /* Adjust based on your layout */
+            right: 10px;
+        }
+        .message .dots {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #5f5f5f; /* Dark gray */
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #bdbdbd;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: #d3d3d3; /* Light gray */
+            border: none;
+            color: #000000; /* Black text */
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            background-color: #218838; /* Lighter green */
+            border: none;
+            color: #ffffff; 
+            font-weight: bold;  
+            font-size: 1em;
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #1e7e34; /* Slightly darker green */
+        }
+
+        .options-container {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .three-dots {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #d3d3d3; /* Light gray */
+            border-radius: 50%;
+            color: #5f5f5f; /* Dark gray */
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .options-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: #f0f0f0; /* Light dirty white */
+            border: 1px solid #bdbdbd;
+            border-radius: 8px;
+            padding: 10px;
+            color: #000000; /* Black text */
+        }
+
+        .options-menu button {
+            background: none;
+            border: none;
+            color: #000000; /* Black text */
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 5px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="messenger">
+        <div class="sidebar">
+            <div class="chat-list">
+                <div class="chat-item active">
+                    <img src="{{ rider.ProfilePicture.url }}" alt="Profile">
+                    <div class="chat-info">
+                        <span class="name">{{ rider.FullName }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <img src="{{ rider.ProfilePicture.url }}" alt="Profile">
+                <div class="chat-title">
+                    <h3>{{ rider.FullName }}</h3>
+                </div>
+                <div class="options-container">
+                    <div class="three-dots" onclick="toggleOptions()">⋮</div>
+                    <div class="options-menu" id="optionsMenu">
+                        <button onclick="deleteConversation()">Delete Entire Conversation</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-content" id="chatContent">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == user %}right{% else %}left{% endif %}">
+                        <p>{{ message.message }}</p>
+                        <span class="message-time">{{ message.timestamp|date:"H:i A" }}</span> <!-- Format the timestamp -->
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Aa">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sendButton = document.getElementById('sendButton');
+            const messageInput = document.getElementById('messageInput');
+            const chatContent = document.getElementById('chatContent');
+            const optionsMenu = document.getElementById('optionsMenu');  // Options menu for deleting conversation
+            const threeDots = document.querySelector('.three-dots');  // Three dots to trigger the menu visibility
+        
+            // Send message when the "Send" button is clicked
+            sendButton.addEventListener('click', function(event) {
+                event.preventDefault();  // Prevent form submission
+                sendMessage();
+            });
+        
+            // Send message when the Enter key is pressed
+            messageInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Prevent form submission on Enter key press
+                    sendMessage();
+                }
+            });
+        
+            // Function to send the message
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message !== '') {
+                    // Send AJAX request to the server to save the message
+                    fetch('{% url "send_message" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            rider_id: '{{ rider.RiderID }}'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Check if response has message
+                        if (data.message) {
+                            // Append new message to chat window without page refresh
+                            const newMessage = document.createElement('div');
+                            newMessage.classList.add('message', 'right');  // Right alignment for sent messages
+                            newMessage.innerHTML = `<p>${data.message}</p>`;
+                            chatContent.appendChild(newMessage);
+        
+                            // Scroll to the bottom of the chat content for new messages
+                            chatContent.scrollTop = chatContent.scrollHeight;
+        
+                            // Clear the input field after sending the message
+                            messageInput.value = '';
+                        } else {
+                            console.error('Message content is missing in the response');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            }
+        
+            // Scroll to the latest message when the page is loaded
+            chatContent.scrollTop = chatContent.scrollHeight;
+        
+            // Toggle the visibility of the options menu
+            function toggleOptions() {
+                if (optionsMenu.style.display === "block") {
+                    optionsMenu.style.display = "none";
+                } else {
+                    optionsMenu.style.display = "block";
+                }
+            }
+        
+            // Function to delete the entire conversation
+            function deleteConversation() {
+                const confirmation = confirm('Are you sure you want to delete the entire conversation?');
+        
+                if (confirmation) {
+                    // Send AJAX request to delete the conversation
+                    fetch('{% url "delete_conversation" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            rider_id: '{{ rider.RiderID }}',  // Pass the rider ID or any relevant identifier
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Clear the chat content if deletion was successful
+                            chatContent.innerHTML = '';
+                            alert('Conversation deleted successfully.');
+                        } else {
+                            console.error('Failed to delete conversation');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            }
+        
+            // Expose the deleteConversation function to the button
+            window.deleteConversation = deleteConversation; // Global access for delete button
+        });
+    
+        // Function to toggle the options menu visibility
+        function toggleOptions() {
+            const optionsMenu = document.getElementById('optionsMenu');
+            optionsMenu.style.display = optionsMenu.style.display === 'none' || optionsMenu.style.display === '' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

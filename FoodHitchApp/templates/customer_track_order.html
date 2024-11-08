@@ -20,7 +20,10 @@
                 <p><strong>Total Payable:</strong> ₱{{ delivery.TotalPayableAmount }} </p>
                 <p><strong>Order Date:</strong> {{ delivery.Date|date:"F j, Y, g:i a" }} </p>
             </div>
-            <button class="track-button" onclick="trackRider('{{ delivery.RiderID.id }}')">Track Rider Location</button>
+            <button class="track-button" onclick="trackRider('{{ delivery.RiderID.RiderID }}')">Track Rider Location</button>
+
+            <button class="chat-button" onclick="openChat('{{ delivery.RiderID.RiderID }}')">Chat with Rider</button>
+        
         
             {% if delivery.DeliveryStatus == 'Delivered' %}
                 <button class="update-status-button" onclick="updateDeliveryStatus('{{ delivery.DeliveryID }}')">Received</button>
@@ -104,6 +107,9 @@
         if (riderMarker) {
             riderMarker.setMap(null); // Remove marker when modal is closed
         }
+    }
+    function openChat(riderId) {
+    window.location.href = `/customer_chat/${riderId}/`;
     }
 
     function updateDeliveryStatus(deliveryId) {
@@ -222,6 +228,23 @@
 
     .update-status-button:hover {
         background-color: #0056b3;
+    }
+    .chat-button {
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 12px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .chat-button:hover {
+        background-color: #d68910;
     }
 
     /* Modal Styles */

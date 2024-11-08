@@ -278,30 +278,35 @@
     }
 
     function updateDeliveryFee() {
-      var deliveryFee = parseFloat(document.getElementById('delivery-fee').value);
-      var pointsUsed = parseFloat(document.getElementById('points-used').value);
-      var customerPoints = parseFloat("{{ customer_points }}"); // gikan sa backend
+    var deliveryFee = parseFloat(document.getElementById('delivery-fee').value);
+    var pointsUsed = parseFloat(document.getElementById('points-used').value) || 0; // default to 0 kung empty
 
-      // Check kung ang points nga gisulod malapas sa current points sa customer
-      if (pointsUsed > customerPoints) {
+    // Check kung ang points nga gisulod malapas sa current points sa customer
+    if (pointsUsed > parseFloat("{{ customer_points }}")) {
         Swal.fire({
-          icon: 'error',
-          title: 'Invalid Points',
-          text: 'The points entered exceed your available points.',
-          confirmButtonText: 'Okay'
+            icon: 'error',
+            title: 'Invalid Points',
+            text: 'The points entered exceed your available points.',
+            confirmButtonText: 'Okay'
         });
         document.getElementById('points-used').value = ''; // i-clear ang input kung invalid
-        return; // ayaw padayuna ang ubang calculations kung invalid
-      }
+        return; // ayaw padayuna ang calculations kung invalid
+    }
 
-      if (isNaN(pointsUsed) || pointsUsed <= 0) {
-        updateTotalAmount();
-      } else {
+    // I-adjust ang delivery fee kung naay valid points
+    if (pointsUsed > 0) {
         var adjustedDeliveryFee = Math.max(0, deliveryFee - pointsUsed);
         document.getElementById('delivery-fee').value = adjustedDeliveryFee.toFixed(2);
-        updateTotalAmount();
-      }
+    } else {
+        // Kung wala gibutang nga points, ipakita lang ang original delivery fee
+        document.getElementById('delivery-fee').value = deliveryFee.toFixed(2);
     }
+
+    updateTotalAmount();
+}
+
+
+
 
 
     // PayPal integration

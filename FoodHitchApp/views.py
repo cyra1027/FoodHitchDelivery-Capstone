@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Customer, Restaurant, Menu, CartItem, Favorite, Rider,CustomersFeedback, Delivery, DeliveryItem, Order, StoreOwner
+from .models import Customer, Restaurant, Menu, CartItem, Favorite, Rider,CustomersFeedback, Delivery, DeliveryItem, Order, StoreOwner, Message
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CustomerRegisterForm, CustomerLoginForm, UserUpdateForm, CustomerProfileUpdateForm, RiderRegisterForm, MenuForm, RestaurantForm, RiderUpdateForm, StoreOwnerRegisterForm, StoreOwnerUpdateForm
@@ -2040,3 +2040,127 @@ def password_reset_set(request):
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('password_reset_request')
+
+@login_required
+def customer_chat(request, rider_id):
+    try:
+        customer = Customer.objects.get(user=request.user)
+        rider = Rider.objects.get(RiderID=rider_id)
+
+        # Fetch all messages between the logged-in customer and the rider
+        messages = Message.objects.filter(
+            Q(sender=rider.user) | Q(receiver=rider.user)
+        ).order_by('timestamp')
+
+        # Pass data to the template
+        context = {
+            'customer': customer,
+            'rider': rider,
+            'messages': messages,
+        }
+
+        return render(request, 'customer_chat.html', context)
+
+    except Customer.DoesNotExist:
+        return JsonResponse({'error': 'Customer not found'}, status=404)
+    except Rider.DoesNotExist:
+        return JsonResponse({'error': 'Rider not found'}, status=404)
+
+@login_required
+def rider_chat(request, rider_id):
+    try:
+        rider = get_object_or_404(Rider, RiderID=rider_id)
+
+        # Fetch all messages involving this rider (either as sender or receiver)
+        messages = Message.objects.filter(
+            Q(sender=rider.user) | Q(receiver=rider.user)
+        ).order_by('timestamp')
+
+        # Get all customers in the chat
+        customers_in_chat = set()
+        for message in messages:
+            if message.sender != rider.user:
+                customers_in_chat.add(message.sender)
+            if message.receiver != rider.user:
+                customers_in_chat.add(message.receiver)
+
+        # Retrieve Customer data (name and profile picture)
+        customer_profiles = {}
+        for customer in customers_in_chat:
+            customer_profile = get_object_or_404(Customer, user=customer)
+            customer_profiles[customer] = {
+                'name': customer_profile.CustomerName,
+                'profile_picture': customer_profile.Picture.url if customer_profile.Picture else 'default_profile.jpg'
+            }
+
+        # Pass data to template
+        context = {
+            'rider': rider,
+            'messages': messages,
+            'customer_profiles': customer_profiles,
+        }
+
+        return render(request, 'rider_chat.html', context)
+
+    except Rider.DoesNotExist:
+        return JsonResponse({'error': 'Rider not found'}, status=404)
+
+@login_required
+def send_message(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+            message_content = data.get('message')
+            rider_id = data.get('rider_id')
+
+            if not message_content or not rider_id:
+                return JsonResponse({'error': 'Message content or rider_id missing'}, status=400)
+
+            # Fetch the rider and create the message
+            rider = Rider.objects.get(RiderID=rider_id)
+            message = Message.objects.create(sender=request.user, receiver=rider.user, message=message_content)
+
+            # Return the new message in the response
+            return JsonResponse({
+                'message': message.message,  # Make sure message is returned here
+            })
+
+        except Rider.DoesNotExist:
+            return JsonResponse({'error': 'Rider not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def delete_conversation(request):
+    if request.method == 'POST':
+        try:
+            # Parse the request body for the RiderID (which is the username in this case)
+            data = json.loads(request.body)
+            rider_username = data.get('RiderID')  # Using the rider's username
+
+            if not rider_username:
+                return JsonResponse({'success': False, 'error': 'RiderID (username) is required'})
+
+            # Debugging: Check if the rider_username is correctly passed
+            print(f"Received RiderID (username): {rider_username}")
+
+            # Filter messages where the rider's username is either the sender or receiver
+            messages = Message.objects.filter(
+                Q(sender=rider_username) | Q(receiver=rider_username)
+            )
+
+            # Debugging: Output the filtered messages
+            print(f"Messages found: {messages}")
+
+            # Check if there are messages to delete
+            if messages.exists():
+                messages.delete()
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'No messages found for this RiderID (username)'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

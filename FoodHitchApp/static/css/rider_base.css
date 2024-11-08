@@ -122,7 +122,23 @@ body {
   text-decoration: none; /* Remove underline from link */
 }
 
+.message {
+  position: relative; /* Positioning context for the count */
+  text-decoration: none; /* Remove underline from link */
+}
+
 .notification-count {
+  position: absolute;
+  top: -15px;
+  right: -5px;
+  background: red; /* Notification count background */
+  color: white; /* Notification count text color */
+  border-radius: 50%; /* Circular shape */
+  padding: 2px 5px; /* Padding around the count */
+  font-size: 12px; /* Font size */
+  z-index: 10;
+}
+.message-count{
   position: absolute;
   top: -15px;
   right: -12px;
@@ -136,6 +152,12 @@ body {
 .notification-bell i {
   color: black; /* Change bell icon color to black */
   font-size: 25px; /* Adjust size of the icon as needed */
+  
+}
+.message i {
+  color: black; /* Change bell icon color to black */
+  font-size: 25px; /* Adjust size of the icon as needed */
+  margin-left: 15px;
 }
 .header .search-bar {
   flex: 1;

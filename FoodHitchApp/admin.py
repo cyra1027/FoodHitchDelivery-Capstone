@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer, Restaurant, Menu, Favorite, Rider, CustomersFeedback, Delivery, Order, StoreOwner
+from .models import Customer, Restaurant, Menu, Favorite, Rider, CustomersFeedback, Delivery, Order, StoreOwner, Message
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('CustomerID', 'CustomerName', 'user_username', 'user_email', 'Phone')
@@ -84,6 +84,20 @@ class StoreOwnerAdmin(admin.ModelAdmin):
     list_display = ('OwnerID', 'FirstName', 'LastName', 'Username', 'Email', 'Phone', 'HasBIR203')
     search_fields = ('FirstName', 'LastName', 'Username', 'Email')
 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'receiver', 'timestamp', 'message_snippet')
+    search_fields = ('sender__username', 'receiver__username', 'message')  # Search by sender/receiver username and message content
+    list_filter = ('sender', 'receiver', 'timestamp')  # Filter messages by sender, receiver, and timestamp
+    ordering = ('-timestamp',)  # Order by the most recent message first
+
+    def message_snippet(self, obj):
+        """Display a short snippet of the message"""
+        return obj.message[:50]  # Shows the first 50 characters of the message
+    message_snippet.short_description = 'Message Preview'
+
+
+
+
 
 
 
@@ -96,4 +110,5 @@ admin.site.register(Rider, RiderAdmin)
 admin.site.register(CustomersFeedback, CustomerFeedbackAdmin)
 admin.site.register(Delivery, DeliveryAdmin)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(StoreOwner, StoreOwnerAdmin)  # Registering StoreOwner
+admin.site.register(StoreOwner, StoreOwnerAdmin)
+admin.site.register(Message, MessageAdmin)

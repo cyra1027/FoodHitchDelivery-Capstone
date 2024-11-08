@@ -63,7 +63,8 @@ from .views import (
     rider_earnings,
     rider_notifications,
     update_store_owner_profile, reorder, update_availability, password_reset_request, password_reset_set,
-    check_username, remove_favorite, order_completed, verify_otp, owner_restaurants, archive_delivery, rider_archived_deliveries
+    check_username, remove_favorite, order_completed, verify_otp, owner_restaurants, archive_delivery, rider_archived_deliveries,
+    customer_chat, send_message, rider_chat, delete_conversation
 )
 
 urlpatterns = [
@@ -153,6 +154,10 @@ urlpatterns = [
     path('password-reset/set/', password_reset_set, name='password_reset_set'),
     path('check_username/', check_username, name='check_username'),  # Add this line
     path('order-completed/', order_completed, name='order_completed'),
+    path('customer_chat/<int:rider_id>/', customer_chat, name='customer_chat'),
+    path('rider/chat/<int:rider_id>/', rider_chat, name='rider_chat'),
+    path('send_message/', send_message, name='send_message'),
+    path('delete_conversation/', delete_conversation, name='delete_conversation'),
 
 ]
 
